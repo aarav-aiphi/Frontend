@@ -1,12 +1,12 @@
 // src/api.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:1337/api';
+const API_URL = 'https://strapi-jrm5.onrender.com/api';
 
 // Fetch all articles with cover, blocks, and body content populated
 export const fetchArticles = async () => {
   const response = await axios.get(
-    `http://localhost:1337/api/articles?populate[author][fields][0]=name&populate[author][fields][1]=email&populate[author][fields][2]=publishedAt&populate[cover][populate]=*&populate[Body][populate]=*&populate[tags][populate]=*&populate[category][populate]=*&fields[0]=title&fields[1]=description&fields[2]=slug&fields[3]=publishedat&fields[4]=statuss&fields[5]=readingTime`
+    `https://strapi-jrm5.onrender.com/api/articles?populate[author][fields][0]=name&populate[author][fields][1]=email&populate[author][fields][2]=publishedAt&populate[cover][populate]=*&populate[Body][populate]=*&populate[tags][populate]=*&populate[category][populate]=*&fields[0]=title&fields[1]=description&fields[2]=slug&fields[3]=publishedat&fields[4]=statuss&fields[5]=readingTime`
   );
   return response.data;
 };

@@ -24,7 +24,7 @@ import "slick-carousel/slick/slick-theme.css";
 import Markdown from 'markdown-to-jsx'; // Import markdown-to-jsx
 import parse from 'html-react-parser';
 
-const STRAPI_BASE_URL = 'http://localhost:1337'; // Update if different
+const STRAPI_BASE_URL = 'https://strapi-jrm5.onrender.com'; // Update if different
 
 const BlogDetails = () => {
     const { slug } = useParams(); // Extract slug from URL
