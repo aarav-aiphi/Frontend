@@ -4,8 +4,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx parcel src/index.html",
-    "build": "parcel build src/index.html",
-      "postbuild": "xcopy dist\\main\\* dist /s /e /y && rmdir /s /q dist\\main"
+    "build": "parcel build src/index.html"
   },
   "keywords": [],
   "author": "",
