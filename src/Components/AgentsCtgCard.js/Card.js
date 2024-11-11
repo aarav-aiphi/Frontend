@@ -17,7 +17,7 @@ export const Card = ({ propmodel, propprice, propcategory, propindustry }) => {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await axios.get('https://backend-xa3g.onrender.com/api/agents/all');
+        const response = await axios.get('https://backend-1-sval.onrender.com/api/agents/all');
         const initialSaves = {};
         response.data.forEach(agent => {
           initialSaves[agent._id] = agent.savedByCount || 0;
@@ -42,7 +42,7 @@ export const Card = ({ propmodel, propprice, propcategory, propindustry }) => {
         return;
       }
 
-      const url = `https://backend-xa3g.onrender.com/api/users/wishlist/${agentId}`;
+      const url = `https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`;
       const method = 'post';
 
       const response = await axios({

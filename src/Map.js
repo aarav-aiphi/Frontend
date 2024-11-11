@@ -86,7 +86,7 @@ const TreeMap = () => {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await axios.get('https://backend-xa3g.onrender.com/api/agents/all');
+        const response = await axios.get('https://backend-1-sval.onrender.com/api/agents/all');
         const groupedAgents = response.data.reduce((acc, agent) => {
           const category = agent.category || 'Uncategorized';
           if (!acc[category]) acc[category] = [];

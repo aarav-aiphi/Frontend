@@ -32,7 +32,7 @@ export const AgentDetail = () => {
   useEffect(() => {
     const fetchAgentDetails = async () => {
       try {
-        const response = await axios.get(`https://backend-xa3g.onrender.com/api/agents/similar/${id}`);
+        const response = await axios.get(`https://backend-1-sval.onrender.com/api/agents/similar/${id}`);
         console.log(response.data);
         setAgent(response.data.agent);
         setSimilarAgents(response.data.bestMatches);
@@ -58,7 +58,7 @@ export const AgentDetail = () => {
         return;
       }
 
-      const url = `https://backend-xa3g.onrender.com/api/users/wishlist/${agentId}`;
+      const url = `https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`;
       const method = 'post';
 
       const response = await axios({

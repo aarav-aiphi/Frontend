@@ -14,7 +14,7 @@ export const Footer = () => {
       return;
     }
     try {
-      const response = await axios.post('https://backend-xa3g.onrender.com/api/newsletter/subscribe', { email });
+      const response = await axios.post('https://backend-1-sval.onrender.com/api/newsletter/subscribe', { email });
       toast.success(response.data.message || 'Subscribed successfully!');
       setEmail(''); // Clear the input field after successful subscription
     } catch (error) {

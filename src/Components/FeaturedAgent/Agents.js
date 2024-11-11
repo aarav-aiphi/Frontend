@@ -11,7 +11,7 @@ const Agents = () => {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await axios.get('https://backend-xa3g.onrender.com/api/agents/top-likes-by-category');
+        const response = await axios.get('https://backend-1-sval.onrender.com/api/agents/top-likes-by-category');
         setAgents(response.data);
       } catch (error) {
         console.error('Error fetching agents:', error);

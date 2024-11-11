@@ -51,7 +51,7 @@ const Search = ({ setModel, setPrice, setCategory, setIndustry, isCardSectionInV
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
-        const response = await axios.get('https://backend-xa3g.onrender.com/api/agents/filters');
+        const response = await axios.get('https://backend-1-sval.onrender.com/api/agents/filters');
         console.log('API Response:', response.data); // Debugging line
         setFilterOptions({
           accessModels: response.data.accessModels || [],

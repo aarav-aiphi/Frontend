@@ -70,7 +70,7 @@ export const Filter = ({ onFilterChange }) => {
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
-        const response = await axios.get('https://backend-xa3g.onrender.com/api/agents/filters');
+        const response = await axios.get('https://backend-1-sval.onrender.com/api/agents/filters');
         setFilterOptions({
           categories: response.data.categories,
           industries: response.data.industries,

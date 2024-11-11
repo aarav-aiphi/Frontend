@@ -38,7 +38,7 @@ const SearchComponent = () => {
   useEffect(() => {
     const fetchUseCases = async () => {
       try {
-        const response = await axios.get('https://backend-xa3g.onrender.com/api/usecase', {
+        const response = await axios.get('https://backend-1-sval.onrender.com/api/usecase', {
           withCredentials: true,
         });
         setUseCases(response.data);
@@ -76,7 +76,7 @@ const SearchComponent = () => {
 
     setLoading(true);
     try {
-      const response = await axios.get('https://backend-xa3g.onrender.com/api/agents/search', {
+      const response = await axios.get('https://backend-1-sval.onrender.com/api/agents/search', {
         params: { query: finalQuery },
         withCredentials: true,
       });
@@ -117,7 +117,7 @@ const SearchComponent = () => {
 
     try {
       await axios.post(
-        'https://backend-xa3g.onrender.com/api/users/save-search',
+        'https://backend-1-sval.onrender.com/api/users/save-search',
         { query: searchQuery },
         {
           withCredentials: true,
@@ -153,7 +153,7 @@ const SearchComponent = () => {
         toast.error('You need to log in to like agents!');
         return;
       }
-      const url = `https://backend-xa3g.onrender.com/api/users/like/${agentId}`;
+      const url = `https://backend-1-sval.onrender.com/api/users/like/${agentId}`;
       const method = 'post';
 
       const response = await axios({
@@ -213,7 +213,7 @@ const SearchComponent = () => {
         return;
       }
 
-      const url = `https://backend-xa3g.onrender.com/api/users/wishlist/${agentId}`;
+      const url = `https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`;
       const method = 'post';
 
       const response = await axios({

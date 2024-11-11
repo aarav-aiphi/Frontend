@@ -12,10 +12,11 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const token=Cookies.get('token');
+  console.log(token);
 
   const fetchCurrentUser = async () => {
     try {
-      const response = await axios.get('https://backend-xa3g.onrender.com/api/users/current_user', {
+      const response = await axios.get('https://backend-1-sval.onrender.com/api/users/current_user', {
         headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -40,7 +41,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     axios
       .post(
-        'https://backend-xa3g.onrender.com/api/users/logout',
+        'https://backend-1-sval.onrender.com/api/users/logout',
         { headers: {
           'Authorization': `Bearer ${token}`,
         },},

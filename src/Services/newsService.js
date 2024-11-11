@@ -1,5 +1,5 @@
 // frontend/src/services/newsService.js
-const API_URL ='https://backend-xa3g.onrender.com/api/news';
+const API_URL ='https://backend-1-sval.onrender.com/api/news';
 
 export const fetchNews = async (searchQuery = '', selectedSource = '', page = 1) => {
     const params = new URLSearchParams();

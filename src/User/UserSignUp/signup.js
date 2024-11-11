@@ -28,14 +28,14 @@ export const Signup = () => {
     });
   };
   const handleGoogleLogin = () => {
-    window.location.href = 'https://backend-xa3g.onrender.com/api/users/auth/google';
+    window.location.href = 'https://backend-1-sval.onrender.com/api/users/auth/google';
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       toast.info('Signing up...');
-      const response = await axios.post('https://backend-xa3g.onrender.com/api/users/signup', formData, {
+      const response = await axios.post('https://backend-1-sval.onrender.com/api/users/signup', formData, {
         withCredentials: true,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -203,7 +203,7 @@ export const Signup = () => {
             {/* Google Signup Button */}
             <button
               onClick={() => {
-                window.location.href = 'https://backend-xa3g.onrender.com/api/users/auth/google';
+                window.location.href = 'https://backend-1-sval.onrender.com/api/users/auth/google';
               }}
               className="w-full bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 py-2 rounded-lg font-semibold flex justify-center items-center space-x-2 transition duration-300 shadow-sm mb-4"
             >

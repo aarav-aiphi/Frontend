@@ -124,7 +124,7 @@ const AgentFilterAndCard = () => {
     const fetchData = async () => {
       try {
         // Fetch filter options
-        const filtersResponse = await axios.get('https://backend-xa3g.onrender.com/api/agents/filters');
+        const filtersResponse = await axios.get('https://backend-1-sval.onrender.com/api/agents/filters');
         console.log('Filter API Response:', filtersResponse.data);
         setFilterOptions({
           accessModels: filtersResponse.data.accessModels || [],
@@ -134,7 +134,7 @@ const AgentFilterAndCard = () => {
         });
 
         // Fetch agents
-        const agentsResponse = await axios.get('https://backend-xa3g.onrender.com/api/agents/all');
+        const agentsResponse = await axios.get('https://backend-1-sval.onrender.com/api/agents/all');
         const initialSaves = {};
         agentsResponse.data.forEach(agent => {
           initialSaves[agent._id] = agent.savedByCount || 0;
@@ -269,7 +269,7 @@ const AgentFilterAndCard = () => {
         return;
       }
 
-      const url = `https://backend-xa3g.onrender.com/api/users/wishlist/${agentId}`;
+      const url = `https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`;
       const method = 'post';
 
       const response = await axios({

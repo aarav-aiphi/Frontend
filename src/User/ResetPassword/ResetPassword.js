@@ -13,7 +13,7 @@ const ResetPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`https://backend-xa3g.onrender.com/api/users/reset-password/${token}`, { password });
+      const response = await axios.post(`https://backend-1-sval.onrender.com/api/users/reset-password/${token}`, { password });
       navigate('/login');
       toast.success(response.data.message);
     } catch (error) {

@@ -23,7 +23,7 @@ const agentListRef = useRef(null);
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await axios.get('https://backend-xa3g.onrender.com/api/agents/all');
+        const response = await axios.get('https://backend-1-sval.onrender.com/api/agents/all');
         const sortedAgents = response.data.sort((a, b) => b.likes - a.likes); // Sort by likes
         setAgents(response.data || []);
         setTopAgents(sortedAgents.slice(0, 10)); // Get top 10 agents based on likes
@@ -55,7 +55,7 @@ const agentListRef = useRef(null);
         toast.error('You need to log in to like agents!');
         return;
       }
-      const url = `https://backend-xa3g.onrender.com/api/users/like/${agentId}`;
+      const url = `https://backend-1-sval.onrender.com/api/users/like/${agentId}`;
       const method = 'post';
 
       const response = await axios({
@@ -105,7 +105,7 @@ const agentListRef = useRef(null);
       }
 
     
-      const url = `https://backend-xa3g.onrender.com/api/users/wishlist/${agentId}`;
+      const url = `https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`;
       const method = 'post';
 
       const response = await axios({
