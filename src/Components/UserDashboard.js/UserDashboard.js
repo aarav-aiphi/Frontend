@@ -98,9 +98,9 @@ const UserDashboard = () => {
         const response = await axios.get(
           'https://backend-1-sval.onrender.com/api/users/wishlist',
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            // headers: {
+            //   Authorization: `Bearer ${token}`,
+            // },
             withCredentials: true,
           }
         );
@@ -117,9 +117,9 @@ const UserDashboard = () => {
         const response = await axios.get(
           'https://backend-1-sval.onrender.com/api/users/liked-agents',
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            // headers: {
+            //   Authorization: `Bearer ${token}`,
+            // },
             withCredentials: true,
           }
         );
@@ -136,9 +136,9 @@ const UserDashboard = () => {
         const response = await axios.get(
           'https://backend-1-sval.onrender.com/api/users/search-history',
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            // headers: {
+            //   Authorization: `Bearer ${token}`,
+            // },
             withCredentials: true,
           }
         );
@@ -169,9 +169,9 @@ const UserDashboard = () => {
             const response = await axios.get(
               `https://backend-1-sval.onrender.com/api/agents/similar/${agentId}`,
               {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
+                // headers: {
+                //   Authorization: `Bearer ${token}`,
+                // },
                 withCredentials: true,
               }
             );
