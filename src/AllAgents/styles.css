@@ -1,0 +1,17 @@
+/* styles.css */
+.agent-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .agent-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .agent-card img {
+    transition: transform 0.3s ease;
+  }
+  
+  .agent-card:hover img {
+    transform: scale(1.1);
+  }

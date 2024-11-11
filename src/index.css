@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Webkit browsers (Chrome, Safari) */
+/* For WebKit browsers (Chrome, Safari, Edge) */
+/* For WebKit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Scrollbar track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+.custom-editor .ck-editor__editable_inline {
+  padding-left: 20px !important;
+}
+
+
+/* Scrollbar thumb */
+::-webkit-scrollbar-thumb {
+  background-color: rgb(73 125 168);
+  border-radius: 10px;
+}
+
+/* Hide scrollbar for Chrome, Safari, and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge, and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Custom class for smaller scrollbar */
+.small-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Scrollbar thumb for custom small scrollbars */
+.small-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #ff4081;
+  border-radius: 10px;
+}
+@media (min-width: 768px) {
+  .md\:flip-horizontal {
+    transform: scaleX(-1);
+  }
+}

@@ -1,0 +1,287 @@
+/* Define your primary color */
+:root {
+    --primary-blue: rgb(73, 125, 168);
+  }
+  
+  /* General Styles */
+  .admin-dashboard {
+    background-color: #f3f4f6;
+    min-height: 100vh;
+  }
+  
+  .dashboard-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  /* Sidebar Styles */
+  .sidebar {
+    width: 260px;
+    background-color: white;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    overflow-y: auto;
+  }
+  
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+  }
+  
+  .sidebar-icon {
+    color: var(--primary-blue);
+    font-size: 24px;
+  }
+  
+  .sidebar-title {
+    margin-left: 10px;
+    font-size: 22px;
+    color: var(--primary-blue);
+    font-weight: bold;
+  }
+  
+  .sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin-top: 40px;
+  }
+  
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+  }
+  
+  .sidebar-item:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .sidebar-item.active {
+    background-color: var(--primary-blue);
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar-item.active .sidebar-item-icon {
+    color: white;
+  }
+  
+  .sidebar-item-icon {
+    margin-right: 10px;
+    font-size: 18px;
+    color: var(--primary-blue);
+  }
+  
+  /* Main Content Styles */
+  .main-content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+  }
+  
+  .content-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #1f2937;
+    margin-bottom: 20px;
+    text-transform: capitalize;
+  }
+  
+  .agents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  
+  /* Agent Card Styles */
+  .agent-card {
+    background: linear-gradient(135deg, #ffffff, #f3f4f6);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .agent-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .agent-card-header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .agent-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid var(--primary-blue);
+    object-fit: cover;
+  }
+  
+  .agent-info {
+    margin-left: 15px;
+  }
+  
+  .agent-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--primary-blue);
+  }
+  
+  .agent-description {
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 5px;
+  }
+  
+  .agent-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 20px 20px;
+  }
+  
+  .action-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 22px;
+    margin-left: 15px;
+    transition: color 0.2s, transform 0.2s;
+  }
+  
+  .action-button:hover {
+    transform: scale(1.1);
+  }
+  
+  .action-button.accept {
+    color: #10b981;
+  }
+  
+  .action-button.reject {
+    color: #ef4444;
+  }
+  
+  .action-button.hold {
+    color: #f59e0b;
+  }
+  
+  .action-button.edit {
+    color: var(--primary-blue);
+  }
+  
+  /* Modal Styles */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+  }
+  
+  .modal-container {
+    background-color: white;
+    border-radius: 12px;
+    padding: 30px;
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: transparent;
+    border: none;
+    font-size: 20px;
+    color: #6b7280;
+    cursor: pointer;
+  }
+  
+  .modal-close:hover {
+    color: #374151;
+  }
+  
+  .modal-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary-blue);
+    margin-bottom: 20px;
+  }
+  
+  .modal-input,
+  .modal-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 16px;
+    color: #374151;
+    margin-bottom: 15px;
+    resize: none;
+  }
+  
+  .modal-input:focus,
+  .modal-textarea:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px rgba(73, 125, 168, 0.2);
+  }
+  
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+  
+  .modal-button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    margin-left: 10px;
+  }
+  
+  .modal-button.cancel {
+    background-color: #e5e7eb;
+    color: #374151;
+  }
+  
+  .modal-button.cancel:hover {
+    background-color: #d1d5db;
+  }
+  
+  .modal-button.submit {
+    background-color: var(--primary-blue);
+    color: white;
+  }
+  
+  .modal-button.submit:hover {
+    background-color: rgb(63, 114, 155);
+  }
+  
+  .modal-button.submit.disabled {
+    background-color: rgb(99, 148, 186);
+    cursor: not-allowed;
+  }
+  
+  .modal-button.submit.disabled:hover {
+    background-color: rgb(99, 148, 186);
+  }
+  
