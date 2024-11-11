@@ -121,9 +121,7 @@ const SearchComponent = () => {
         { query: searchQuery },
         {
           withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          
         }
       );
       console.log('Search query saved successfully');
@@ -148,20 +146,15 @@ const SearchComponent = () => {
     event.stopPropagation();
 
     try {
-      const token = Cookies.get('token');
-      if (!token) {
-        toast.error('You need to log in to like agents!');
-        return;
-      }
+      
+     
       const url = `https://backend-1-sval.onrender.com/api/users/like/${agentId}`;
       const method = 'post';
 
       const response = await axios({
         method,
         url,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        
         withCredentials: true,
       });
 
@@ -207,11 +200,8 @@ const SearchComponent = () => {
     event.stopPropagation();
 
     try {
-      const token = Cookies.get('token');
-      if (!token) {
-        toast.error('You need to log in to save agents!');
-        return;
-      }
+     
+      
 
       const url = `https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`;
       const method = 'post';
@@ -219,9 +209,7 @@ const SearchComponent = () => {
       const response = await axios({
         method,
         url,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+       
         withCredentials: true,
       });
 

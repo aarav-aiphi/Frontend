@@ -50,20 +50,14 @@ const agentListRef = useRef(null);
     event.stopPropagation();
 
     try {
-      const token = Cookies.get('token');
-      if (!token) {
-        toast.error('You need to log in to like agents!');
-        return;
-      }
+     
       const url = `https://backend-1-sval.onrender.com/api/users/like/${agentId}`;
       const method = 'post';
 
       const response = await axios({
         method,
         url,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+       
         withCredentials: true,
       });
       
@@ -98,11 +92,7 @@ const agentListRef = useRef(null);
     event.stopPropagation();
   
     try {
-      const token = Cookies.get('token');
-      if (!token) {
-        toast.error('You need to log in to save agents!');
-        return;
-      }
+     
 
     
       const url = `https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`;
@@ -111,9 +101,7 @@ const agentListRef = useRef(null);
       const response = await axios({
         method,
         url,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+       
         withCredentials: true,
       });
 

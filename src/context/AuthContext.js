@@ -17,9 +17,7 @@ export const AuthProvider = ({ children }) => {
   const fetchCurrentUser = async () => {
     try {
       const response = await axios.get('https://backend-1-sval.onrender.com/api/users/current_user', {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-          },
+       
           withCredentials: true,
       });
       console.log(response);
@@ -42,9 +40,7 @@ export const AuthProvider = ({ children }) => {
     axios
       .post(
         'https://backend-1-sval.onrender.com/api/users/logout',
-        { headers: {
-          'Authorization': `Bearer ${token}`,
-        },},
+       
         {
           withCredentials: true,
         }

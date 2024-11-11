@@ -37,10 +37,7 @@ export const Card = ({ propmodel, propprice, propcategory, propindustry }) => {
 
     try {
       const token = Cookies.get('token');
-      if (!token) {
-        toast.error('You need to log in to save agents!');
-        return;
-      }
+     
 
       const url = `https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`;
       const method = 'post';
@@ -48,9 +45,7 @@ export const Card = ({ propmodel, propprice, propcategory, propindustry }) => {
       const response = await axios({
         method,
         url,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+       
         withCredentials: true,
       });
 

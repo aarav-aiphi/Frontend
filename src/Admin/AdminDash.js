@@ -36,19 +36,19 @@ export const AdminDashboard = () => {
     try {
       const response = await Promise.all([
         axios.get('https://backend-1-sval.onrender.com/api/admin/agents/requested', {
-          headers: { Authorization: `Bearer ${token}` },
+         
           withCredentials: true,
         }),
         axios.get('https://backend-1-sval.onrender.com/api/admin/agents/accepted', {
-          headers: { Authorization: `Bearer ${token}` },
+     
           withCredentials: true,
         }),
         axios.get('https://backend-1-sval.onrender.com/api/admin/agents/rejected', {
-          headers: { Authorization: `Bearer ${token}` },
+         
           withCredentials: true,
         }),
         axios.get('https://backend-1-sval.onrender.com/api/admin/agents/onHold', {
-          headers: { Authorization: `Bearer ${token}` },
+        
           withCredentials: true,
         }),
       ]);
@@ -87,7 +87,7 @@ export const AdminDashboard = () => {
       await axios.put(
         `https://backend-1-sval.onrender.com/api/admin/agents/${agentId}/status`,
         { status, instructions },
-        { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
+        { withCredentials: true }
       );
       toast.success(`Agent status updated to ${status}`);
       setModalIsOpen(false);
@@ -117,7 +117,7 @@ export const AdminDashboard = () => {
 
     try {
       await axios.post('https://backend-1-sval.onrender.com/api/newsletter/send', newsletterData, {
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
       });
       toast.success('Newsletter sent successfully!');
       setNewsletterModalIsOpen(false);

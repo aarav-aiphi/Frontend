@@ -52,11 +52,7 @@ export const AgentDetail = () => {
     event.stopPropagation();
 
     try {
-      const token = Cookies.get('token');
-      if (!token) {
-        toast.error('You need to log in to save agents!');
-        return;
-      }
+    
 
       const url = `https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`;
       const method = 'post';
@@ -64,9 +60,7 @@ export const AgentDetail = () => {
       const response = await axios({
         method,
         url,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+       
         withCredentials: true,
       });
 
