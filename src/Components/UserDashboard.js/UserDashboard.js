@@ -88,10 +88,7 @@ const UserDashboard = () => {
   );
 
   useEffect(() => {
-    if (!token) {
-      toast.error('You need to log in to view the dashboard.');
-      return;
-    }
+    
 
     const fetchSavedAgents = async () => {
       try {
