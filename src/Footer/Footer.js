@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { FaEnvelope, FaFacebookF, FaInstagram, FaTwitter, FaGithub, FaDribbble } from 'react-icons/fa';
 import { toast } from 'react-toastify'; // Ensure only one ToastContainer is used in App.jsx
@@ -88,9 +89,9 @@ export const Footer = () => {
               </li>
               
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition duration-300">
+                <Link to='/blog' className="text-gray-400 hover:text-white transition duration-300">
                   Blog
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -106,9 +107,9 @@ export const Footer = () => {
                 </a>
               </li> */}
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition duration-300">
+                <Link to="/contact" className="text-gray-400 hover:text-white transition duration-300">
                   Contact
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -118,9 +119,9 @@ export const Footer = () => {
             <h3 className="text-xl font-semibold mb-4">Resources</h3>
             <ul className="space-y-2">
               <li>
-                <a href="privacy" className="text-gray-400 hover:text-white transition duration-300">
+                <Link to="/privacy" className="text-gray-400 hover:text-white transition duration-300">
                  Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
                 <a href="#" className="text-gray-400 hover:text-white transition duration-300">
