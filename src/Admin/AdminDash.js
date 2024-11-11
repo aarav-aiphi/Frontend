@@ -35,19 +35,19 @@ export const AdminDashboard = () => {
   const fetchAgents = useCallback(async () => {
     try {
       const response = await Promise.all([
-        axios.get('http://localhost:5000/api/admin/agents/requested', {
+        axios.get('https://backend-xa3g.onrender.com/api/admin/agents/requested', {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         }),
-        axios.get('http://localhost:5000/api/admin/agents/accepted', {
+        axios.get('https://backend-xa3g.onrender.com/api/admin/agents/accepted', {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         }),
-        axios.get('http://localhost:5000/api/admin/agents/rejected', {
+        axios.get('https://backend-xa3g.onrender.com/api/admin/agents/rejected', {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         }),
-        axios.get('http://localhost:5000/api/admin/agents/onHold', {
+        axios.get('https://backend-xa3g.onrender.com/api/admin/agents/onHold', {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         }),
@@ -85,7 +85,7 @@ export const AdminDashboard = () => {
   const updateAgentStatus = async (agentId, status, instructions = '') => {
     try {
       await axios.put(
-        `http://localhost:5000/api/admin/agents/${agentId}/status`,
+        `https://backend-xa3g.onrender.com/api/admin/agents/${agentId}/status`,
         { status, instructions },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );
@@ -116,7 +116,7 @@ export const AdminDashboard = () => {
     setIsSubmitting(true); // Update the state to disable the button
 
     try {
-      await axios.post('http://localhost:5000/api/newsletter/send', newsletterData, {
+      await axios.post('https://backend-xa3g.onrender.com/api/newsletter/send', newsletterData, {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       });
       toast.success('Newsletter sent successfully!');

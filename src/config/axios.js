@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'http://localhost:5000/api', // Adjust the baseURL as needed
+  baseURL: 'https://backend-xa3g.onrender.com/api', // Adjust the baseURL as needed
   withCredentials: true,
 });
 

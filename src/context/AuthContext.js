@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchCurrentUser = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/users/current_user', {
+      const response = await axios.get('https://backend-xa3g.onrender.com/api/users/current_user', {
         headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     axios
       .post(
-        'http://localhost:5000/api/users/logout',
+        'https://backend-xa3g.onrender.com/api/users/logout',
         { headers: {
           'Authorization': `Bearer ${token}`,
         },},

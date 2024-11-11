@@ -96,7 +96,7 @@ const UserDashboard = () => {
     const fetchSavedAgents = async () => {
       try {
         const response = await axios.get(
-          'http://localhost:5000/api/users/wishlist',
+          'https://backend-xa3g.onrender.com/api/users/wishlist',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -115,7 +115,7 @@ const UserDashboard = () => {
     const fetchLikedAgents = async () => {
       try {
         const response = await axios.get(
-          'http://localhost:5000/api/users/liked-agents',
+          'https://backend-xa3g.onrender.com/api/users/liked-agents',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -134,7 +134,7 @@ const UserDashboard = () => {
     const fetchUseCases = async () => {
       try {
         const response = await axios.get(
-          'http://localhost:5000/api/users/search-history',
+          'https://backend-xa3g.onrender.com/api/users/search-history',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -167,7 +167,7 @@ const UserDashboard = () => {
         const fetchSimilar = async (agentId) => {
           try {
             const response = await axios.get(
-              `http://localhost:5000/api/agents/similar/${agentId}`,
+              `https://backend-xa3g.onrender.com/api/agents/similar/${agentId}`,
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -211,7 +211,7 @@ const UserDashboard = () => {
           setRecommendedAgents(sortedSimilarAgents.slice(0, 5));
         } else {
           // If no similar agents, fetch top-liked agents as recommendations
-          const response = await axios.get('http://localhost:5000/api/agents/top-likes-by-category');
+          const response = await axios.get('https://backend-xa3g.onrender.com/api/agents/top-likes-by-category');
           const topAgents = response.data;
           setRecommendedAgents(topAgents.slice(0, 5));
         }
