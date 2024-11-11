@@ -16,13 +16,12 @@ import {
     FaLinkedinIn,
     FaArrowLeft
 } from 'react-icons/fa';
-import { Helmet } from 'react-helmet';
-import DOMPurify from 'dompurify'; // To sanitize HTML content
+// Removed react-helmet import
 import Slider from 'react-slick'; // React Slick for carousels
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Markdown from 'markdown-to-jsx'; // Import markdown-to-jsx
-import parse from 'html-react-parser';
+// Removed markdown-to-jsx import as it's not used after removal of DOMPurify
+import parse from 'html-react-parser'; // Import html-react-parser
 
 const STRAPI_BASE_URL = 'https://strapi-jrm5.onrender.com'; // Update if different
 
@@ -129,19 +128,19 @@ const BlogDetails = () => {
             case 'shared.rich-text':
                 return (
                     <div key={block.id} className="mb-8">
-                        <Markdown className="prose lg:prose-xl mx-auto text-gray-800">
-                            {block.body}
-                        </Markdown>
+                        <div className="prose lg:prose-xl mx-auto text-gray-800">
+                            {parse(block.body)}
+                        </div>
                     </div>
                 );
-                case 'shared.editor':
-                    return (
-                        <div key={block.id} className="mb-8">
-                            <div className="prose lg:prose-xl mx-auto text-gray-800">
-                                {parse(DOMPurify.sanitize(block.Ck_Editor))}
-                            </div>
+            case 'shared.editor':
+                return (
+                    <div key={block.id} className="mb-8">
+                        <div className="prose lg:prose-xl mx-auto text-gray-800">
+                            {parse(block.Ck_Editor)}
                         </div>
-                    );
+                    </div>
+                );
             case 'shared.media':
                 return (
                     <div key={block.id} className="mb-8">
@@ -250,17 +249,7 @@ const BlogDetails = () => {
 
     return (
         <>
-            <Helmet>
-                <title>{blog.title} | AI Agents Insights</title>
-                <meta name="description" content={DOMPurify.sanitize(blog.description || '').substring(0, 160)} />
-                <meta property="og:title" content={blog.title} />
-                <meta property="og:description" content={DOMPurify.sanitize(blog.description || '').substring(0, 160)} />
-                {blog.cover && blog.cover.url && (
-                    <meta property="og:image" content={`${STRAPI_BASE_URL}${blog.cover.url}`} />
-                )}
-                <meta property="og:url" content={window.location.href} />
-                {/* Add more meta tags as needed */}
-            </Helmet>
+            {/* Removed Helmet component */}
             <div className="container mx-auto px-4 py-8">
                 <div className="max-w-4xl mx-auto" data-aos="fade-up">
                     {/* Back to Blogs Link */}
@@ -272,8 +261,6 @@ const BlogDetails = () => {
                     <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primaryBlue text-center">
                         {blog.title}
                     </h1>
-                
-
                 
                     {/* Cover Image */}
                     {/* {blog.cover && blog.cover.url && (
@@ -331,7 +318,7 @@ const BlogDetails = () => {
                         </div>
                     </div>
                     {blog.cover && blog.cover.url && (
-                        <div className="relative  mt-16">
+                        <div className="relative mt-16">
                             <img
                                 src={`${STRAPI_BASE_URL}${blog.cover.url}`}
                                 alt={blog.title}
@@ -344,7 +331,6 @@ const BlogDetails = () => {
                     {/* Main Blog Content */}
                     <div className="prose lg:prose-xl mx-auto text-gray-800 mb-6">
                         {/* Render dynamic components */}
-
                         {blog.Body && blog.Body.map((block) => renderDynamicZone(block))}
                     </div>
 
