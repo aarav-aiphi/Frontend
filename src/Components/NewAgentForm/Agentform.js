@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import formBackground from '../../images/whitebg.jpg'; // Adjust the path as needed
+import formBackground from '../../Images/whitebg.jpg'; // Adjust the path as needed
 
 const CreateAgentForm = () => {
   const [agentData, setAgentData] = useState({
