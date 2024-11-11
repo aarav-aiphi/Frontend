@@ -77,7 +77,7 @@ const Agents = () => {
         <Slider {...settings}>
           {agents.map(agent => (
             <div key={agent._id} className="p-4">
-              <a href={`/agent/${agent._id}`} className="block">
+              <Link to={`/agent/${agent._id}`} className="block">
                 <div className="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4 w-96 transition-transform transform hover:scale-105 hover:shadow-xl">
                   <img
                     src={agent.logo}
@@ -94,7 +94,7 @@ const Agents = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
           ))}
         </Slider>

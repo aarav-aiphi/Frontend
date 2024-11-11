@@ -16,11 +16,12 @@ import {
     FaLinkedinIn,
     FaArrowLeft
 } from 'react-icons/fa';
+import { Helmet } from 'react-helmet';
+import DOMPurify from 'dompurify'; // To sanitize HTML content
 import Slider from 'react-slick'; // React Slick for carousels
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-// Removed react-helmet and DOMPurify imports
-// Removed markdown-to-jsx import if not needed
+import Markdown from 'markdown-to-jsx'; // Import markdown-to-jsx
 import parse from 'html-react-parser';
 
 const STRAPI_BASE_URL = 'https://strapi-jrm5.onrender.com'; // Update if different
@@ -133,19 +134,14 @@ const BlogDetails = () => {
                         </Markdown>
                     </div>
                 );
-            case 'shared.editor':
-                try {
+                case 'shared.editor':
                     return (
                         <div key={block.id} className="mb-8">
                             <div className="prose lg:prose-xl mx-auto text-gray-800">
-                                {parse(block.Ck_Editor)}
+                                {parse(DOMPurify.sanitize(block.Ck_Editor))}
                             </div>
                         </div>
                     );
-                } catch (error) {
-                    console.error('Error parsing editor content:', error);
-                    return <p className="text-red-500">Error displaying content.</p>;
-                }
             case 'shared.media':
                 return (
                     <div key={block.id} className="mb-8">
@@ -155,10 +151,7 @@ const BlogDetails = () => {
                                 alt={block.file.alternativeText || block.file.name}
                                 className="w-full h-auto object-contain rounded-lg shadow-md"
                                 loading="lazy"
-                                onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = '/fallback-image.jpg'; // Replace with actual fallback image path
-                                }}
+                                onError={(e) => { e.target.onerror = null; e.target.src = '/fallback-image.jpg'; }} // Replace with actual fallback image path
                             />
                         ) : (
                             <p className="text-red-500">Image not available</p>
@@ -178,10 +171,7 @@ const BlogDetails = () => {
                                                 alt={file.alternativeText || file.name}
                                                 className="w-full h-64 md:h-96 object-contain rounded-lg shadow-md"
                                                 loading="lazy"
-                                                onError={(e) => {
-                                                    e.target.onerror = null;
-                                                    e.target.src = '/fallback-image.jpg'; // Replace with actual fallback image path
-                                                }}
+                                                onError={(e) => { e.target.onerror = null; e.target.src = '/fallback-image.jpg'; }} // Replace with actual fallback image path
                                             />
                                         ) : (
                                             <p className="text-red-500">Image URL missing</p>
@@ -212,10 +202,7 @@ const BlogDetails = () => {
                                         <video
                                             controls
                                             className="w-full h-full rounded-lg shadow-md border border-gray-300"
-                                            onError={(e) => {
-                                                e.target.onerror = null;
-                                                e.target.src = '/fallback-video.mp4'; // Replace with actual fallback video path
-                                            }}
+                                            onError={(e) => { e.target.onerror = null; e.target.src = '/fallback-video.mp4'; }} // Replace with actual fallback video path
                                         >
                                             <source
                                                 src={video.url.startsWith('http') ? video.url : `${STRAPI_BASE_URL}${video.url}`}
@@ -262,165 +249,204 @@ const BlogDetails = () => {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="max-w-4xl mx-auto" data-aos="fade-up">
-                {/* Back to Blogs Link */}
-                <Link to="/blogs" className="flex items-center text-primaryBlue2 hover:underline mb-4">
-                    <FaArrowLeft className="mr-2" /> Back to Blogs
-                </Link>
+        <>
+            <Helmet>
+                <title>{blog.title} | AI Agents Insights</title>
+                <meta name="description" content={DOMPurify.sanitize(blog.description || '').substring(0, 160)} />
+                <meta property="og:title" content={blog.title} />
+                <meta property="og:description" content={DOMPurify.sanitize(blog.description || '').substring(0, 160)} />
+                {blog.cover && blog.cover.url && (
+                    <meta property="og:image" content={`${STRAPI_BASE_URL}${blog.cover.url}`} />
+                )}
+                <meta property="og:url" content={window.location.href} />
+                {/* Add more meta tags as needed */}
+            </Helmet>
+            <div className="container mx-auto px-4 py-8">
+                <div className="max-w-4xl mx-auto" data-aos="fade-up">
+                    {/* Back to Blogs Link */}
+                    <Link to="/blogs" className="flex items-center text-primaryBlue2 hover:underline mb-4">
+                        <FaArrowLeft className="mr-2" /> Back to Blogs
+                    </Link>
 
-                {/* Blog Title */}
-                <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primaryBlue text-center">
-                    {blog.title}
-                </h1>
+                    {/* Blog Title */}
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primaryBlue text-center">
+                        {blog.title}
+                    </h1>
+                
 
-                {/* Metadata: Category, Tags, Authors, Reading Time */}
-                <div className="flex flex-col md:flex-row justify-center items-center mb-6 space-y-2 md:space-y-0 md:space-x-4">
-                    {/* Category */}
-                    {blog.category && blog.category.name && (
-                        <Link
-                            to={`/categories/${blog.category.slug}`}
-                            className="flex items-center bg-primaryBlue2 text-white text-sm px-3 py-1 rounded-full hover:bg-blue-600 transition-colors duration-300"
-                            aria-label={`Category ${blog.category.name}`}
-                        >
-                            <FaFolder className="mr-1" /> {blog.category.name}
-                        </Link>
-                    )}
+                
+                    {/* Cover Image */}
+                    {/* {blog.cover && blog.cover.url && (
+                        <div className="relative mb-6">
+                            <img
+                                src={`${STRAPI_BASE_URL}${blog.cover.url}`}
+                                alt={blog.title}
+                                className="w-full h-80 object-cover rounded-lg shadow-lg"
+                                onError={(e) => { e.target.onerror = null; e.target.src = '/fallback-image.jpg'; }} // Replace with actual fallback image path
+                            />
+                        </div>
+                    )} */}
 
-                    {/* Authors */}
-                    {getAuthors() && (
+                    {/* Metadata: Category, Tags, Authors, Reading Time */}
+                    <div className="flex flex-col md:flex-row justify-center items-center mb-6 space-y-2 md:space-y-0 md:space-x-4">
+                        {/* Category */}
+                        {blog.category && blog.category.name && (
+                            <Link
+                                to={`/categories/${blog.category.slug}`}
+                                className="flex items-center bg-primaryBlue2 text-white text-sm px-3 py-1 rounded-full hover:bg-blue-600 transition-colors duration-300"
+                                aria-label={`Category ${blog.category.name}`}
+                            >
+                                <FaFolder className="mr-1" /> {blog.category.name}
+                            </Link>
+                        )}
+
+                        {/* Tags */}
+                        {/* {blog.tags && blog.tags.length > 0 && (
+                            <div className="flex flex-wrap justify-center items-center">
+                                {blog.tags.map((tag) => (
+                                    tag.name && (
+                                        <Link
+                                            to={tag.slug ? `/tags/${tag.slug}` : '#'} // Handle missing slug
+                                            key={tag.id}
+                                            className="flex items-center bg-primaryBlue2 text-white text-sm px-3 py-1 mr-2 mb-2 rounded-full hover:bg-blue-600 transition-colors duration-300"
+                                            aria-label={`Tag ${tag.name}`}
+                                        >
+                                            <FaTags className="mr-1" /> #{tag.name}
+                                        </Link>
+                                    )
+                                ))}
+                            </div>
+                        )} */}
+
+                        {/* Authors */}
+                        {getAuthors() && (
+                            <div className="flex items-center text-gray-700 text-sm">
+                                <FaUser className="mr-1" /> By {getAuthors()}
+                            </div>
+                        )}
+
+                        {/* Reading Time */}
                         <div className="flex items-center text-gray-700 text-sm">
-                            <FaUser className="mr-1" /> By {getAuthors()}
+                            <FaRegClock className="mr-1" /> {blog.readingTime ? `${blog.readingTime} min read` : 'N/A'}
+                        </div>
+                    </div>
+                    {blog.cover && blog.cover.url && (
+                        <div className="relative  mt-16">
+                            <img
+                                src={`${STRAPI_BASE_URL}${blog.cover.url}`}
+                                alt={blog.title}
+                                className="w-full h-80 object-cover rounded-lg shadow-lg"
+                                onError={(e) => { e.target.onerror = null; e.target.src = '/fallback-image.jpg'; }} // Replace with actual fallback image path
+                            />
                         </div>
                     )}
 
-                    {/* Reading Time */}
-                    <div className="flex items-center text-gray-700 text-sm">
-                        <FaRegClock className="mr-1" /> {blog.readingTime ? `${blog.readingTime} min read` : 'N/A'}
+                    {/* Main Blog Content */}
+                    <div className="prose lg:prose-xl mx-auto text-gray-800 mb-6">
+                        {/* Render dynamic components */}
+
+                        {blog.Body && blog.Body.map((block) => renderDynamicZone(block))}
                     </div>
-                </div>
 
-                {/* Cover Image */}
-                {blog.cover && blog.cover.url && (
-                    <div className="relative mt-16">
-                        <img
-                            src={`${STRAPI_BASE_URL}${blog.cover.url}`}
-                            alt={blog.title}
-                            className="w-full h-80 object-cover rounded-lg shadow-lg"
-                            onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = '/fallback-image.jpg'; // Replace with actual fallback image path
-                            }}
-                        />
+                    {/* Social Sharing Buttons */}
+                    <div className="flex justify-center mt-6 space-x-4">
+                        <a
+                            href={`https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800"
+                            aria-label="Share on Facebook"
+                        >
+                            <FaFacebookF size={24} />
+                        </a>
+                        <a
+                            href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(blog.title)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-400 hover:text-blue-600"
+                            aria-label="Share on Twitter"
+                        >
+                            <FaTwitter size={24} />
+                        </a>
+                        <a
+                            href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(blog.title)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-700 hover:text-blue-900"
+                            aria-label="Share on LinkedIn"
+                        >
+                            <FaLinkedinIn size={24} />
+                        </a>
                     </div>
-                )}
 
-                {/* Main Blog Content */}
-                <div className="prose lg:prose-xl mx-auto text-gray-800 mb-6">
-                    {/* Render dynamic components */}
-                    {blog.Body && blog.Body.map((block) => renderDynamicZone(block))}
-                </div>
-
-                {/* Social Sharing Buttons */}
-                <div className="flex justify-center mt-6 space-x-4">
-                    <a
-                        href={`https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800"
-                        aria-label="Share on Facebook"
-                    >
-                        <FaFacebookF size={24} />
-                    </a>
-                    <a
-                        href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(blog.title)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-400 hover:text-blue-600"
-                        aria-label="Share on Twitter"
-                    >
-                        <FaTwitter size={24} />
-                    </a>
-                    <a
-                        href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(blog.title)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-700 hover:text-blue-900"
-                        aria-label="Share on LinkedIn"
-                    >
-                        <FaLinkedinIn size={24} />
-                    </a>
-                </div>
-
-                {/* Similar Articles */}
-                {similarArticles.length > 0 && (
-                    <div className="mt-12">
-                        <h2 className="text-2xl font-semibold mb-6 text-primaryBlue2 text-center">
-                            Similar Articles
-                        </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {similarArticles.map((article) => (
-                                <Link
-                                    to={`/blogs/${article.slug}`}
-                                    key={article.id}
-                                    className="border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
-                                    data-aos="fade-up"
-                                >
-                                    {/* Article Cover Image */}
-                                    {article.cover && article.cover.url ? (
-                                        <img
-                                            src={`${STRAPI_BASE_URL}${article.cover.url}`}
-                                            alt={article.title}
-                                            className="w-full h-48 object-cover"
-                                            onError={(e) => {
-                                                e.target.onerror = null;
-                                                e.target.src = '/fallback-image.jpg';
-                                            }}
-                                        />
-                                    ) : (
-                                        <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                                            <span className="text-gray-500">No Image</span>
-                                        </div>
-                                    )}
-                                    {/* Article Details */}
-                                    <div className="p-4">
-                                        <h3 className="text-xl font-semibold mb-2 text-primaryBlue2">
-                                            {article.title}
-                                        </h3>
-                                        <p className="text-gray-600">
-                                            {truncateDescription(article.description, 100)}
-                                        </p>
-                                        {/* Tags */}
-                                        {article.tags && article.tags.length > 0 && (
-                                            <div className="mt-3 flex flex-wrap">
-                                                {article.tags.map((tag) => (
-                                                    tag.name && (
-                                                        <Link
-                                                            to={tag.slug ? `/tags/${tag.slug}` : '#'}
-                                                            key={tag.id}
-                                                            className="flex items-center bg-primaryBlue2 text-white text-xs px-2 py-1 mr-2 mb-2 rounded-full hover:bg-blue-600 transition-colors duration-300"
-                                                            aria-label={`Tag ${tag.name}`}
-                                                        >
-                                                            <FaTags className="mr-1" /> #{tag.name}
-                                                        </Link>
-                                                    )
-                                                ))}
+                    {/* Similar Articles */}
+                    {similarArticles.length > 0 && (
+                        <div className="mt-12">
+                            <h2 className="text-2xl font-semibold mb-6 text-primaryBlue2 text-center">
+                                Similar Articles
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {similarArticles.map((article) => (
+                                    <Link
+                                        to={`/blogs/${article.slug}`}
+                                        key={article.id}
+                                        className="border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
+                                        data-aos="fade-up"
+                                    >
+                                        {/* Article Cover Image */}
+                                        {article.cover && article.cover.url ? (
+                                            <img
+                                                src={`${STRAPI_BASE_URL}${article.cover.url}`}
+                                                alt={article.title}
+                                                className="w-full h-48 object-cover"
+                                                onError={(e) => { e.target.onerror = null; e.target.src = '/fallback-image.jpg'; }}
+                                            />
+                                        ) : (
+                                            <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                                                <span className="text-gray-500">No Image</span>
                                             </div>
                                         )}
-                                    </div>
-                                </Link>
-                            ))}
+                                        {/* Article Details */}
+                                        <div className="p-4">
+                                            <h3 className="text-xl font-semibold mb-2 text-primaryBlue2">
+                                                {article.title}
+                                            </h3>
+                                            <p className="text-gray-600">
+                                                {truncateDescription(article.description, 100)}
+                                            </p>
+                                            {/* Tags */}
+                                            {article.tags && article.tags.length > 0 && (
+                                                <div className="mt-3 flex flex-wrap">
+                                                    {article.tags.map((tag) => (
+                                                        tag.name && (
+                                                            <Link
+                                                                to={tag.slug ? `/tags/${tag.slug}` : '#'}
+                                                                key={tag.id}
+                                                                className="flex items-center bg-primaryBlue2 text-white text-xs px-2 py-1 mr-2 mb-2 rounded-full hover:bg-blue-600 transition-colors duration-300"
+                                                                aria-label={`Tag ${tag.name}`}
+                                                            >
+                                                                <FaTags className="mr-1" /> #{tag.name}
+                                                            </Link>
+                                                        )
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Back to Blogs Link at the Bottom */}
-                <Link to="/blogs" className="flex items-center text-primaryBlue2 hover:underline mt-8">
-                    <FaArrowLeft className="mr-2" /> Back to Blogs
-                </Link>
+                    {/* Back to Blogs Link at the Bottom */}
+                    <Link to="/blogs" className="flex items-center text-primaryBlue2 hover:underline mt-8">
+                        <FaArrowLeft className="mr-2" /> Back to Blogs
+                    </Link>
+                </div>
             </div>
-        </div>
+        </>
     );
+
 };
 
 export default BlogDetails;
