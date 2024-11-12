@@ -23,6 +23,7 @@
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.7",
     "dompurify": "^3.1.7",
+    "express": "^4.21.1",
     "formik": "^2.4.6",
     "framer-motion": "^11.11.10",
     "html-react-parser": "^5.1.18",
@@ -62,7 +63,6 @@
     "default": {
       "distDir": "./dist"
     }
-
   },
   "devDependencies": {
     "buffer": "^6.0.3",
