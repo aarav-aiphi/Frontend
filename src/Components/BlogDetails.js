@@ -1,11 +1,10 @@
-// src/Components/BlogDetails.js
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchArticle, fetchAllArticles } from '../api'; // Ensure fetchAllArticles is imported
+import { fetchArticle, fetchAllArticles } from '../api';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { toast } from 'react-toastify';
+import htmlParser from 'html-react-parser';
 import {
     FaFolder,
     FaTags,
@@ -16,31 +15,19 @@ import {
     FaLinkedinIn,
     FaArrowLeft
 } from 'react-icons/fa';
-import Slider from 'react-slick'; // React Slick for carousels
+import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Markdown from 'markdown-to-jsx'; // Import markdown-to-jsx
-
-const STRAPI_BASE_URL = 'https://strapi-jrm5.onrender.com'; // Update if different
+import Markdown from 'markdown-to-jsx';
 
 const BlogDetails = () => {
-    const { slug } = useParams(); // Extract slug from URL
-    console.log('Fetched Slug:', slug); // Debugging line
+    const { slug } = useParams();
     const [blog, setBlog] = useState(null);
     const [loading, setLoading] = useState(true);
     const [similarArticles, setSimilarArticles] = useState([]);
 
-    const truncateDescription = (desc, maxLength = 100) => {
-        if (!desc) return '';
-        if (desc.length <= maxLength) return desc;
-        return desc.substring(0, maxLength) + '...';
-    };
-
     const fetchBlog = async () => {
         try {
-            if (!slug) {
-                throw new Error('Slug is undefined');
-            }
             const response = await fetchArticle(slug);
             if (response.data.length > 0) {
                 const currentBlog = response.data[0];
@@ -84,8 +71,8 @@ const BlogDetails = () => {
         fetchBlog();
     }, [slug]);
 
-    if (loading) return <p className="text-center text-primaryBlue2">Loading...</p>;
-    if (!blog) return <p className="text-center text-red-500">Blog not found</p>;
+    if (loading) return <p>Loading...</p>;
+    if (!blog) return <p>Blog not found</p>;
 
     const sliderSettings = {
         dots: true,
@@ -112,9 +99,8 @@ const BlogDetails = () => {
                 );
             case 'shared.editor':
                 return (
-                    <div key={block.id} className="mb-8">
-                        <div className="prose lg:prose-xl mx-auto text-gray-800"
-                             dangerouslySetInnerHTML={{ __html: block.Ck_Editor }} />
+                    <div key={block.id} className="mb-8 prose lg:prose-xl mx-auto text-gray-800">
+                        {htmlParser(block.Ck_Editor)}
                     </div>
                 );
             case 'shared.media':
@@ -122,14 +108,14 @@ const BlogDetails = () => {
                     <div key={block.id} className="mb-8">
                         {block.file && block.file.url ? (
                             <img
-                                src={`${STRAPI_BASE_URL}${block.file.url}`}
+                                src={block.file.url}
                                 alt={block.file.alternativeText || block.file.name}
                                 className="w-full h-auto object-contain rounded-lg shadow-md"
                                 loading="lazy"
-                                onError={(e) => { e.target.onerror = null; e.target.src = '/fallback-image.jpg'; }} 
+                                onError={(e) => { e.target.onerror = null; e.target.src = '/fallback-image.jpg'; }}
                             />
                         ) : (
-                            <p className="text-red-500">Image not available</p>
+                            <p>Image not available</p>
                         )}
                     </div>
                 );
@@ -142,20 +128,18 @@ const BlogDetails = () => {
                                     <div key={idx} className="flex justify-center">
                                         {file.url ? (
                                             <img
-                                                src={`${STRAPI_BASE_URL}${file.url}`}
+                                                src={file.url}
                                                 alt={file.alternativeText || file.name}
-                                                className="w-full h-64 md:h-96 object-contain rounded-lg shadow-md"
-                                                loading="lazy"
-                                                onError={(e) => { e.target.onerror = null; e.target.src = '/fallback-image.jpg'; }} 
+                                                className="w-full h-64 md:h-96 object-contain rounded-lg"
                                             />
                                         ) : (
-                                            <p className="text-red-500">Image URL missing</p>
+                                            <p>Image URL missing</p>
                                         )}
                                     </div>
                                 ))}
                             </Slider>
                         ) : (
-                            <p className="text-red-500">No images available in the slider.</p>
+                            <p>No images available in the slider.</p>
                         )}
                     </div>
                 );
@@ -177,10 +161,9 @@ const BlogDetails = () => {
                                         <video
                                             controls
                                             className="w-full h-full rounded-lg shadow-md border border-gray-300"
-                                            onError={(e) => { e.target.onerror = null; e.target.src = '/fallback-video.mp4'; }} 
                                         >
                                             <source
-                                                src={video.url.startsWith('http') ? video.url : `${STRAPI_BASE_URL}${video.url}`}
+                                                src={video.url.startsWith('http') ? video.url : video.url}
                                                 type={video.mime || 'video/mp4'}
                                             />
                                             Your browser does not support the video tag.
@@ -189,7 +172,7 @@ const BlogDetails = () => {
                                 </div>
                             ))
                         ) : (
-                            <p className="text-red-500">Video not available</p>
+                            <p>Video not available</p>
                         )}
                     </div>
                 );
@@ -243,9 +226,9 @@ const BlogDetails = () => {
                         </div>
                     </div>
                     {blog.cover && blog.cover.url && (
-                        <div className="relative  mt-16">
+                        <div className="relative mt-16">
                             <img
-                                src={`${STRAPI_BASE_URL}${blog.cover.url}`}
+                                src={blog.cover.url}
                                 alt={blog.title}
                                 className="w-full h-80 object-cover rounded-lg shadow-lg"
                                 onError={(e) => { e.target.onerror = null; e.target.src = '/fallback-image.jpg'; }}
@@ -255,36 +238,6 @@ const BlogDetails = () => {
 
                     <div className="prose lg:prose-xl mx-auto text-gray-800 mb-6">
                         {blog.Body && blog.Body.map((block) => renderDynamicZone(block))}
-                    </div>
-
-                    <div className="flex justify-center mt-6 space-x-4">
-                        <a
-                            href={`https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800"
-                            aria-label="Share on Facebook"
-                        >
-                            <FaFacebookF size={24} />
-                        </a>
-                        <a
-                            href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(blog.title)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-400 hover:text-blue-600"
-                            aria-label="Share on Twitter"
-                        >
-                            <FaTwitter size={24} />
-                        </a>
-                        <a
-                            href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(blog.title)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-700 hover:text-blue-900"
-                            aria-label="Share on LinkedIn"
-                        >
-                            <FaLinkedinIn size={24} />
-                        </a>
                     </div>
                 </div>
             </div>

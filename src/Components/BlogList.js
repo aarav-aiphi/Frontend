@@ -88,14 +88,14 @@ const BlogList = () => {
 
   // Memoized BlogCard component
   const BlogCard = memo(({ blog }) => {
-    const coverUrl = blog.cover && blog.cover.url ? `${STRAPI_BASE_URL}${blog.cover.url}` : placeholderSvg;
+   
 
     return (
       <article className="group flex flex-col md:flex-row bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
         <div className="md:w-1/3 relative aspect-[4/3] overflow-hidden bg-gray-100">
           <Link to={`/blogs/${blog.slug}`} className="block w-full h-full">
             <img
-              src={coverUrl}
+              src={blog.cover.url}
               alt={blog.title || 'Blog Cover'}
               className="absolute inset-0 w-full h-full object-cover"
               loading="lazy"
