@@ -16,6 +16,7 @@ import {
   FaLightbulb, 
   FaUsers, 
   FaArrowRight,
+  FaSpinner, // Import FaSpinner
 } from 'react-icons/fa'; // Imported additional icons
 import agent_bg from './Images/agent_bg.jpg';
 import agent2_bg from './Images/agent3.jpg';
@@ -28,10 +29,12 @@ export const AgentDetail = () => {
   const [agent, setAgent] = useState(null);
   const [similarAgents, setSimilarAgents] = useState([]);
   const [saveCounts, setSaveCounts] = useState({});
+  const [loading, setLoading] = useState(true); // Initialize loading state
 
   useEffect(() => {
     const fetchAgentDetails = async () => {
       try {
+        setLoading(true); // Start loading
         const response = await axios.get(`https://backend-1-sval.onrender.com/api/agents/similar/${id}`);
         console.log(response.data);
         setAgent(response.data.agent);
@@ -42,6 +45,8 @@ export const AgentDetail = () => {
       } catch (error) {
         console.error('Error fetching agent details:', error);
         toast.error('Failed to load agent details.');
+      } finally {
+        setLoading(false); // Stop loading
       }
     };
     fetchAgentDetails();
@@ -52,15 +57,12 @@ export const AgentDetail = () => {
     event.stopPropagation();
 
     try {
-    
-
       const url = `https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`;
       const method = 'post';
 
       const response = await axios({
         method,
         url,
-       
         withCredentials: true,
       });
 
@@ -85,10 +87,21 @@ export const AgentDetail = () => {
     }
   };
 
+  // Spinner Component
+  const Spinner = () => (
+    <div className="flex justify-center items-center h-screen" aria-label="Loading">
+      <FaSpinner className="animate-spin text-5xl text-primaryBlue" />
+    </div>
+  );
+
+  if (loading) {
+    return <Spinner />; // Render Spinner while loading
+  }
+
   if (!agent) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div className="text-xl text-gray-500">Loading...</div>
+        <div className="text-xl text-gray-500">Agent not found.</div>
       </div>
     );
   }
@@ -96,10 +109,11 @@ export const AgentDetail = () => {
   return (
     <div className="max-w-screen-xl mx-auto bg-gray-50 relative">
 
-   
+      {/* Toast Container */}
+      <ToastContainer />
 
       {/* Banner and Logo Section */}
-      <div className="relative w-full h-56 rounded-lg  overflow-visible">
+      <div className="relative w-full h-56 rounded-lg overflow-visible">
         {/* Banner Image */}
         <img
           src={agent5_bg}
@@ -166,7 +180,7 @@ export const AgentDetail = () => {
       {/* Main Content Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-6 md:px-8 lg:px-12 mb-12">
         {/* Left Column: Description, Key Features, Use Cases */}
-        <div className="lg:col-span-2  p-6 mt-6  flex justify-center">
+        <div className="lg:col-span-2 p-6 mt-6 flex justify-center">
           {/* Inner Wrapper to Center Content */}
           <div className="max-w-2xl w-full">
             {/* Description */}
@@ -236,7 +250,7 @@ export const AgentDetail = () => {
         </div>
 
         {/* Right Column: Similar Agents */}
-        <div className=" p-6 ">
+        <div className="p-6">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
             <FaUsers className="mr-2 text-blue-500" /> Similar Agents
           </h2>
@@ -276,3 +290,5 @@ export const AgentDetail = () => {
     </div>
   );
 };
+
+export default AgentDetail;

@@ -1,20 +1,22 @@
+// src/Components/TreeMap.js
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import axios from 'axios';
 import bg3 from './Images/whitebg.jpg'; 
+import { FaSpinner } from 'react-icons/fa'; // Import FaSpinner
+
 const AgentCategory = ({ category, agents }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
 
   return (
-    <div className="mb-12 text-center" ref={ref}
-    
-    >
+    <div className="mb-12 text-center" ref={ref}>
       
       {/* Category Title */}
       <motion.h2
-        className="text-2xl font-semibold text-primaryBlue  mb-6"
+        className="text-2xl font-semibold text-primaryBlue mb-6"
         initial={{ opacity: 0, y: -10 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0 }}
         transition={{ duration: 0.5 }}
@@ -81,11 +83,13 @@ const AgentCategory = ({ category, agents }) => {
 
 const TreeMap = () => {
   const [agents, setAgents] = useState({});
+  const [loading, setLoading] = useState(true); // Initialize loading state
 
   // Fetch agents and group by category
   useEffect(() => {
     const fetchAgents = async () => {
       try {
+        setLoading(true); // Start loading
         const response = await axios.get('https://backend-1-sval.onrender.com/api/agents/all');
         const groupedAgents = response.data.reduce((acc, agent) => {
           const category = agent.category || 'Uncategorized';
@@ -96,24 +100,41 @@ const TreeMap = () => {
         setAgents(groupedAgents);
       } catch (error) {
         console.error('Error fetching agents:', error);
+        toast.error('Failed to fetch agents.');
+      } finally {
+        setLoading(false); // Stop loading
       }
     };
     fetchAgents();
   }, []);
 
+  // Spinner Component
+  const Spinner = () => (
+    <div className="flex justify-center items-center h-64">
+      <FaSpinner className="animate-spin text-4xl text-primaryBlue" />
+    </div>
+  );
+
   return (
-    <div className="tree-map-container  py-12 px-4 bg-cover bg-center"
-    style={{ backgroundImage: `url(${bg3})` }}
+    <div
+      className="tree-map-container py-12 px-4 bg-cover bg-center"
+      style={{ backgroundImage: `url(${bg3})` }}
     >
       <h1 className="text-4xl font-bold text-center mb-12 text-primaryBlue tracking-wider shadow-sm shadow-blue-200">
-        AI Azent Tree Map
+        AI Agent Tree Map
       </h1>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
-        {Object.keys(agents).map((category, idx) => (
-          <AgentCategory key={idx} category={category} agents={agents[category]} />
-        ))}
-      </div>
+      {loading ? (
+        // Render Spinner while loading
+        <Spinner />
+      ) : (
+        // Render Tree Map after loading
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+          {Object.keys(agents).map((category, idx) => (
+            <AgentCategory key={idx} category={category} agents={agents[category]} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

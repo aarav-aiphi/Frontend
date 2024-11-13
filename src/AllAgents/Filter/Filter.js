@@ -6,7 +6,7 @@ import { FaUserAlt, FaIndustry, FaDollarSign, FaKey } from "react-icons/fa"; // 
 import { toast } from 'react-toastify';
 import axios from 'axios';
 
-export const Filter = ({ onFilterChange }) => {
+export const Filter = ({ onFilterChange, setFilterLoading }) => {
   const [isCatgOpen, setIsCatgOpen] = useState(true);
   const [isIdstOpen, setIsIdstOpen] = useState(true);
   const [isModelOpen, setIsModelOpen] = useState(true);
@@ -23,9 +23,6 @@ export const Filter = ({ onFilterChange }) => {
     pricingModels: [],
     accessModels: [],
   });
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
 
   // Reset functions for each filter
   const resetCategory = () => {
@@ -70,6 +67,7 @@ export const Filter = ({ onFilterChange }) => {
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
+        setFilterLoading(true); // Start loading
         const response = await axios.get('https://backend-1-sval.onrender.com/api/agents/filters');
         setFilterOptions({
           categories: response.data.categories,
@@ -78,25 +76,16 @@ export const Filter = ({ onFilterChange }) => {
           accessModels: response.data.accessModels,
         });
         console.log(response);
-        setLoading(false);
       } catch (err) {
         console.error('Error fetching filter options:', err);
-        setError(true);
-        setLoading(false);
         toast.error('Failed to load filter options!');
+      } finally {
+        setFilterLoading(false); // Stop loading
       }
     };
 
     fetchFilterOptions();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center p-4">
-        <p className="text-gray-500">Loading filters...</p>
-      </div>
-    );
-  }
+  }, [setFilterLoading]);
 
   return (
     <div className="space-y-6 md:p-4 ">

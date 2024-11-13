@@ -1,8 +1,10 @@
-import React, { useState, useEffect,useRef } from 'react';
+// src/Components/AgentList.js
+
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaThumbsUp, FaHeart, FaRegHeart, FaArrowRight,FaRegBookmark } from 'react-icons/fa';
+import { FaThumbsUp, FaHeart, FaRegHeart, FaArrowRight, FaRegBookmark } from 'react-icons/fa';
 import Cookies from 'js-cookie';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,7 +13,7 @@ import './styles.css'; // Import custom styles
 const AGENTS_PER_PAGE = 20;
 const SLIDES_TO_SHOW = 3;
 
-export const AgentList = ({ filters }) => {
+export const AgentList = ({ filters, setAgentListLoading }) => {
   const [agents, setAgents] = useState([]);
   const [topAgents, setTopAgents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -19,10 +21,12 @@ export const AgentList = ({ filters }) => {
   const [likeCounts, setLikeCounts] = useState({});
   const [wishlist, setWishlist] = useState([]);
   const [saveCounts, setSaveCounts] = useState({});
-const agentListRef = useRef(null);
+  const agentListRef = useRef(null);
+
   useEffect(() => {
     const fetchAgents = async () => {
       try {
+        setAgentListLoading(true); // Start loading
         const response = await axios.get('https://backend-1-sval.onrender.com/api/agents/all');
         const sortedAgents = response.data.sort((a, b) => b.likes - a.likes); // Sort by likes
         setAgents(response.data || []);
@@ -40,27 +44,26 @@ const agentListRef = useRef(null);
       } catch (error) {
         console.error('Error fetching agents:', error);
         toast.error('Error fetching agents!');
+      } finally {
+        setAgentListLoading(false); // Stop loading
       }
     };
     fetchAgents();
-  }, []);
+  }, [setAgentListLoading]);
 
   const handleLike = async (event, agentId) => {
     event.preventDefault();
     event.stopPropagation();
 
     try {
-     
       const url = `https://backend-1-sval.onrender.com/api/users/like/${agentId}`;
       const method = 'post';
 
       const response = await axios({
         method,
         url,
-       
         withCredentials: true,
       });
-      
 
       if (response.status === 200) {
         toast.success('Agent liked successfully!');
@@ -92,29 +95,24 @@ const agentListRef = useRef(null);
     event.stopPropagation();
   
     try {
-     
-
-    
       const url = `https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`;
       const method = 'post';
 
       const response = await axios({
         method,
         url,
-       
         withCredentials: true,
       });
 
       if (response.status === 200) {
-        toast.success(`Agent Added to  wishlist!`);
+        toast.success(`Agent Added to wishlist!`);
         setSaveCounts((prevSaveCounts) => ({
           ...prevSaveCounts,
           [agentId]: response.data.agent.savedByCount,
         }));
       }
       if (response.status === 201) {
-        toast.success(`Agent Removed from  wishlist!`);
-       
+        toast.success(`Agent Removed from wishlist!`);
         setSaveCounts((prevSaveCounts) => ({
           ...prevSaveCounts,
           [agentId]: response.data.agent.savedByCount,
@@ -127,7 +125,6 @@ const agentListRef = useRef(null);
   };
 
   const filteredAgents = agents.filter((agent) => {
-    
     return (
       (filters.category === 'Category' || agent.category === filters.category) &&
       (filters.industry === 'Industry' || agent.industry === filters.industry) &&
@@ -143,8 +140,6 @@ const agentListRef = useRef(null);
     const end = start + AGENTS_PER_PAGE;
     return filteredAgents.slice(start, end);
   };
-
-  
 
   const scrollToTop = () => {
     if (agentListRef.current) {
@@ -172,21 +167,23 @@ const agentListRef = useRef(null);
   };
 
   return (
-    <div className="mt-9 mx-auto  max-h-screen overflow-y-auto "  >
- 
+    <div className="mt-9 mx-auto max-h-screen overflow-y-auto">
+      {/* Toast Container for Notifications */}
+      <ToastContainer />
 
       {/* Top Agents Carousel */}
-    
+      {/* (If you have a carousel component, include it here) */}
 
       {/* Main Agents Section */}
       <motion.div
-        className="flex justify-between  items-center mb-6"
+        className="flex justify-between items-center mb-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <h2 className="text-3xl font-bold text-primaryBlue" ref={agentListRef}></h2>
-        
+        <h2 className="text-3xl font-bold text-primaryBlue" ref={agentListRef}>
+          Agents
+        </h2>
       </motion.div>
 
       <motion.div
@@ -246,10 +243,8 @@ const agentListRef = useRef(null);
                         className="flex items-center text-primaryBlue hover:text-blue-900 transition-all ml-4"
                         onClick={(event) => handleWishlist(event, agent._id)}
                       >
-                         <FaRegBookmark className="mr-2" />  {saveCounts[agent._id] || 0} 
-                       
+                        <FaRegBookmark className="mr-2" /> {saveCounts[agent._id] || 0}
                       </button>
-                      
                     </div>
                   </div>
                 </div>
@@ -268,6 +263,7 @@ const agentListRef = useRef(null);
         )}
       </motion.div>
 
+      {/* Pagination Controls */}
       <motion.div
         className="flex justify-center items-center mt-6"
         initial={{ opacity: 0 }}
@@ -305,3 +301,5 @@ const agentListRef = useRef(null);
     </div>
   );
 };
+
+export default AgentList;

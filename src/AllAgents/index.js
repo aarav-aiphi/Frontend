@@ -7,8 +7,9 @@ import { FaFilter, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { IoIosClose } from 'react-icons/io';
 import bg3 from "../Images/whitebg.jpg";
 import { motion, AnimatePresence } from 'framer-motion';
+import LoadingSpinner from './LoadingSpinner';
 
-export const AllAgents = () => {
+const AllAgents = () => {
   const [filters, setFilters] = useState({
     category: 'Category',
     industry: 'Industry',
@@ -58,12 +59,23 @@ export const AllAgents = () => {
     };
   }, [isFilterOpen]);
 
+  // Loading states for Filter and AgentList
+  const [filterLoading, setFilterLoading] = useState(false);
+  const [agentListLoading, setAgentListLoading] = useState(false);
+
   return (
-    <div className='mt-16 flex flex-col md:flex-row relative bg-center bg-cover'
-   
-        style={{ backgroundImage: `url(${bg3})` }}
-      >
-    
+    <div
+      className='mt-16 flex flex-col md:flex-row relative bg-center bg-cover'
+      style={{ backgroundImage: `url(${bg3})` }}
+    >
+
+      {/* Loading Spinner Overlay */}
+      <AnimatePresence>
+        {(filterLoading || agentListLoading) && (
+          <LoadingSpinner />
+        )}
+      </AnimatePresence>
+
       {/* Filter Sidebar for Large Screens */}
       <div
         className={`hidden md:flex fixed md:static top-16 left-0 h-full bg-gray-100 shadow-xl transition-all duration-300 z-0 ${
@@ -86,7 +98,7 @@ export const AllAgents = () => {
           {/* Conditionally render the filter content based on collapsed state */}
           {!isFilterCollapsed && (
             <div className="flex-grow overflow-y-auto">
-              <Filter onFilterChange={handleFilterChange} />
+              <Filter onFilterChange={handleFilterChange} setFilterLoading={setFilterLoading} />
             </div>
           )}
         </div>
@@ -98,7 +110,7 @@ export const AllAgents = () => {
           isFilterCollapsed ? 'md:ml-5' : 'md:ml-5'
         }`}
       >
-        <AgentList filters={filters} />
+        <AgentList filters={filters} setAgentListLoading={setAgentListLoading} />
       </div>
 
       {/* Filter Toggle Button for Small Screens */}
@@ -146,7 +158,7 @@ export const AllAgents = () => {
                 </div>
 
                 {/* Filter Content */}
-                <Filter onFilterChange={handleFilterChange} />
+                <Filter onFilterChange={handleFilterChange} setFilterLoading={setFilterLoading} />
               </div>
             </motion.div>
           </>
@@ -156,4 +168,4 @@ export const AllAgents = () => {
   );
 };
 
-export default AllAgents;
+export { AllAgents};

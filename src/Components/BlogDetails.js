@@ -14,7 +14,8 @@ import {
     FaFacebookF,
     FaTwitter,
     FaLinkedinIn,
-    FaArrowLeft
+    FaArrowLeft,
+    FaSpinner
 } from 'react-icons/fa';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
@@ -63,7 +64,15 @@ const BlogDetails = () => {
         fetchBlog();
     }, [slug]);
 
-    if (loading) return <p className="text-center text-primaryBlue2">Loading...</p>;
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <FaSpinner className="animate-spin text-4xl text-primaryBlue2" />
+                <span className="sr-only">Loading...</span>
+            </div>
+        );
+    }
+
     if (!blog) return <p className="text-center text-red-500">Blog not found</p>;
 
     const sliderSettings = {
@@ -98,7 +107,7 @@ const BlogDetails = () => {
                                 alt=""
                                 className="w-full h-auto object-contain rounded-lg shadow-md"
                                 loading="lazy"
-                                onError={(e) => { e.target.onerror = null}}
+                                onError={(e) => { e.target.onerror = null }}
                             />
                         ) : (
                             <p className="text-red-500">Image not available</p>
@@ -118,7 +127,7 @@ const BlogDetails = () => {
                                                 alt=""
                                                 className="w-full h-64 md:h-96 object-contain rounded-lg shadow-md"
                                                 loading="lazy"
-                                                onError={(e) => { e.target.onerror = null}}
+                                                onError={(e) => { e.target.onerror = null }}
                                             />
                                         ) : (
                                             <p className="text-red-500">Image URL missing</p>
@@ -215,10 +224,10 @@ const BlogDetails = () => {
                 {blog.cover && blog.cover.url && (
                     <div className="relative mt-16">
                         <img
-                              src={blog.cover.url}
+                            src={blog.cover.url}
                             alt=""
                             className="w-full h-80 object-cover rounded-lg shadow-lg"
-                            onError={(e) => { e.target.onerror = null}}
+                            onError={(e) => { e.target.onerror = null }}
                         />
                     </div>
                 )}

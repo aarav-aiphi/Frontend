@@ -8,7 +8,7 @@ import {
   FaCheckCircle, 
   FaTimes, 
   FaRegBookmark,
-  FaFilter // Importing filter icon
+  FaFilter,FaSpinner // Importing filter icon
 } from "react-icons/fa";
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
@@ -26,6 +26,12 @@ const DEFAULT_FILTERS = {
   category: "Category",
   industry: "Industry",
 };
+
+const Spinner = () => (
+  <div className="flex justify-center items-center p-4">
+    <FaSpinner className="animate-spin text-4xl text-primaryBlue" aria-label="Loading" />
+  </div>
+);
 
 // AgentCard Component
 const AgentCard = ({ agent, saveCounts, handleWishlist }) => (
@@ -338,7 +344,7 @@ const AgentFilterAndCard = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center p-4">
-        <p className="text-gray-500">Loading filters and agents...</p>
+        <Spinner />
       </div>
     );
   }
