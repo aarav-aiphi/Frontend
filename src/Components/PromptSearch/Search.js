@@ -44,7 +44,7 @@ const SearchComponent = () => {
         setUseCases(response.data);
       } catch (error) {
         console.error('Error fetching use cases:', error);
-        toast.error('Failed to fetch use cases. Please try again.');
+        // toast.error('Failed to fetch use cases. Please try again.');
       }
     };
     fetchUseCases();

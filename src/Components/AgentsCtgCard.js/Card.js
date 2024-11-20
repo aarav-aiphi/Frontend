@@ -57,7 +57,7 @@ export const Card = ({ propmodel, propprice, propcategory, propindustry }) => {
         [agentId]: response.data.agent.savedByCount,
       }));
     } catch (error) {
-      toast.error('An error occurred while updating the wishlist.');
+      // toast.error('An error occurred while updating the wishlist.');
       console.error('Error updating wishlist:', error);
     }
   };

@@ -58,7 +58,7 @@ const CreateAgentForm = () => {
       toast.success('Agent created successfully!');
     } catch (error) {
       console.error('Error creating agent:', error);
-      toast.error('Failed to create agent.');
+      // toast.error('Failed to create agent.');
     }
   };
 

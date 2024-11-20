@@ -37,7 +37,7 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
 
       } catch (err) {
         console.error('Error fetching agents:', err);
-        toast.error('Error fetching agents!');
+        // toast.error('Error fetching agents!');
       } finally {
         setAgentListLoading(false); // Stop loading
       }
@@ -81,7 +81,7 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
       if (error.response && error.response.status === 400 && error.response.data.message === 'You have already liked this agent') {
         toast.info('You have already liked this agent!');
       } else {
-        toast.error('An error occurred while liking the agent.');
+        // toast.error('An error occurred while liking the agent.');
       }
       console.error('Error liking agent:', error);
     }
@@ -112,7 +112,7 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
         console.log(`Dispatched updateSavedByCount for agent ${agentId} with savedByCount ${response.data.agent.savedByCount}`);
       }
     } catch (error) {
-      toast.error('An error occurred while updating the wishlist.');
+      // toast.error('An error occurred while updating the wishlist.');
       console.error('Error updating wishlist:', error);
     }
   };

@@ -101,7 +101,7 @@ const UserDashboard = () => {
         });
         setSavedAgents(response.data.wishlist);
       } catch (error) {
-        toast.error('Failed to fetch saved agents.');
+        // toast.error('Failed to fetch saved agents.');
         console.error('Error fetching saved agents:', error);
       }
       setLoadingSaved(false);
@@ -114,7 +114,7 @@ const UserDashboard = () => {
         });
         setLikedAgents(response.data.likedAgents);
       } catch (error) {
-        toast.error('Failed to fetch liked agents.');
+        // toast.error('Failed to fetch liked agents.');
         console.error('Error fetching liked agents:', error);
       }
       setLoadingLiked(false);
@@ -127,7 +127,7 @@ const UserDashboard = () => {
         });
         setUseCases(response.data.searchHistory);
       } catch (error) {
-        toast.error('Failed to fetch use cases.');
+        // toast.error('Failed to fetch use cases.');
         console.error('Error fetching use cases:', error);
       }
       setLoadingUseCases(false);

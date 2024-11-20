@@ -161,7 +161,7 @@ const AgentFilterAndCard = () => {
         });
       } catch (err) {
         console.error('Error fetching filter options:', err);
-        toast.error('Failed to load filter options.');
+        // toast.error('Failed to load filter options.');
       }
     };
 
@@ -296,7 +296,7 @@ const AgentFilterAndCard = () => {
     } catch (error) {
       // Handle errors appropriately
       const errorMessage = error.response?.data?.message || 'Failed to update wishlist.';
-      toast.error(errorMessage);
+      // toast.error(errorMessage);
       console.error('Error updating wishlist:', error);
     }
   };

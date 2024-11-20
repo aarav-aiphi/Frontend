@@ -64,7 +64,7 @@ export const AdminDashboard = () => {
         onHold: response[3].data,
       });
     } catch (error) {
-      toast.error('Failed to fetch agents');
+      // toast.error('Failed to fetch agents');
       console.error('Error fetching agents:', error);
     }
   }, []);
@@ -100,7 +100,7 @@ export const AdminDashboard = () => {
       setInstructions('');
       fetchAgents(); // Refresh the list after updating status
     } catch (error) {
-      toast.error('Failed to update agent status');
+      // toast.error('Failed to update agent status');
       console.error('Error updating agent status:', error);
     }
   };
@@ -134,7 +134,7 @@ export const AdminDashboard = () => {
       });
     } catch (error) {
       console.error('Error sending newsletter:', error);
-      toast.error('Failed to send newsletter.');
+      // toast.error('Failed to send newsletter.');
     } finally {
       isSubmittingRef.current = false; // Reset the ref
       setIsSubmitting(false); // Re-enable the button

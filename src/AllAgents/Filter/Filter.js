@@ -78,7 +78,7 @@ export const Filter = ({ onFilterChange, setFilterLoading }) => {
         console.log(response);
       } catch (err) {
         console.error('Error fetching filter options:', err);
-        toast.error('Failed to load filter options!');
+        // toast.error('Failed to load filter options!');
       } finally {
         setFilterLoading(false); // Stop loading
       }

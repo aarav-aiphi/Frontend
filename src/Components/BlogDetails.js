@@ -54,7 +54,7 @@ const BlogDetails = () => {
             setLoading(false);
         } catch (error) {
             console.error('Error fetching blog:', error);
-            toast.error('Failed to fetch blog.');
+            // toast.error('Failed to fetch blog.');
             setLoading(false);
         }
     };

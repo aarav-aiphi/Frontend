@@ -101,7 +101,7 @@ const TreeMap = () => {
         })
         .catch((err) => {
           console.error('Error fetching agents:', err);
-          toast.error('Failed to fetch agents.');
+          // toast.error('Failed to fetch agents.');
         });
     }
   }, [dispatch, status]);

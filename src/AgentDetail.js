@@ -42,7 +42,7 @@ export const AgentDetail = () => {
         setSaveCounts(initialSaves);
       } catch (error) {
         console.error('Error fetching agent details:', error);
-        toast.error('Failed to load agent details.');
+        // toast.error('Failed to load agent details.');
       } finally {
         setLoading(false); // Stop loading
       }
@@ -80,7 +80,7 @@ export const AgentDetail = () => {
       }
 
     } catch (error) {
-      toast.error('An error occurred while updating the wishlist.');
+      // toast.error('An error occurred while updating the wishlist.');
       console.error('Error updating wishlist:', error);
     }
   };
