@@ -1,11 +1,15 @@
 // src/Components/TreeMap.js
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchAgents } from './redux/agentsSlice';
 import axios from 'axios';
 import bg3 from './Images/whitebg.jpg'; 
 import { FaSpinner } from 'react-icons/fa'; // Import FaSpinner
+import { toast } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css'; // Import Toastify styles
 
 const AgentCategory = ({ category, agents }) => {
   const ref = useRef(null);
@@ -82,31 +86,35 @@ const AgentCategory = ({ category, agents }) => {
 };
 
 const TreeMap = () => {
-  const [agents, setAgents] = useState({});
-  const [loading, setLoading] = useState(true); // Initialize loading state
+  const dispatch = useDispatch();
+  const { agents, status, error } = useSelector((state) => state.agents);
 
-  // Fetch agents and group by category
+  // Reference for the main container (optional, can be used for scroll or other interactions)
+  const treeMapRef = useRef(null);
+
+  // Fetch agents on component mount if not already fetched
   useEffect(() => {
-    const fetchAgents = async () => {
-      try {
-        setLoading(true); // Start loading
-        const response = await axios.get('https://backend-1-sval.onrender.com/api/agents/all');
-        const groupedAgents = response.data.reduce((acc, agent) => {
-          const category = agent.category || 'Uncategorized';
-          if (!acc[category]) acc[category] = [];
-          acc[category].push(agent);
-          return acc;
-        }, {});
-        setAgents(groupedAgents);
-      } catch (error) {
-        console.error('Error fetching agents:', error);
-        toast.error('Failed to fetch agents.');
-      } finally {
-        setLoading(false); // Stop loading
-      }
-    };
-    fetchAgents();
-  }, []);
+    if (status === 'idle') {
+      dispatch(fetchAgents()).unwrap()
+        .then(() => {
+          // Agents fetched successfully
+        })
+        .catch((err) => {
+          console.error('Error fetching agents:', err);
+          toast.error('Failed to fetch agents.');
+        });
+    }
+  }, [dispatch, status]);
+
+  // Group agents by category using useMemo for performance optimization
+  const groupedAgents = useMemo(() => {
+    return agents.reduce((acc, agent) => {
+      const category = agent.category || 'Uncategorized';
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(agent);
+      return acc;
+    }, {});
+  }, [agents]);
 
   // Spinner Component
   const Spinner = () => (
@@ -115,23 +123,34 @@ const TreeMap = () => {
     </div>
   );
 
+  // Error Message Component
+  const ErrorMessage = () => (
+    <div className="flex justify-center items-center h-64">
+      <p className="text-red-500 text-lg">Failed to load agents. Please try again later.</p>
+    </div>
+  );
+
   return (
     <div
       className="tree-map-container py-12 px-4 bg-cover bg-center"
       style={{ backgroundImage: `url(${bg3})` }}
+      ref={treeMapRef}
     >
       <h1 className="text-4xl font-bold text-center mb-12 text-primaryBlue tracking-wider shadow-sm shadow-blue-200">
         AI Agent Tree Map
       </h1>
 
-      {loading ? (
+      {status === 'loading' ? (
         // Render Spinner while loading
         <Spinner />
+      ) : status === 'failed' ? (
+        // Render Error Message on failure
+        <ErrorMessage />
       ) : (
         // Render Tree Map after loading
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
-          {Object.keys(agents).map((category, idx) => (
-            <AgentCategory key={idx} category={category} agents={agents[category]} />
+          {Object.keys(groupedAgents).map((category, idx) => (
+            <AgentCategory key={idx} category={category} agents={groupedAgents[category]} />
           ))}
         </div>
       )}

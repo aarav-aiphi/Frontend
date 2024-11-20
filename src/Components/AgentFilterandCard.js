@@ -1,19 +1,21 @@
-// AgentFilterAndCard.js
+// src/components/AgentFilterAndCard.js
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from 'axios';
 import { 
   FaChevronDown, 
   FaChevronUp, 
   FaCheckCircle, 
   FaTimes, 
   FaRegBookmark,
-  FaFilter,FaSpinner // Importing filter icon
+  FaFilter,
+  FaSpinner 
 } from "react-icons/fa";
 import { Link } from 'react-router-dom';
-import Cookies from 'js-cookie';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchAgents, updateSavedByCount } from '../redux/agentsSlice'; // Import the synchronous action
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios'; // Ensure axios is imported
 
 // Import AOS and its styles
 import AOS from 'aos';
@@ -27,6 +29,9 @@ const DEFAULT_FILTERS = {
   industry: "Industry",
 };
 
+
+
+// Spinner Component
 const Spinner = () => (
   <div className="flex justify-center items-center p-4">
     <FaSpinner className="animate-spin text-4xl text-primaryBlue" aria-label="Loading" />
@@ -34,54 +39,62 @@ const Spinner = () => (
 );
 
 // AgentCard Component
-const AgentCard = ({ agent, saveCounts, handleWishlist }) => (
-  <Link to={`agent/${agent._id}`}>
-    <motion.div
-      className="relative bg-white rounded-lg shadow-md p-6 sm:p-8 hover:shadow-xl transition-shadow duration-300 overflow-hidden w-full sm:w-80 h-72 flex flex-col"
-      whileHover={{ translateY: -5 }}
-      data-aos="fade-up" // AOS attribute
-    >
-      {/* Accent Border at the Top */}
-      <div className="absolute inset-0 border-t-4 border-blue-500 rounded-lg"></div>
+const AgentCard = ({ agent, saveCounts, handleWishlist }) => {
+  // Destructure properties with default values
+  const { _id, name, logo, shortDescription, category } = agent || {};
 
-      {/* Side Ribbon */}
-      <div className="absolute top-0 left-0 bg-blue-500 text-white px-2 py-1 text-xs font-bold rounded-tr-lg rounded-br-lg">
-        {agent.category}
-      </div>
+  // Safeguard against undefined saveCounts or agent ID
+  const saveCount = (saveCounts && _id && saveCounts[_id]) ? saveCounts[_id] : 0;
 
-      {/* Save Icon at Top Right */}
-      <button
-        className="absolute top-2 right-2 flex items-center text-blue-500 hover:text-blue-700 transition-colors duration-200"
-        onClick={(event) => handleWishlist(event, agent._id)}
-        aria-label="Save Agent"
+  return (
+    <Link to={`agent/${_id}`}>
+      <motion.div
+        className="relative bg-white rounded-lg shadow-md p-6 sm:p-8 hover:shadow-xl transition-shadow duration-300 overflow-hidden w-full sm:w-80 h-72 flex flex-col"
+        whileHover={{ translateY: -5 }}
+        data-aos="fade-up" // AOS attribute
       >
-        <FaRegBookmark className="mr-1" /> {saveCounts[agent._id] || 0}
-      </button>
+        {/* Accent Border at the Top */}
+        <div className="absolute inset-0 border-t-4 border-blue-500 rounded-lg"></div>
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center flex-grow">
-        {/* Agent Logo */}
-        {agent.logo && (
-          <img
-            src={agent.logo}
-            alt={`${agent.name} Logo`}
-            className="h-20 w-20 sm:h-24 sm:w-24 mb-4 object-contain"
-          />
-        )}
+        {/* Side Ribbon */}
+        <div className="absolute top-0 left-0 bg-blue-500 text-white px-2 py-1 text-xs font-bold rounded-tr-lg rounded-br-lg">
+          {category}
+        </div>
 
-        {/* Agent Name */}
-        <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-2 sm:mb-4 text-center">
-          {agent.name}
-        </h3>
+        {/* Save Icon at Top Right */}
+        <button
+          className="absolute top-2 right-2 flex items-center text-blue-500 hover:text-blue-700 transition-colors duration-200"
+          onClick={(event) => handleWishlist(event, _id)}
+          aria-label="Save Agent"
+        >
+          <FaRegBookmark className="mr-1" /> {saveCount}
+        </button>
 
-        {/* Short Description */}
-        <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 text-center flex-grow">
-          {agent.shortDescription || 'No description provided.'}
-        </p>
-      </div>
-    </motion.div>
-  </Link>
-);
+        {/* Content */}
+        <div className="relative z-10 flex flex-col items-center flex-grow">
+          {/* Agent Logo */}
+          {logo && (
+            <img
+              src={logo}
+              alt={`${name} Logo`}
+              className="h-20 w-20 sm:h-24 sm:w-24 mb-4 object-contain"
+            />
+          )}
+
+          {/* Agent Name */}
+          <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-2 sm:mb-4 text-center">
+            {name}
+          </h3>
+
+          {/* Short Description */}
+          <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 text-center flex-grow">
+            {shortDescription || 'No description provided.'}
+          </p>
+        </div>
+      </motion.div>
+    </Link>
+  );
+};
 
 const AgentFilterAndCard = () => {
   // State for sticky filter and its visibility
@@ -99,10 +112,6 @@ const AgentFilterAndCard = () => {
     industries: [],
   });
 
-  // State for loading and error
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
   // State to manage which dropdown is open
   const [openDropdown, setOpenDropdown] = useState({
     accessModel: false,
@@ -114,9 +123,12 @@ const AgentFilterAndCard = () => {
   // Selected filter values
   const [selected, setSelected] = useState({ ...DEFAULT_FILTERS });
 
-  // State for agents and save counts
-  const [agents, setAgents] = useState([]);
-  const [saveCounts, setSaveCounts] = useState({});
+  // Access Redux state
+  const dispatch = useDispatch();
+  const agents = useSelector((state) => state.agents.agents);
+  const saveCounts = useSelector((state) => state.agents.saveCounts);
+  const agentsStatus = useSelector((state) => state.agents.status);
+  const agentsError = useSelector((state) => state.agents.error);
 
   // Animation variants for filter elements
   const filterVariants = {
@@ -124,41 +136,6 @@ const AgentFilterAndCard = () => {
     visible: { opacity: 1, transition: { duration: 0.5 } },
     hover: { scale: 1.02, transition: { type: "spring", stiffness: 300 } },
   };
-
-  // Fetch filter options and agents from backend
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch filter options
-        const filtersResponse = await axios.get('https://backend-1-sval.onrender.com/api/agents/filters');
-        console.log('Filter API Response:', filtersResponse.data);
-        setFilterOptions({
-          accessModels: filtersResponse.data.accessModels || [],
-          pricingModels: filtersResponse.data.pricingModels || [],
-          categories: filtersResponse.data.categories || [],
-          industries: filtersResponse.data.industries || [],
-        });
-
-        // Fetch agents
-        const agentsResponse = await axios.get('https://backend-1-sval.onrender.com/api/agents/all');
-        const initialSaves = {};
-        agentsResponse.data.forEach(agent => {
-          initialSaves[agent._id] = agent.savedByCount || 0;
-        });
-        setSaveCounts(initialSaves);
-        setAgents(agentsResponse.data || []);
-
-        setLoading(false);
-        AOS.refresh(); // Refresh AOS after data fetch
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        setError(true);
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   // Initialize AOS
   useEffect(() => {
@@ -168,6 +145,40 @@ const AgentFilterAndCard = () => {
       once: true, // Whether animation should happen only once
     });
   }, []);
+
+  // Fetch filter options and agents from backend via Redux
+  useEffect(() => {
+    const fetchFilterOptions = async () => {
+      try {
+        // Fetch filter options
+        const filtersResponse = await axios.get('https://backend-1-sval.onrender.com/api/agents/filters');
+       
+        setFilterOptions({
+          accessModels: filtersResponse.data.accessModels || [],
+          pricingModels: filtersResponse.data.pricingModels || [],
+          categories: filtersResponse.data.categories || [],
+          industries: filtersResponse.data.industries || [],
+        });
+      } catch (err) {
+        console.error('Error fetching filter options:', err);
+        toast.error('Failed to load filter options.');
+      }
+    };
+
+    fetchFilterOptions();
+
+    // Dispatch fetchAgents only if agents are not already fetched
+    if (agentsStatus === 'idle') {
+      dispatch(fetchAgents());
+    }
+  }, [dispatch, agentsStatus]);
+
+  // Log agents and saveCounts after fetching
+  useEffect(() => {
+    if (agentsStatus === 'succeeded') {
+   
+    }
+  }, [agentsStatus, agents, saveCounts]);
 
   // Sticky filter functionality
   useEffect(() => {
@@ -216,7 +227,7 @@ const AgentFilterAndCard = () => {
 
   // Handle selection of an option
   const handleSelect = (filterType, value) => {
-    console.log(`Selecting ${filterType}: ${value}`);
+
     setSelected(prev => ({
       ...prev,
       [filterType]: value
@@ -229,7 +240,7 @@ const AgentFilterAndCard = () => {
 
   // Reset individual filter to default
   const resetFilter = (filterType) => {
-    console.log(`Resetting filter: ${filterType}`);
+   
     setSelected(prev => ({
       ...prev,
       [filterType]: DEFAULT_FILTERS[filterType]
@@ -269,27 +280,23 @@ const AgentFilterAndCard = () => {
     event.stopPropagation();
 
     try {
-    
-
-      const url = `https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`;
-      const method = 'post';
-
-      const response = await axios({
-        method,
-        url,
-       
-        withCredentials: true,
+      // Make the API call directly here
+      const response = await axios.post(`https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`, {}, {
+        withCredentials: true, // Include credentials if required by your backend
       });
 
-      const message = response.status === 200 ? 'Agent added to wishlist!' : 'Agent removed from wishlist!';
-      toast.success(message);
+      const { savedByCount } = response.data.agent;
+   
 
-      setSaveCounts((prevSaveCounts) => ({
-        ...prevSaveCounts,
-        [agentId]: response.data.agent.savedByCount,
-      }));
+      // Dispatch the synchronous action to update the Redux state
+      dispatch(updateSavedByCount({ agentId, savedByCount }));
+
+      // Provide feedback to the user
+      toast.success('Wishlist updated successfully!');
     } catch (error) {
-      toast.error('An error occurred while updating the wishlist.');
+      // Handle errors appropriately
+      const errorMessage = error.response?.data?.message || 'Failed to update wishlist.';
+      toast.error(errorMessage);
       console.error('Error updating wishlist:', error);
     }
   };
@@ -341,7 +348,8 @@ const AgentFilterAndCard = () => {
     }
   };
 
-  if (loading) {
+  // Render Loading State
+  if (agentsStatus === 'loading') {
     return (
       <div className="flex justify-center items-center p-4">
         <Spinner />
@@ -349,10 +357,11 @@ const AgentFilterAndCard = () => {
     );
   }
 
-  if (error) {
+  // Render Error State
+  if (agentsStatus === 'failed') {
     return (
       <div className="flex justify-center items-center p-4">
-        <p className="text-red-500">Failed to load filters and agents.</p>
+        <p className="text-red-500">Failed to load agents.</p>
       </div>
     );
   }
@@ -363,6 +372,7 @@ const AgentFilterAndCard = () => {
       <div ref={placeholderRef}></div>
 
       {/* Toggle Button for Small Screens */}
+      {/* Uncomment if you want to enable filter toggle on small screens */}
       {/* <div className="flex justify-end p-4 md:hidden">
         <button
           onClick={() => setIsFilterPanelOpen(true)}
@@ -908,9 +918,6 @@ const AgentFilterAndCard = () => {
               </div>
             </motion.div>
           ))}
-
-          {/* Sentinel Element (Optional, can be removed if using scroll detection) */}
-          {/* <div ref={bottomRef} className="sentinel"></div> */}
         </motion.div>
       </div>
     </div>

@@ -39,7 +39,7 @@ export const Signup = () => {
         withCredentials: true,
         headers: { 'Content-Type': 'application/json' },
       });
-     console.log(response);
+    
       if (response.status === 201) {
         toast.success('Signup successful!');
         const user = response.data.user;

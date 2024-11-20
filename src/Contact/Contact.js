@@ -125,7 +125,7 @@ export const Contact = () => {
                       Our Address
                     </h3>
                     <p className="mt-2 text-gray-600 dark:text-slate-400">
-                      1230 Maecenas Street Donec Road, New York, USA
+                    8th Floor, A Block, Sai Crystal, Plot No 45/52/52A, Sector 35 D, Kharghar Navi Mumbai 410210
                     </p>
                   </div>
                 </motion.div>
@@ -144,10 +144,11 @@ export const Contact = () => {
                       Contact Us
                     </h3>
                     <p className="mt-2 text-gray-600 dark:text-slate-400">
-                      Phone: +1 (123) 456-7890
+                      Phone: 
+                      +91 99016 98890
                     </p>
                     <p className="mt-1 text-gray-600 dark:text-slate-400">
-                      Email: contact@aiazent.com
+                      Email: info@aiphi.ai
                     </p>
                   </div>
                 </motion.div>

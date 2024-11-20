@@ -4,11 +4,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaThumbsUp, FaHeart, FaRegHeart, FaArrowRight, FaRegBookmark } from 'react-icons/fa';
-import Cookies from 'js-cookie';
+import { FaThumbsUp, FaRegBookmark } from 'react-icons/fa';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './styles.css'; // Import custom styles
+
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchAgents, updateLikeCount, updateSavedByCount } from '../redux/agentsSlice'; // Import actions
 
 const AGENTS_PER_PAGE = 20;
 const SLIDES_TO_SHOW = 3;
@@ -18,38 +20,38 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
   const [topAgents, setTopAgents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [likeCounts, setLikeCounts] = useState({});
-  const [wishlist, setWishlist] = useState([]);
-  const [saveCounts, setSaveCounts] = useState({});
   const agentListRef = useRef(null);
 
+  // Access Redux state
+  const dispatch = useDispatch();
+  const agentsState = useSelector((state) => state.agents);
+  const { agents: fetchedAgents, likeCounts, saveCounts, status, error } = agentsState;
+
   useEffect(() => {
-    const fetchAgents = async () => {
+    const fetchData = async () => {
       try {
         setAgentListLoading(true); // Start loading
-        const response = await axios.get('https://backend-1-sval.onrender.com/api/agents/all');
-        const sortedAgents = response.data.sort((a, b) => b.likes - a.likes); // Sort by likes
-        setAgents(response.data || []);
-        setTopAgents(sortedAgents.slice(0, 10)); // Get top 10 agents based on likes
 
-        const initialLikes = {};
-        const initialSaves = {};
-        response.data.forEach(agent => {
-          initialLikes[agent._id] = agent.likes || 0;
-          initialSaves[agent._id] = agent.savedByCount || 0;
-        });
-        setLikeCounts(initialLikes);
-        setSaveCounts(initialSaves);
+        // Dispatch fetchAgents thunk
+        await dispatch(fetchAgents()).unwrap();
 
-      } catch (error) {
-        console.error('Error fetching agents:', error);
+      } catch (err) {
+        console.error('Error fetching agents:', err);
         toast.error('Error fetching agents!');
       } finally {
         setAgentListLoading(false); // Stop loading
       }
     };
-    fetchAgents();
-  }, [setAgentListLoading]);
+    fetchData();
+  }, [dispatch, setAgentListLoading]);
+
+  useEffect(() => {
+    if (status === 'succeeded') {
+      setAgents(fetchedAgents || []);
+      const sortedAgents = [...fetchedAgents].sort((a, b) => b.likes - a.likes);
+      setTopAgents(sortedAgents.slice(0, 10)); // Get top 10 agents based on likes
+    }
+  }, [status, fetchedAgents]);
 
   const handleLike = async (event, agentId) => {
     event.preventDefault();
@@ -67,17 +69,12 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
 
       if (response.status === 200) {
         toast.success('Agent liked successfully!');
-        setLikeCounts((prevLikeCounts) => ({
-          ...prevLikeCounts,
-          [agentId]: response.data.agent.likes
-        }));
+        dispatch(updateLikeCount({ agentId, likeCount: response.data.agent.likes }));
+      
       }
       if (response.status === 201) {
         toast.success('Like removed successfully!');
-        setLikeCounts((prevLikeCounts) => ({
-          ...prevLikeCounts,
-          [agentId]: response.data.agent.likes
-        }));
+    
       }
 
     } catch (error) {
@@ -105,18 +102,14 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
       });
 
       if (response.status === 200) {
-        toast.success(`Agent Added to wishlist!`);
-        setSaveCounts((prevSaveCounts) => ({
-          ...prevSaveCounts,
-          [agentId]: response.data.agent.savedByCount,
-        }));
+        toast.success(`Agent added to wishlist!`);
+        dispatch(updateSavedByCount({ agentId, savedByCount: response.data.agent.savedByCount }));
+        console.log(`Dispatched updateSavedByCount for agent ${agentId} with savedByCount ${response.data.agent.savedByCount}`);
       }
       if (response.status === 201) {
-        toast.success(`Agent Removed from wishlist!`);
-        setSaveCounts((prevSaveCounts) => ({
-          ...prevSaveCounts,
-          [agentId]: response.data.agent.savedByCount,
-        }));
+        toast.success(`Agent removed from wishlist!`);
+        dispatch(updateSavedByCount({ agentId, savedByCount: response.data.agent.savedByCount }));
+        console.log(`Dispatched updateSavedByCount for agent ${agentId} with savedByCount ${response.data.agent.savedByCount}`);
       }
     } catch (error) {
       toast.error('An error occurred while updating the wishlist.');
@@ -124,7 +117,7 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
     }
   };
 
-  const filteredAgents = agents.filter((agent) => {
+  const filteredAgents = fetchedAgents.filter((agent) => {
     return (
       (filters.category === 'Category' || agent.category === filters.category) &&
       (filters.industry === 'Industry' || agent.industry === filters.industry) &&
@@ -169,7 +162,7 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
   return (
     <div className="mt-9 mx-auto max-h-screen overflow-y-auto">
       {/* Toast Container for Notifications */}
-      <ToastContainer />
+      
 
       {/* Top Agents Carousel */}
       {/* (If you have a carousel component, include it here) */}
@@ -236,12 +229,14 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
                       <button
                         className="flex items-center text-primaryBlue hover:text-blue-900 transition-all"
                         onClick={(event) => handleLike(event, agent._id)}
+                        aria-label={`Like agent ${agent.name}`}
                       >
                         <FaThumbsUp className="mr-2" /> {likeCounts[agent._id] || 0}
                       </button>
                       <button
                         className="flex items-center text-primaryBlue hover:text-blue-900 transition-all ml-4"
                         onClick={(event) => handleWishlist(event, agent._id)}
+                        aria-label={`Add or remove agent ${agent.name} from wishlist`}
                       >
                         <FaRegBookmark className="mr-2" /> {saveCounts[agent._id] || 0}
                       </button>
@@ -274,6 +269,7 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
           onClick={handlePreviousPage}
           disabled={currentPage === 1}
           className={`p-2 border rounded-full ${currentPage === 1 ? 'cursor-not-allowed opacity-50' : ''} text-primaryBlue border-primaryBlue`}
+          aria-label="Previous Page"
         >
           &lt;
         </button>
@@ -284,6 +280,7 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
               key={page + 1}
               onClick={() => handlePageChange(page + 1)}
               className={`p-2 rounded-full border ${currentPage === page + 1 ? 'bg-primaryBlue text-white' : 'text-primaryBlue border-primaryBlue'}`}
+              aria-label={`Page ${page + 1}`}
             >
               {page + 1}
             </button>
@@ -294,6 +291,7 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
           onClick={handleNextPage}
           disabled={currentPage === totalPages}
           className={`p-2 border rounded-full ${currentPage === totalPages ? 'cursor-not-allowed opacity-50' : ''} text-primaryBlue border-primaryBlue`}
+          aria-label="Next Page"
         >
           &gt;
         </button>

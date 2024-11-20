@@ -1,11 +1,21 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
-import Cookies from 'js-cookie';
+
 import { motion } from 'framer-motion';
-import { FaCheckCircle, FaHourglassHalf, FaTimesCircle, FaList, FaTimes, FaEdit } from 'react-icons/fa';
-import 'react-toastify/dist/ReactToastify.css'; // Ensure react-toastify styles are imported
+import {
+  FaCheckCircle,
+  FaHourglassHalf,
+  FaTimesCircle,
+  FaList,
+  FaTimes,
+  FaEdit,
+  FaUpload, // Icon for bulk upload
+  FaTrash,  // Import the Trash icon for deletion
+} from 'react-icons/fa';
+import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom';
+import BulkUpload from './BulkUpload'; // Import the BulkUpload component
 
 export const AdminDashboard = () => {
   const primaryBlue2 = 'rgb(73, 125, 168)'; // Define your theme color
@@ -29,26 +39,20 @@ export const AdminDashboard = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmittingRef = useRef(false); // Ref to track submission status
 
-  const token = Cookies.get('token');
-
   // Fetch Agents function to be called on mount and after status updates
   const fetchAgents = useCallback(async () => {
     try {
       const response = await Promise.all([
         axios.get('https://backend-1-sval.onrender.com/api/admin/agents/requested', {
-         
           withCredentials: true,
         }),
         axios.get('https://backend-1-sval.onrender.com/api/admin/agents/accepted', {
-     
           withCredentials: true,
         }),
         axios.get('https://backend-1-sval.onrender.com/api/admin/agents/rejected', {
-         
           withCredentials: true,
         }),
         axios.get('https://backend-1-sval.onrender.com/api/admin/agents/onHold', {
-        
           withCredentials: true,
         }),
       ]);
@@ -63,7 +67,7 @@ export const AdminDashboard = () => {
       toast.error('Failed to fetch agents');
       console.error('Error fetching agents:', error);
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchAgents(); // Fetch agents on component mount
@@ -87,7 +91,9 @@ export const AdminDashboard = () => {
       await axios.put(
         `https://backend-1-sval.onrender.com/api/admin/agents/${agentId}/status`,
         { status, instructions },
-        { withCredentials: true }
+        {
+          withCredentials: true,
+        }
       );
       toast.success(`Agent status updated to ${status}`);
       setModalIsOpen(false);
@@ -133,7 +139,24 @@ export const AdminDashboard = () => {
       isSubmittingRef.current = false; // Reset the ref
       setIsSubmitting(false); // Re-enable the button
     }
-  }, [newsletterData, token]);
+  }, [newsletterData]);
+
+  // **Delete Handler Function**
+  const handleDeleteAgent = async (agentId) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this agent? This action cannot be undone.');
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(`https://backend-1-sval.onrender.com/api/admin/agents/${agentId}`, {
+        withCredentials: true,
+      });
+      toast.success('Agent deleted successfully');
+      fetchAgents(); // Refresh the agents list after deletion
+    } catch (error) {
+      toast.error('Failed to delete agent');
+      console.error('Error deleting agent:', error);
+    }
+  };
 
   const renderAgents = (category) => {
     if (!agents[category] || agents[category].length === 0) {
@@ -148,9 +171,9 @@ export const AdminDashboard = () => {
         whileTap={{ scale: 0.95 }}
       >
         <Link to={`/agent/${agent._id}`}>
-        <img src={agent.logo} alt={`${agent.name} logo`} className="h-16 w-16 mb-4 rounded-full mx-auto shadow-md" />
-        <p className="text-xl font-semibold mb-2 text-center" style={{ color: primaryBlue2 }}>{agent.name}</p>
-        <p className="text-sm text-gray-600 mb-4 text-center">{agent.shortDescription}</p>
+          <img src={agent.logo} alt={`${agent.name} logo`} className="h-16 w-16 mb-4 rounded-full mx-auto shadow-md" />
+          <p className="text-xl font-semibold mb-2 text-center" style={{ color: primaryBlue2 }}>{agent.name}</p>
+          <p className="text-sm text-gray-600 mb-4 text-center">{agent.shortDescription}</p>
         </Link>
         <div className="flex justify-center space-x-4">
           <button onClick={() => handleStatusChange(agent, 'accepted')} className="text-green-500" title="Accept">
@@ -167,13 +190,30 @@ export const AdminDashboard = () => {
               <FaEdit />
             </button>
           )}
+          {/* **Delete Button** */}
+          <button
+            onClick={() => handleDeleteAgent(agent._id)}
+            className="text-red-600 hover:text-red-800"
+            title="Delete"
+          >
+            <FaTrash />
+          </button>
         </div>
       </motion.div>
     ));
   };
 
+  // Bulk Upload Modal State
+  const [bulkUploadModalIsOpen, setBulkUploadModalIsOpen] = useState(false);
+
+  const handleBulkUploadSuccess = () => {
+    setBulkUploadModalIsOpen(false);
+    fetchAgents(); // Refresh agents list after bulk upload
+  };
+
   return (
     <div className="relative min-h-screen bg-gray-50 overflow-hidden">
+     
       <motion.div className="absolute inset-0 z-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.5 }}>
       </motion.div>
 
@@ -204,10 +244,17 @@ export const AdminDashboard = () => {
             ))}
             <li
               className="cursor-pointer text-lg hover:bg-gray-200 p-4 rounded-lg flex items-center transition-colors"
+              onClick={() => setBulkUploadModalIsOpen(true)}
+            >
+              <FaUpload className="mr-3" />
+              <span>Bulk Upload Agents</span>
+            </li>
+            <li
+              className="cursor-pointer text-lg hover:bg-gray-200 p-4 rounded-lg flex items-center transition-colors"
               onClick={() => setNewsletterModalIsOpen(true)}
             >
               <FaEdit className="mr-3" />
-              Send Newsletter
+              <span>Send Newsletter</span>
             </li>
           </ul>
         </motion.div>
@@ -247,7 +294,7 @@ export const AdminDashboard = () => {
               </button>
               <button
                 onClick={handleSubmitInstructions}
-                className="bg-primaryBlue2 text-white font-bold py-2 px-4 rounded"
+                className="bg-blue-600 text-white font-bold py-2 px-4 rounded"
               >
                 Submit
               </button>
@@ -302,7 +349,7 @@ export const AdminDashboard = () => {
               </button>
               <button
                 onClick={handleSendNewsletter}
-                className="bg-primaryBlue2 text-white font-bold py-2 px-4 rounded"
+                className="bg-blue-600 text-white font-bold py-2 px-4 rounded"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Sending...' : 'Send'}
@@ -311,6 +358,16 @@ export const AdminDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Bulk Upload Modal */}
+      <BulkUpload
+        isOpen={bulkUploadModalIsOpen}
+        onClose={() => setBulkUploadModalIsOpen(false)}
+        onUploadSuccess={handleBulkUploadSuccess}
+      />
+
+      {/* Toast Container */}
+     
     </div>
   );
 };

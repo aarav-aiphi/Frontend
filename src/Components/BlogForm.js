@@ -153,10 +153,7 @@ const BlogForm = () => {
       });
 
       // Debugging: Log FormData entries (Optional: Remove in production)
-      for (let pair of formData.entries()) {
-        console.log(`${pair[0]}:`, pair[1]);
-      }
-
+ 
       // **Do not set the 'Content-Type' header manually**
       await axios.post('/blogs', formData); // Updated endpoint to include '/api'
 

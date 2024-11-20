@@ -11,8 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
-  const token=Cookies.get('token');
-  console.log(token);
+
 
   const fetchCurrentUser = async () => {
     try {
@@ -20,9 +19,9 @@ export const AuthProvider = ({ children }) => {
        
           withCredentials: true,
       });
-      console.log(response);
+     
       if (response.data) {
-        console.log(response.data.user);
+      
         setUser(response.data.user);
         setIsAuthenticated(true);
       } else {
@@ -40,15 +39,15 @@ export const AuthProvider = ({ children }) => {
     axios
       .post(
         'https://backend-1-sval.onrender.com/api/users/logout',
-       
+        {}, // Empty body if not required
         {
-          withCredentials: true,
+          withCredentials: true, // Correct: Passed as config
         }
       )
       .then(() => {
         setUser(null);
         setIsAuthenticated(false);
-        Cookies.remove('token');
+        Cookies.remove('token'); // May not work as expected (see next section)
         toast.success('Logged out successfully!');
       })
       .catch((error) => {
@@ -56,6 +55,7 @@ export const AuthProvider = ({ children }) => {
         toast.error('Failed to logout. Please try again.');
       });
   };
+  
 
   useEffect(() => {
     fetchCurrentUser();

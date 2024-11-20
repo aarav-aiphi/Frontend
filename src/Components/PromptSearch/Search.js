@@ -124,7 +124,7 @@ const SearchComponent = () => {
           
         }
       );
-      console.log('Search query saved successfully');
+      
     } catch (error) {
       console.error('Error saving search query:', error);
       toast.error('Failed to save search query. Please try again.');

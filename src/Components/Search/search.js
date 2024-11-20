@@ -52,7 +52,7 @@ const Search = ({ setModel, setPrice, setCategory, setIndustry, isCardSectionInV
     const fetchFilterOptions = async () => {
       try {
         const response = await axios.get('https://backend-1-sval.onrender.com/api/agents/filters');
-        console.log('API Response:', response.data); // Debugging line
+       
         setFilterOptions({
           accessModels: response.data.accessModels || [],
           pricingModels: response.data.pricingModels || [],
@@ -109,7 +109,7 @@ const Search = ({ setModel, setPrice, setCategory, setIndustry, isCardSectionInV
 
   // Handle selection of an option
   const handleSelect = (filterType, value) => {
-    console.log(`Selecting ${filterType}: ${value}`); // Debugging line
+
     setSelected(prev => ({
       ...prev,
       [filterType]: value

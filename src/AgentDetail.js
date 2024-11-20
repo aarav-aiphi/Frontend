@@ -18,10 +18,6 @@ import {
   FaArrowRight,
   FaSpinner, // Import FaSpinner
 } from 'react-icons/fa'; // Imported additional icons
-import agent_bg from './Images/agent_bg.jpg';
-import agent2_bg from './Images/agent3.jpg';
-import agent3_bg from './Images/agentbg3.jpg';
-import agent4_bg from './Images/agent2_bg.jpg';
 import agent5_bg from './Images/agentbg4.jpg'; // Added new banner image
 
 export const AgentDetail = () => {
@@ -36,7 +32,9 @@ export const AgentDetail = () => {
       try {
         setLoading(true); // Start loading
         const response = await axios.get(`https://backend-1-sval.onrender.com/api/agents/similar/${id}`);
-        console.log(response.data);
+        if(response.status === 201) {
+          
+        }
         setAgent(response.data.agent);
         setSimilarAgents(response.data.bestMatches);
         const initialSaves = {};
@@ -109,8 +107,7 @@ export const AgentDetail = () => {
   return (
     <div className="max-w-screen-xl mx-auto bg-gray-50 relative">
 
-      {/* Toast Container */}
-      <ToastContainer />
+   
 
       {/* Banner and Logo Section */}
       <div className="relative w-full h-56 rounded-lg overflow-visible">

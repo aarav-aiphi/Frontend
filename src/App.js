@@ -33,6 +33,8 @@ import { BlogProvider } from "./context/BlogContext";
 import UserDashboard from "./Components/UserDashboard.js/UserDashboard";
 import PrivacyPolicy from "./Components/PrivacyPolicy/PrivacyPolicy";
 import { Contact } from "./Contact/Contact";
+import { Provider } from 'react-redux';
+import store from "./redux/store";
 
 const Applayout = () => {
   useEffect(() => {
@@ -45,6 +47,7 @@ const location =useLocation();
 const noNavbarRoutes=[];
     return (
         <>
+        <Provider store={store}>
         <ScrollToTop />
         <AuthProvider>
         <BlogProvider>
@@ -53,7 +56,7 @@ const noNavbarRoutes=[];
             <Footer />
             <ToastContainer 
                 position="top-right"
-                autoClose={5000}
+                autoClose={3000}
                 hideProgressBar={false}
                 newestOnTop={false}
                 closeOnClick
@@ -62,9 +65,11 @@ const noNavbarRoutes=[];
                 draggable
                 pauseOnHover
                 theme="light"
+               
             />
         </BlogProvider>
         </AuthProvider>
+        </Provider>
         </>
     );
 }

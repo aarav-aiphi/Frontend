@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../context/AuthContext.js'; // Import the AuthContext
 import Avatar from '../Avatar/Avatar.js';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   FaHeart,
   FaBookmark,
@@ -13,13 +13,12 @@ import {
   FaUserCircle,
   FaBars,
   FaTimes,
-  FaHome // Import FaHome icon
+  FaHome,
+  FaLightbulb,      // Icon for use cases
+  FaRegCalendarAlt, // Icon for timestamp
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom'; // Import Link for navigation
-
-const primaryBlue = '#4A90E2'; // Primary blue color
-const secondaryBlue = '#1E90FF'; // Secondary blue for variation
 
 const UserDashboard = () => {
   const [savedAgents, setSavedAgents] = useState([]);
@@ -42,65 +41,64 @@ const UserDashboard = () => {
     'Enhance productivity and efficiency',
   ];
 
-  const token = Cookies.get('token');
+  const dispatch = useDispatch();
+  const agents = useSelector((state) => state.agents.agents);
 
   // AgentCard Component
   const AgentCard = ({ agent }) => (
-    <motion.div
-      className="relative bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-xl transition-shadow duration-300 overflow-hidden"
-      whileHover={{ translateY: -5 }}
-    >
-      {/* Accent Border at the Top */}
-      <div className="absolute inset-0 border-t-4 border-blue-500 rounded-lg"></div>
+    <Link to={`/agent/${agent._id}`}>
+      <motion.div
+        className="relative bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-xl transition-shadow duration-300 overflow-hidden"
+        whileHover={{ translateY: -5 }}
+      >
+        {/* Accent Border at the Top */}
+        <div className="absolute inset-0 border-t-4 border-blue-500 rounded-lg"></div>
 
-      {/* Side Ribbon */}
-      <div className="absolute top-0 left-0 bg-blue-500 text-white px-2 py-1 text-xs font-bold rounded-tr-lg rounded-br-lg">
-        {agent.category}
-      </div>
+        {/* Side Ribbon */}
+        <div className="absolute top-0 left-0 bg-blue-500 text-white px-2 py-1 text-xs font-bold rounded-tr-lg rounded-br-lg">
+          {agent.category}
+        </div>
 
-      {/* Content */}
-      <div className="relative z-10">
-        {agent.logo && (
-          <img
-            src={agent.logo}
-            alt={`${agent.name} Logo`}
-            className="h-12 w-12 sm:h-16 sm:w-16 mb-2 sm:mb-4 object-contain"
-          />
-        )}
-        <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-1 sm:mb-2">{agent.name}</h3>
-        <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-4">{agent.shortDescription}</p>
+        {/* Content */}
+        <div className="relative z-10">
+          {agent.logo && (
+            <img
+              src={agent.logo}
+              alt={`${agent.name} Logo`}
+              className="h-12 w-12 sm:h-16 sm:w-16 mb-2 sm:mb-4 object-contain"
+            />
+          )}
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-1 sm:mb-2">
+            {agent.name}
+          </h3>
+          <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-4">
+            {agent.shortDescription}
+          </p>
 
-        {/* Likes and Savers Count */}
-        <div className="flex items-center mt-2 sm:mt-4 space-x-4 sm:space-x-6">
-          {/* Likes */}
-          <div className="flex items-center text-gray-600 text-xs sm:text-sm">
-            <FaHeart className="mr-1 text-red-500" />
-            <span>{agent.likes}</span>
-          </div>
-          {/* Savers Count */}
-          <div className="flex items-center text-gray-600 text-xs sm:text-sm">
-            <FaBookmark className="mr-1 text-blue-500" />
-            <span>{agent.savedByCount}</span>
+          {/* Likes and Savers Count */}
+          <div className="flex items-center mt-2 sm:mt-4 space-x-4 sm:space-x-6">
+            {/* Likes */}
+            <div className="flex items-center text-gray-600 text-xs sm:text-sm">
+              <FaHeart className="mr-1 text-red-500" />
+              <span>{agent.likes}</span>
+            </div>
+            {/* Savers Count */}
+            <div className="flex items-center text-gray-600 text-xs sm:text-sm">
+              <FaBookmark className="mr-1 text-blue-500" />
+              <span>{agent.savedByCount}</span>
+            </div>
           </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </Link>
   );
 
   useEffect(() => {
-    
-
     const fetchSavedAgents = async () => {
       try {
-        const response = await axios.get(
-          'https://backend-1-sval.onrender.com/api/users/wishlist',
-          {
-            // headers: {
-            //   Authorization: `Bearer ${token}`,
-            // },
-            withCredentials: true,
-          }
-        );
+        const response = await axios.get('https://backend-1-sval.onrender.com/api/users/wishlist', {
+          withCredentials: true,
+        });
         setSavedAgents(response.data.wishlist);
       } catch (error) {
         toast.error('Failed to fetch saved agents.');
@@ -111,15 +109,9 @@ const UserDashboard = () => {
 
     const fetchLikedAgents = async () => {
       try {
-        const response = await axios.get(
-          'https://backend-1-sval.onrender.com/api/users/liked-agents',
-          {
-            // headers: {
-            //   Authorization: `Bearer ${token}`,
-            // },
-            withCredentials: true,
-          }
-        );
+        const response = await axios.get('https://backend-1-sval.onrender.com/api/users/liked-agents', {
+          withCredentials: true,
+        });
         setLikedAgents(response.data.likedAgents);
       } catch (error) {
         toast.error('Failed to fetch liked agents.');
@@ -130,15 +122,9 @@ const UserDashboard = () => {
 
     const fetchUseCases = async () => {
       try {
-        const response = await axios.get(
-          'https://backend-1-sval.onrender.com/api/users/search-history',
-          {
-            // headers: {
-            //   Authorization: `Bearer ${token}`,
-            // },
-            withCredentials: true,
-          }
-        );
+        const response = await axios.get('https://backend-1-sval.onrender.com/api/users/search-history', {
+          withCredentials: true,
+        });
         setUseCases(response.data.searchHistory);
       } catch (error) {
         toast.error('Failed to fetch use cases.');
@@ -150,7 +136,7 @@ const UserDashboard = () => {
     fetchSavedAgents();
     fetchLikedAgents();
     fetchUseCases();
-  }, [token]);
+  }, []);
 
   // Fetch recommended agents based on liked and saved agents
   useEffect(() => {
@@ -163,15 +149,9 @@ const UserDashboard = () => {
         // Function to fetch similar agents for a given agent ID
         const fetchSimilar = async (agentId) => {
           try {
-            const response = await axios.get(
-              `https://backend-1-sval.onrender.com/api/agents/similar/${agentId}`,
-              {
-                // headers: {
-                //   Authorization: `Bearer ${token}`,
-                // },
-                withCredentials: true,
-              }
-            );
+            const response = await axios.get(`https://backend-1-sval.onrender.com/api/agents/similar/${agentId}`, {
+              withCredentials: true,
+            });
             return response.data.bestMatches;
           } catch (error) {
             console.error(`Error fetching similar agents for ${agentId}:`, error);
@@ -216,11 +196,12 @@ const UserDashboard = () => {
         toast.error('Failed to fetch recommended agents.');
         console.error('Error fetching recommended agents:', error);
       }
+
       setLoadingRecommended(false);
     };
 
     fetchRecommendedAgents();
-  }, [likedAgents, savedAgents, loadingSaved, loadingLiked, token]);
+  }, [likedAgents, savedAgents, loadingSaved, loadingLiked]);
 
   // Cycle through welcome messages
   useEffect(() => {
@@ -249,7 +230,6 @@ const UserDashboard = () => {
 
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 flex items-center justify-between bg-white shadow-md p-4 z-50">
-       
         <button
           onClick={toggleSidebar}
           className="text-gray-800 focus:outline-none"
@@ -257,8 +237,8 @@ const UserDashboard = () => {
         >
           {isSidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
         </button>
-         <div className="flex items-center">
-          {user?.profileImagee ? (
+        <div className="flex items-center">
+          {user?.profileImage ? (
             <img
               src={`${user?.profileImage}`}
               alt="Profile"
@@ -279,7 +259,7 @@ const UserDashboard = () => {
       >
         {/* Profile Section */}
         <div className="flex flex-col items-center mt-20 md:mt-5 p-4">
-          {user?.profileImagee ? (
+          {user?.profileImage ? (
             <img
               src={`${user?.profileImage}`}
               alt="Profile"
@@ -290,10 +270,6 @@ const UserDashboard = () => {
           )}
           <h2 className="text-xl font-semibold text-gray-800">{user?.firstName}</h2>
           <p className="text-sm text-gray-600">{user?.email}</p>
-          {/* Optional Edit Profile Button */}
-          {/* <button className="mt-3 px-4 py-1 text-sm text-blue-600 border border-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition-colors duration-200">
-            Edit Profile
-          </button> */}
         </div>
 
         {/* Separator */}
@@ -303,10 +279,6 @@ const UserDashboard = () => {
         <nav className="px-4">
           {['home', 'dashboard', 'saved', 'liked', 'usecases'].map((section) => (
             <div key={section} className="group mb-4">
-              {/* 
-                Using Link for 'home' and buttons for other sections.
-                This ensures 'Home' navigates to '/' without affecting the activeSection state.
-              */}
               {section === 'home' ? (
                 <Link
                   to="/"
@@ -373,7 +345,9 @@ const UserDashboard = () => {
 
               {/* Recommended Agents */}
               <div className="w-full">
-                <h2 className="text-2xl sm:text-3xl font-semibold mb-4 sm:mb-6 text-gray-900">Recommended Agents</h2>
+                <h2 className="text-2xl sm:text-3xl font-semibold mb-4 sm:mb-6 text-gray-900">
+                  Recommended Agents
+                </h2>
                 {loadingRecommended ? (
                   <p className="text-gray-600">Loading recommended agents...</p>
                 ) : recommendedAgents.length > 0 ? (
@@ -402,25 +376,6 @@ const UserDashboard = () => {
               {activeSection === 'usecases' && 'Your Use Cases'}
             </motion.h1>
           )}
-
-          {/* Home Section (Optional: If you want to display content when navigating home within the dashboard) */}
-          {/* If "Home" is a separate route, this section can be removed */}
-          {/* Uncomment the following if "Home" should display within the dashboard */}
-          {/* {activeSection === 'home' && (
-            <motion.section
-              className="mb-12 flex flex-col items-center justify-center h-full"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <h1 className="text-3xl sm:text-5xl font-bold text-primaryBlue drop-shadow-lg mb-6">
-                Welcome Home!
-              </h1>
-              <p className="text-gray-600 text-center">
-                Explore our platform to discover and manage your favorite AI agents.
-              </p>
-            </motion.section>
-          )} */}
 
           {/* Saved Agents Section */}
           {activeSection === 'saved' && (
@@ -477,20 +432,25 @@ const UserDashboard = () => {
               {loadingUseCases ? (
                 <p className="text-gray-600">Loading use cases...</p>
               ) : useCases.length > 0 ? (
-                <div className="bg-white shadow-sm rounded-lg p-4 sm:p-6">
-                  <ul className="space-y-3 sm:space-y-4">
-                    {useCases.map((useCase) => (
-                      <li
-                        key={useCase._id}
-                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 p-3 sm:p-4 rounded-lg"
-                      >
-                        <span className="text-gray-700 text-sm sm:text-base">{useCase.query}</span>
-                        <span className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-0">
-                          {new Date(useCase.timestamp).toLocaleDateString()}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  {useCases.map((useCase) => (
+                    <motion.div
+                      key={useCase._id}
+                      className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-xl transition-shadow duration-300"
+                      whileHover={{ translateY: -5 }}
+                    >
+                      <div className="flex items-start">
+                        <FaLightbulb className="text-yellow-500 text-2xl mr-3" />
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                            {useCase.query}
+                          </h3>
+                          {/* Timestamp */}
+                          
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               ) : (
                 <p className="text-gray-600">No use cases found.</p>

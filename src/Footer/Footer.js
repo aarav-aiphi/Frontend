@@ -67,6 +67,7 @@ export const Footer = () => {
 
               <button
                 type="submit"
+                onClick={handleSubscription}
                 className="flex-none rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition duration-300"
               >
                 Notify me
@@ -82,14 +83,14 @@ export const Footer = () => {
           <div>
             <h3 className="text-xl font-semibold mb-4">About Us</h3>
             <ul className="space-y-2">
-              <li>
+              {/* <li>
                 <a href="#" className="text-gray-400 hover:text-white transition duration-300">
                   Our Story
                 </a>
-              </li>
+              </li> */}
               
               <li>
-                <Link to='/blog' className="text-gray-400 hover:text-white transition duration-300">
+                <Link to='/blogs' className="text-gray-400 hover:text-white transition duration-300">
                   Blog
                 </Link>
               </li>
@@ -140,9 +141,11 @@ export const Footer = () => {
           <div>
             <h3 className="text-xl font-semibold mb-4">Contact Us</h3>
             <ul className="space-y-2">
-              <li className="text-gray-400">1234 Street Name, City, State 56789</li>
-              <li className="text-gray-400">Email: info@somecompany.com</li>
-              <li className="text-gray-400">Phone: (123) 456-7890</li>
+              <li className="text-gray-400">8th Floor, A Block, Sai Crystal, Plot No 45/52/52A, Sector 35 D, Kharghar Navi Mumbai 410210</li>
+              <li className="text-gray-400">Email: 
+              info@aiphi.ai</li>
+              <li className="text-gray-400">Phone: 
+              +91 99016 98890</li>
             </ul>
           </div>
         </div>
