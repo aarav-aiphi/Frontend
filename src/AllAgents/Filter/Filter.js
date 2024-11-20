@@ -1,28 +1,61 @@
 // src/Components/Filter/Filter.js
 
 import React, { useState, useEffect } from 'react';
-import { IoIosArrowDropdown, IoIosArrowDropup, IoIosClose } from "react-icons/io";
-import { FaUserAlt, FaIndustry, FaDollarSign, FaKey } from "react-icons/fa"; // Font Awesome Icons
+import { IoIosArrowDropdown, IoIosArrowDropup, IoIosClose } from 'react-icons/io';
+import { FaUserAlt, FaIndustry, FaDollarSign, FaKey } from 'react-icons/fa';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+import {
+  fetchFilterOptions,
+  selectAllCategories,
+  selectAllIndustries,
+  selectAllPricingModels,
+  selectAllAccessModels,
+  selectFiltersStatus,
+  selectFiltersError,
+} from '../../redux/filtersSlice';
 
 export const Filter = ({ onFilterChange, setFilterLoading }) => {
+  const dispatch = useDispatch();
+
+  // Local state for dropdown toggles and selected filters
   const [isCatgOpen, setIsCatgOpen] = useState(true);
   const [isIdstOpen, setIsIdstOpen] = useState(true);
   const [isModelOpen, setIsModelOpen] = useState(true);
   const [isPricesOpen, setIsPricesOpen] = useState(true);
 
   const [category, setCategory] = useState('Category');
-  const [industry, setIndustry] = useState("Industry");
-  const [pricingModel, setPricingModel] = useState("Pricing");
-  const [accessModel, setAccessModel] = useState("Access");
+  const [industry, setIndustry] = useState('Industry');
+  const [pricingModel, setPricingModel] = useState('Pricing');
+  const [accessModel, setAccessModel] = useState('Access');
 
-  const [filterOptions, setFilterOptions] = useState({
-    categories: [],
-    industries: [],
-    pricingModels: [],
-    accessModels: [],
-  });
+  // Selectors to get filter options from Redux store
+  const categories = useSelector(selectAllCategories);
+  const industries = useSelector(selectAllIndustries);
+  const pricingModels = useSelector(selectAllPricingModels);
+  const accessModels = useSelector(selectAllAccessModels);
+  const filtersStatus = useSelector(selectFiltersStatus);
+  const filtersError = useSelector(selectFiltersError);
+
+  // Fetch filter options on component mount if not already fetched
+  useEffect(() => {
+    if (filtersStatus === 'idle') {
+      dispatch(fetchFilterOptions());
+    }
+  }, [filtersStatus, dispatch]);
+
+  // Handle loading and error states based on Redux store
+  useEffect(() => {
+    if (filtersStatus === 'loading') {
+      setFilterLoading(true);
+    } else {
+      setFilterLoading(false);
+    }
+
+    if (filtersStatus === 'failed') {
+      toast.error(filtersError || 'Failed to load filter options!');
+    }
+  }, [filtersStatus, filtersError, setFilterLoading]);
 
   // Reset functions for each filter
   const resetCategory = () => {
@@ -63,49 +96,28 @@ export const Filter = ({ onFilterChange, setFilterLoading }) => {
     onFilterChange({ category, industry, pricingModel, accessModel: selectedAccess });
   };
 
-  // Fetch filter options from backend
-  useEffect(() => {
-    const fetchFilterOptions = async () => {
-      try {
-        setFilterLoading(true); // Start loading
-        const response = await axios.get('https://backend-1-sval.onrender.com/api/agents/filters');
-        setFilterOptions({
-          categories: response.data.categories,
-          industries: response.data.industries,
-          pricingModels: response.data.pricingModels,
-          accessModels: response.data.accessModels,
-        });
-        console.log(response);
-      } catch (err) {
-        console.error('Error fetching filter options:', err);
-        // toast.error('Failed to load filter options!');
-      } finally {
-        setFilterLoading(false); // Stop loading
-      }
-    };
-
-    fetchFilterOptions();
-  }, [setFilterLoading]);
-
   return (
     <div className="space-y-6 md:p-4 ">
       {/* Categories Section */}
-      <div className="flex flex-row justify-between items-center cursor-pointer hover:text-primaryBlue transition-all duration-300">
+      <div
+        className="flex flex-row justify-between items-center cursor-pointer hover:text-primaryBlue transition-all duration-300"
+        onClick={() => setIsCatgOpen(!isCatgOpen)}
+      >
         <h1 className="text-xl font-semibold flex items-center space-x-2">
           <FaUserAlt className="text-primaryBlue" />
           <span>Categories</span>
         </h1>
-        <div onClick={() => setIsCatgOpen(!isCatgOpen)}>
+        <div>
           {isCatgOpen ? <IoIosArrowDropup size={24} /> : <IoIosArrowDropdown size={24} />}
         </div>
       </div>
       {isCatgOpen && (
         <div className="mt-2 max-h-28 overflow-y-auto">
           <ul className="text-gray-600 pl-4">
-            {filterOptions.categories.map((cat) => (
-              <li key={cat} className="flex items-center space-x-2 py-1 cursor-pointer">
+            {categories.map((cat) => (
+              <li key={cat} className="flex items-center space-x-2 py-1">
                 <span
-                  className={`${
+                  className={`cursor-pointer ${
                     category === cat ? 'text-primaryBlue font-bold' : 'hover:text-blue-600'
                   } transition-colors duration-300`}
                   onClick={() => handleCategoryChange(cat)}
@@ -128,19 +140,22 @@ export const Filter = ({ onFilterChange, setFilterLoading }) => {
       <hr />
 
       {/* Industries Section */}
-      <div className="flex flex-row justify-between items-center cursor-pointer hover:text-primaryBlue transition-all duration-300">
+      <div
+        className="flex flex-row justify-between items-center cursor-pointer hover:text-primaryBlue transition-all duration-300"
+        onClick={() => setIsIdstOpen(!isIdstOpen)}
+      >
         <h1 className="text-xl font-semibold flex items-center space-x-2">
           <FaIndustry className="text-primaryBlue" />
           <span>Industries</span>
         </h1>
-        <div onClick={() => setIsIdstOpen(!isIdstOpen)}>
+        <div>
           {isIdstOpen ? <IoIosArrowDropup size={24} /> : <IoIosArrowDropdown size={24} />}
         </div>
       </div>
       {isIdstOpen && (
         <div className="mt-2 max-h-28 overflow-y-auto">
           <ul className="text-gray-600 pl-4">
-            {filterOptions.industries.map((ind) => (
+            {industries.map((ind) => (
               <li key={ind} className="flex items-center space-x-2 py-1">
                 <span
                   className={`cursor-pointer ${
@@ -166,19 +181,22 @@ export const Filter = ({ onFilterChange, setFilterLoading }) => {
       <hr />
 
       {/* Pricing Model Section */}
-      <div className="flex flex-row justify-between items-center cursor-pointer hover:text-primaryBlue transition-all duration-300">
+      <div
+        className="flex flex-row justify-between items-center cursor-pointer hover:text-primaryBlue transition-all duration-300"
+        onClick={() => setIsPricesOpen(!isPricesOpen)}
+      >
         <h1 className="text-xl font-semibold flex items-center space-x-2">
           <FaDollarSign className="text-primaryBlue" />
           <span>Pricing Model</span>
         </h1>
-        <div onClick={() => setIsPricesOpen(!isPricesOpen)}>
+        <div>
           {isPricesOpen ? <IoIosArrowDropup size={24} /> : <IoIosArrowDropdown size={24} />}
         </div>
       </div>
       {isPricesOpen && (
         <div className="mt-2 max-h-28 overflow-y-auto">
           <ul className="text-gray-600 pl-4">
-            {filterOptions.pricingModels.map((price) => (
+            {pricingModels.map((price) => (
               <li key={price} className="flex items-center space-x-2 py-1">
                 <span
                   className={`cursor-pointer ${
@@ -204,19 +222,22 @@ export const Filter = ({ onFilterChange, setFilterLoading }) => {
       <hr />
 
       {/* Access Model Section */}
-      <div className="flex flex-row justify-between items-center cursor-pointer hover:text-primaryBlue transition-all duration-300">
+      <div
+        className="flex flex-row justify-between items-center cursor-pointer hover:text-primaryBlue transition-all duration-300"
+        onClick={() => setIsModelOpen(!isModelOpen)}
+      >
         <h1 className="text-xl font-semibold flex items-center space-x-2">
           <FaKey className="text-primaryBlue" />
           <span>Access Model</span>
         </h1>
-        <div onClick={() => setIsModelOpen(!isModelOpen)}>
+        <div>
           {isModelOpen ? <IoIosArrowDropup size={24} /> : <IoIosArrowDropdown size={24} />}
         </div>
       </div>
       {isModelOpen && (
         <div className="mt-2 max-h-28 overflow-y-auto">
           <ul className="text-gray-600 pl-4">
-            {filterOptions.accessModels.map((access) => (
+            {accessModels.map((access) => (
               <li key={access} className="flex items-center space-x-2 py-1">
                 <span
                   className={`cursor-pointer ${
