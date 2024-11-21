@@ -219,7 +219,7 @@ const PrivacyPolicy = () => {
               If you have any questions or comments about this Privacy Policy, please contact us:
             </p>
             <div className="text-gray-700">
-              <p><strong>Email:</strong> <a href="mailto:info@aiphi.ai" className="text-indigo-600 hover:underline">support@aiazent.com</a></p>
+              <p><strong>Email:</strong> <a href="mailto:info@aiphi.ai" className="text-indigo-600 hover:underline">info@aiphi.ai</a></p>
               <p><strong>Address:</strong>8th Floor, A Block, Sai Crystal, Plot No 45/52/52A, Sector 35 D, Kharghar Navi Mumbai 410210</p>
             </div>
           </motion.section>
