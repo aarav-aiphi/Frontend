@@ -35,6 +35,7 @@ import PrivacyPolicy from "./Components/PrivacyPolicy/PrivacyPolicy";
 import { Contact } from "./Contact/Contact";
 import { Provider } from 'react-redux';
 import store from "./redux/store";
+import Community from "./Components/comingsoon/Community";
 
 const Applayout = () => {
   useEffect(() => {
@@ -149,6 +150,10 @@ const appRouter = createBrowserRouter([
             },{
                 path:"/contact",
                 element:<Contact/>
+            },
+            {
+                path:"/community",
+                element:<Community/>
             }
         ]
     }

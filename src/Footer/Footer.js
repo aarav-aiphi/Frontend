@@ -144,7 +144,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/faqs"
+                  to="/"
                   className="text-gray-400 hover:text-white transition duration-300"
                 >
                   FAQs
