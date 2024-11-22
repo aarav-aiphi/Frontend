@@ -5,6 +5,7 @@ import { IoIosArrowDropdown, IoIosArrowDropup, IoIosClose } from 'react-icons/io
 import { FaUserAlt, FaIndustry, FaDollarSign, FaKey } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { useSearchParams } from 'react-router-dom';
 import {
   fetchFilterOptions,
   selectAllCategories,
@@ -15,8 +16,11 @@ import {
   selectFiltersError,
 } from '../../redux/filtersSlice';
 
-export const Filter = ({ onFilterChange, setFilterLoading }) => {
+export const Filter = ({ onFilterChange, setFilterLoading}) => {
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const param= searchParams.get('category');
+  console.log(param);
 
   // Local state for dropdown toggles and selected filters
   const [isCatgOpen, setIsCatgOpen] = useState(true);
@@ -42,6 +46,10 @@ export const Filter = ({ onFilterChange, setFilterLoading }) => {
     if (filtersStatus === 'idle') {
       dispatch(fetchFilterOptions());
     }
+    if(param!=null){
+      handleCategoryChange(param);
+    }
+   
   }, [filtersStatus, dispatch]);
 
   // Handle loading and error states based on Redux store

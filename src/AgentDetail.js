@@ -1,6 +1,6 @@
 // src/Components/AgentDetail.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; // Added useRef
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
@@ -16,9 +16,14 @@ import {
   FaLightbulb, 
   FaUsers, 
   FaArrowRight,
-  FaSpinner, // Import FaSpinner
-} from 'react-icons/fa'; // Imported additional icons
-import agent5_bg from './Images/agentbg4.jpg'; // Added new banner image
+  FaSpinner,
+  FaEye, // Existing import
+  FaFacebook, // New import for Facebook
+  FaLinkedin, // New import for LinkedIn
+  FaCopy,      // New import for Copy Link
+} from 'react-icons/fa';
+import agent5_bg from './Images/agentbg4.jpg';
+import { CategoryAgentPage } from './Components/CategoryAgentPage';
 
 export const AgentDetail = () => {
   const { id } = useParams();
@@ -26,22 +31,35 @@ export const AgentDetail = () => {
   const [similarAgents, setSimilarAgents] = useState([]);
   const [saveCounts, setSaveCounts] = useState({});
   const [loading, setLoading] = useState(true); // Initialize loading state
+  const [isShareOpen, setIsShareOpen] = useState(false); // State to control share menu visibility
+  const shareRef = useRef(null); // Reference to the share button container
 
   useEffect(() => {
     const fetchAgentDetails = async () => {
       try {
         setLoading(true); // Start loading
         const response = await axios.get(`https://backend-1-sval.onrender.com/api/agents/similar/${id}`);
-        if(response.status === 201) {
-          
+        if (response.status === 201) {
+          // Handle if needed
         }
         setAgent(response.data.agent);
         setSimilarAgents(response.data.bestMatches);
         const initialSaves = {};
         initialSaves[response.data.agent._id] = response.data.agent.savedByCount || 0;
         setSaveCounts(initialSaves);
+
+        // Increment triedBy count
+        const triedByResponse = await axios.post(`https://backend-1-sval.onrender.com/api/agents/triedby/${id}`, {}, {
+          withCredentials: true, // Include if authentication is required
+        });
+
+        if (triedByResponse.status === 200) {
+          setAgent(triedByResponse.data.agent);
+        }
+
       } catch (error) {
         console.error('Error fetching agent details:', error);
+        // Optionally display a toast notification
         // toast.error('Failed to load agent details.');
       } finally {
         setLoading(false); // Stop loading
@@ -80,10 +98,57 @@ export const AgentDetail = () => {
       }
 
     } catch (error) {
-      // toast.error('An error occurred while updating the wishlist.');
-      console.error('Error updating wishlist:', error);
+      toast.error('Authentication required');
+      // console.error('Error updating wishlist:', error);
     }
   };
+
+  // Function to toggle share menu
+  const toggleShare = () => {
+    setIsShareOpen(!isShareOpen);
+  };
+
+  // Function to handle sharing on Facebook
+  const handleShareFacebook = () => {
+    const shareUrl = encodeURIComponent(window.location.href);
+    const shareTitle = encodeURIComponent(`Check out ${agent.name}!`);
+    const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&t=${shareTitle}`;
+    window.open(facebookShareUrl, '_blank', 'noopener,noreferrer');
+    setIsShareOpen(false);
+  };
+
+  // Function to handle sharing on LinkedIn
+  const handleShareLinkedIn = () => {
+    const shareUrl = encodeURIComponent(window.location.href);
+    const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`;
+    window.open(linkedinShareUrl, '_blank', 'noopener,noreferrer');
+    setIsShareOpen(false);
+  };
+
+  // Function to handle copying link to clipboard
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href)
+      .then(() => toast.success('Link copied to clipboard!'))
+      .catch(() => toast.error('Failed to copy link.'));
+    setIsShareOpen(false);
+  };
+
+  // Close share menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (shareRef.current && !shareRef.current.contains(event.target)) {
+        setIsShareOpen(false);
+      }
+    };
+    if (isShareOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isShareOpen]);
 
   // Spinner Component
   const Spinner = () => (
@@ -107,7 +172,7 @@ export const AgentDetail = () => {
   return (
     <div className="max-w-screen-xl mx-auto bg-gray-50 relative">
 
-   
+      
 
       {/* Banner and Logo Section */}
       <div className="relative w-full h-56 rounded-lg overflow-visible">
@@ -128,7 +193,7 @@ export const AgentDetail = () => {
       </div>
 
       {/* Action Buttons Below Banner Image */}
-      <div className="flex justify-end space-x-4 px-6 md:px-8 lg:px-12 mt-3">
+      <div className="flex justify-end space-x-4 px-6 md:px-8 lg:px-12 mt-3 relative" ref={shareRef}>
         {/* Try It Now Button */}
         <Link to={agent.websiteUrl} target="_blank" rel="noopener noreferrer">
           <button className="bg-gray-800 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-700 transition-transform transform hover:scale-105 shadow-md flex items-center">
@@ -137,9 +202,40 @@ export const AgentDetail = () => {
           </button>
         </Link>
         {/* Share Button */}
-        <button className="text-gray-800 border border-gray-800 px-4 py-2 rounded-lg hover:bg-gray-800 hover:text-white transition flex items-center">
+        <button 
+          className="relative text-gray-800 border border-gray-800 px-4 py-2 rounded-lg hover:bg-gray-800 hover:text-white transition flex items-center"
+          onClick={toggleShare}
+          aria-label="Share Agent"
+        >
           <FaShareAlt className="mr-2" />
           Share
+
+          {/* Share Options Dropdown */}
+          {isShareOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+              <button
+                onClick={handleShareFacebook}
+                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                <FaFacebook className="mr-2 text-blue-600" />
+                Facebook
+              </button>
+              <button
+                onClick={handleShareLinkedIn}
+                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                <FaLinkedin className="mr-2 text-blue-700" />
+                LinkedIn
+              </button>
+              <button
+                onClick={handleCopyLink}
+                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                <FaCopy className="mr-2 text-gray-600" />
+                Copy Link
+              </button>
+            </div>
+          )}
         </button>
       </div>
 
@@ -162,7 +258,12 @@ export const AgentDetail = () => {
         
         {/* Tried By and Wishlist Button */}
         <div className="flex items-center mt-4">
-          <p className="text-gray-600">Tried by: {agent.triedBy || 0}</p>
+          {/* Tried By with Eye Icon */}
+          <div className="flex items-center text-gray-600">
+            <FaEye className="mr-2" aria-label="Tried By" />
+            <span>{agent.triedBy || 0}</span>
+          </div>
+          {/* Wishlist Button */}
           <button
             className="flex items-center text-gray-800 bg-gray-300 hover:bg-gray-400 transition-all ml-4 px-4 py-2 rounded-full shadow-sm"
             onClick={(event) => handleWishlist(event, agent._id)}
@@ -284,6 +385,7 @@ export const AgentDetail = () => {
           </div>
         </div>
       </div>
+      <CategoryAgentPage/>
     </div>
   );
 };

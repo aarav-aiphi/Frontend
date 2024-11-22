@@ -1,4 +1,5 @@
 // src/components/AgentFilterAndCard.js
+
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -8,12 +9,14 @@ import {
   FaTimes, 
   FaRegBookmark,
   FaFilter,
-  FaSpinner 
+  FaSpinner,
+  FaHeart,
+  FaRegHeart 
 } from "react-icons/fa";
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchAgents, updateSavedByCount } from '../redux/agentsSlice'; // Import the synchronous action
-import { toast } from 'react-toastify';
+import { fetchAgents, updateSavedByCount, updateLikeCount } from '../redux/agentsSlice'; // Import the synchronous actions
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios'; // Ensure axios is imported
 
@@ -29,8 +32,6 @@ const DEFAULT_FILTERS = {
   industry: "Industry",
 };
 
-
-
 // Spinner Component
 const Spinner = () => (
   <div className="flex justify-center items-center p-4">
@@ -39,12 +40,13 @@ const Spinner = () => (
 );
 
 // AgentCard Component
-const AgentCard = ({ agent, saveCounts, handleWishlist }) => {
+const AgentCard = ({ agent, saveCounts, likeCounts, handleWishlist, handleLike }) => {
   // Destructure properties with default values
   const { _id, name, logo, shortDescription, category } = agent || {};
 
   // Safeguard against undefined saveCounts or agent ID
   const saveCount = (saveCounts && _id && saveCounts[_id]) ? saveCounts[_id] : 0;
+  const likeCount = (likeCounts && _id && likeCounts[_id]) ? likeCounts[_id] : 0;
 
   return (
     <Link to={`agent/${_id}`}>
@@ -61,14 +63,26 @@ const AgentCard = ({ agent, saveCounts, handleWishlist }) => {
           {category}
         </div>
 
-        {/* Save Icon at Top Right */}
-        <button
-          className="absolute top-2 right-2 flex items-center text-blue-500 hover:text-blue-700 transition-colors duration-200"
-          onClick={(event) => handleWishlist(event, _id)}
-          aria-label="Save Agent"
-        >
-          <FaRegBookmark className="mr-1" /> {saveCount}
-        </button>
+        {/* Like and Save Icons at Top Right */}
+        <div className="absolute top-2 right-2 flex items-center space-x-2">
+          {/* Like Button */}
+          <button
+            className="flex items-center text-red-500 hover:text-red-700 transition-colors duration-200"
+            onClick={(event) => handleLike(event, _id)}
+            aria-label={likeCount > 0 ? "Unlike Agent" : "Like Agent"}
+          >
+            {likeCount > 0 ? <FaHeart className="mr-1" /> : <FaRegHeart className="mr-1" />} {likeCount}
+          </button>
+
+          {/* Save Button */}
+          <button
+            className="flex items-center text-blue-500 hover:text-blue-700 transition-colors duration-200"
+            onClick={(event) => handleWishlist(event, _id)}
+            aria-label="Save Agent"
+          >
+            <FaRegBookmark className="mr-1" /> {saveCount}
+          </button>
+        </div>
 
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center flex-grow">
@@ -125,10 +139,8 @@ const AgentFilterAndCard = () => {
 
   // Access Redux state
   const dispatch = useDispatch();
-  const agents = useSelector((state) => state.agents.agents);
-  const saveCounts = useSelector((state) => state.agents.saveCounts);
-  const agentsStatus = useSelector((state) => state.agents.status);
-  const agentsError = useSelector((state) => state.agents.error);
+  const agentsState = useSelector((state) => state.agents);
+  const { agents: fetchedAgents, likeCounts, saveCounts, status, error } = agentsState;
 
   // Animation variants for filter elements
   const filterVariants = {
@@ -161,24 +173,17 @@ const AgentFilterAndCard = () => {
         });
       } catch (err) {
         console.error('Error fetching filter options:', err);
-        // toast.error('Failed to load filter options.');
+        toast.error('Failed to load filter options.');
       }
     };
 
     fetchFilterOptions();
 
     // Dispatch fetchAgents only if agents are not already fetched
-    if (agentsStatus === 'idle') {
+    if (status === 'idle') {
       dispatch(fetchAgents());
     }
-  }, [dispatch, agentsStatus]);
-
-  // Log agents and saveCounts after fetching
-  useEffect(() => {
-    if (agentsStatus === 'succeeded') {
-   
-    }
-  }, [agentsStatus, agents, saveCounts]);
+  }, [dispatch, status]);
 
   // Sticky filter functionality
   useEffect(() => {
@@ -227,7 +232,6 @@ const AgentFilterAndCard = () => {
 
   // Handle selection of an option
   const handleSelect = (filterType, value) => {
-
     setSelected(prev => ({
       ...prev,
       [filterType]: value
@@ -240,7 +244,6 @@ const AgentFilterAndCard = () => {
 
   // Reset individual filter to default
   const resetFilter = (filterType) => {
-   
     setSelected(prev => ({
       ...prev,
       [filterType]: DEFAULT_FILTERS[filterType]
@@ -286,7 +289,6 @@ const AgentFilterAndCard = () => {
       });
 
       const { savedByCount } = response.data.agent;
-   
 
       // Dispatch the synchronous action to update the Redux state
       dispatch(updateSavedByCount({ agentId, savedByCount }));
@@ -296,13 +298,44 @@ const AgentFilterAndCard = () => {
     } catch (error) {
       // Handle errors appropriately
       const errorMessage = error.response?.data?.message || 'Failed to update wishlist.';
-      // toast.error(errorMessage);
+      toast.error(errorMessage);
       console.error('Error updating wishlist:', error);
     }
   };
 
+  // Handle like functionality
+  const handleLike = async (event, agentId) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    try {
+      const url = `https://backend-1-sval.onrender.com/api/users/like/${agentId}`;
+      const method = 'post';
+
+      const response = await axios({
+        method,
+        url,
+        withCredentials: true,
+      });
+
+      if (response.status === 200) {
+        toast.success('Agent liked successfully!');
+        dispatch(updateLikeCount({ agentId, likeCount: response.data.agent.likes }));
+      }
+      if (response.status === 201) {
+        toast.success('Like removed successfully!');
+        dispatch(updateLikeCount({ agentId, likeCount: response.data.agent.likes }));
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to update likes.';
+      toast.error(errorMessage);
+      console.error('Error updating wishlist:', error);
+     
+    }
+  };
+
   // Filter agents based on selected filters
-  const filteredAgents = agents.filter(agent =>
+  const filteredAgents = fetchedAgents.filter(agent =>
     ((selected.accessModel === 'Model') || agent.accessModel === selected.accessModel) &&
     ((selected.pricingModel === 'Pricing') || agent.pricingModel === selected.pricingModel) &&
     ((selected.category === 'Category') || agent.category === selected.category) &&
@@ -349,7 +382,7 @@ const AgentFilterAndCard = () => {
   };
 
   // Render Loading State
-  if (agentsStatus === 'loading') {
+  if (status === 'loading') {
     return (
       <div className="flex justify-center items-center p-4">
         <Spinner />
@@ -358,7 +391,7 @@ const AgentFilterAndCard = () => {
   }
 
   // Render Error State
-  if (agentsStatus === 'failed') {
+  if (status === 'failed') {
     return (
       <div className="flex justify-center items-center p-4">
         <p className="text-red-500">Failed to load agents.</p>
@@ -645,105 +678,7 @@ const AgentFilterAndCard = () => {
                 animate="visible"
               >
                 <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6">
-                  {/* Access Model Dropdown */}
-                  <div className="relative w-full md:w-1/4" data-aos="fade-right">
-                    <button
-                      onClick={() => toggleDropdown('accessModel')}
-                      className="w-full text-gray-700 text-base border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none hover:bg-indigo-50 transition-colors duration-200 flex items-center justify-between relative"
-                      aria-haspopup="true"
-                      aria-expanded={openDropdown.accessModel}
-                    >
-                      <span>{selected.accessModel}</span>
-                      <div className="flex items-center space-x-1">
-                        {openDropdown.accessModel ? <FaChevronUp /> : <FaChevronDown />}
-                        {selected.accessModel !== DEFAULT_FILTERS.accessModel && (
-                          <FaTimes
-                            className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
-                            onClick={(e) => {
-                              e.stopPropagation(); // Prevent triggering dropdown toggle
-                              resetFilter('accessModel');
-                            }}
-                            aria-label="Clear Access Model Filter"
-                          />
-                        )}
-                      </div>
-                    </button>
-                    {openDropdown.accessModel && (
-                      <motion.ul
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="absolute mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
-                      >
-                        {filterOptions.accessModels.length === 0 ? (
-                          <li className="px-4 py-3 text-gray-500">No Access Models Available</li>
-                        ) : (
-                          filterOptions.accessModels.map((model) => (
-                            <li
-                              key={model}
-                              onClick={() => handleSelect('accessModel', model)}
-                              className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
-                                selected.accessModel === model ? 'bg-indigo-100' : ''
-                              }`}
-                            >
-                              <FaCheckCircle className="text-indigo-500 mr-2" />
-                              <span>{model}</span>
-                            </li>
-                          ))
-                        )}
-                      </motion.ul>
-                    )}
-                  </div>
-
-                  {/* Pricing Dropdown */}
-                  <div className="relative w-full md:w-1/4" data-aos="fade-up">
-                    <button
-                      onClick={() => toggleDropdown('pricingModel')}
-                      className="w-full text-gray-700 text-base border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none hover:bg-indigo-50 transition-colors duration-200 flex items-center justify-between relative"
-                      aria-haspopup="true"
-                      aria-expanded={openDropdown.pricingModel}
-                    >
-                      <span>{selected.pricingModel}</span>
-                      <div className="flex items-center space-x-1">
-                        {openDropdown.pricingModel ? <FaChevronUp /> : <FaChevronDown />}
-                        {selected.pricingModel !== DEFAULT_FILTERS.pricingModel && (
-                          <FaTimes
-                            className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
-                            onClick={(e) => {
-                              e.stopPropagation(); // Prevent triggering dropdown toggle
-                              resetFilter('pricingModel');
-                            }}
-                            aria-label="Clear Pricing Model Filter"
-                          />
-                        )}
-                      </div>
-                    </button>
-                    {openDropdown.pricingModel && (
-                      <motion.ul
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="absolute mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
-                      >
-                        {filterOptions.pricingModels.length === 0 ? (
-                          <li className="px-4 py-3 text-gray-500">No Pricing Models Available</li>
-                        ) : (
-                          filterOptions.pricingModels.map((price) => (
-                            <li
-                              key={price}
-                              onClick={() => handleSelect('pricingModel', price)}
-                              className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
-                                selected.pricingModel === price ? 'bg-indigo-100' : ''
-                              }`}
-                            >
-                              <FaCheckCircle className="text-indigo-500 mr-2" />
-                              <span>{price}</span>
-                            </li>
-                          ))
-                        )}
-                      </motion.ul>
-                    )}
-                  </div>
+                
 
                   {/* Category Dropdown */}
                   <div className="relative w-full md:w-1/4" data-aos="fade-left">
@@ -844,6 +779,106 @@ const AgentFilterAndCard = () => {
                       </motion.ul>
                     )}
                   </div>
+  {/* Access Model Dropdown */}
+  <div className="relative w-full md:w-1/4" data-aos="fade-right">
+                    <button
+                      onClick={() => toggleDropdown('accessModel')}
+                      className="w-full text-gray-700 text-base border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none hover:bg-indigo-50 transition-colors duration-200 flex items-center justify-between relative"
+                      aria-haspopup="true"
+                      aria-expanded={openDropdown.accessModel}
+                    >
+                      <span>{selected.accessModel}</span>
+                      <div className="flex items-center space-x-1">
+                        {openDropdown.accessModel ? <FaChevronUp /> : <FaChevronDown />}
+                        {selected.accessModel !== DEFAULT_FILTERS.accessModel && (
+                          <FaTimes
+                            className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent triggering dropdown toggle
+                              resetFilter('accessModel');
+                            }}
+                            aria-label="Clear Access Model Filter"
+                          />
+                        )}
+                      </div>
+                    </button>
+                    {openDropdown.accessModel && (
+                      <motion.ul
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
+                      >
+                        {filterOptions.accessModels.length === 0 ? (
+                          <li className="px-4 py-3 text-gray-500">No Access Models Available</li>
+                        ) : (
+                          filterOptions.accessModels.map((model) => (
+                            <li
+                              key={model}
+                              onClick={() => handleSelect('accessModel', model)}
+                              className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
+                                selected.accessModel === model ? 'bg-indigo-100' : ''
+                              }`}
+                            >
+                              <FaCheckCircle className="text-indigo-500 mr-2" />
+                              <span>{model}</span>
+                            </li>
+                          ))
+                        )}
+                      </motion.ul>
+                    )}
+                  </div>
+
+                  {/* Pricing Dropdown */}
+                  <div className="relative w-full md:w-1/4" data-aos="fade-up">
+                    <button
+                      onClick={() => toggleDropdown('pricingModel')}
+                      className="w-full text-gray-700 text-base border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none hover:bg-indigo-50 transition-colors duration-200 flex items-center justify-between relative"
+                      aria-haspopup="true"
+                      aria-expanded={openDropdown.pricingModel}
+                    >
+                      <span>{selected.pricingModel}</span>
+                      <div className="flex items-center space-x-1">
+                        {openDropdown.pricingModel ? <FaChevronUp /> : <FaChevronDown />}
+                        {selected.pricingModel !== DEFAULT_FILTERS.pricingModel && (
+                          <FaTimes
+                            className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent triggering dropdown toggle
+                              resetFilter('pricingModel');
+                            }}
+                            aria-label="Clear Pricing Model Filter"
+                          />
+                        )}
+                      </div>
+                    </button>
+                    {openDropdown.pricingModel && (
+                      <motion.ul
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
+                      >
+                        {filterOptions.pricingModels.length === 0 ? (
+                          <li className="px-4 py-3 text-gray-500">No Pricing Models Available</li>
+                        ) : (
+                          filterOptions.pricingModels.map((price) => (
+                            <li
+                              key={price}
+                              onClick={() => handleSelect('pricingModel', price)}
+                              className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
+                                selected.pricingModel === price ? 'bg-indigo-100' : ''
+                              }`}
+                            >
+                              <FaCheckCircle className="text-indigo-500 mr-2" />
+                              <span>{price}</span>
+                            </li>
+                          ))
+                        )}
+                      </motion.ul>
+                    )}
+                  </div>
+
                 </div>
               </motion.div>
             </div>
@@ -895,7 +930,9 @@ const AgentFilterAndCard = () => {
                     key={agent._id} 
                     agent={agent} 
                     saveCounts={saveCounts} 
+                    likeCounts={likeCounts}
                     handleWishlist={handleWishlist} 
+                    handleLike={handleLike} 
                   />
                 ))}
               </motion.div>
@@ -920,6 +957,8 @@ const AgentFilterAndCard = () => {
           ))}
         </motion.div>
       </div>
+
+    
     </div>
   );
 };

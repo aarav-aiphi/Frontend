@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Slider from 'react-slick';
-import { FaChevronLeft, FaChevronRight, FaThumbsUp } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight, FaThumbsUp ,  FaHeart} from 'react-icons/fa';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -90,7 +90,7 @@ const Agents = () => {
                     <p className="text-sm text-gray-500 italic">{agent.category}</p> {/* Display category */}
                     <p className="text-sm text-gray-600 mt-1">{agent.description.slice(0, 50)}...</p>
                     <div className="flex items-center space-x-2 mt-2">
-                      <FaThumbsUp className="text-primaryBlue2" />
+                      <FaHeart className="text-primaryBlue2" />
                       <span className="text-sm font-semibold text-gray-700">{agent.likes} Likes</span>
                     </div>
                   </div>

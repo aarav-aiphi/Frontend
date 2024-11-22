@@ -92,6 +92,10 @@ const appRouter = createBrowserRouter([
                 element: <CreateAgentForm />
             },
             {
+                path: "/allagent/:id",
+                element: <AllAgents />
+            },
+            {
                 path: "/allagent",
                 element: <AllAgents />
             },
