@@ -60,8 +60,7 @@ export const CategoryAgentPage = () => {
 
   return (
     <div className="max-w-screen-xl mx-auto p-6">
-      {/* Toast Notifications */}
-      <ToastContainer />
+   
 
       <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8 text-gray-800">
         Explore Our Categories
