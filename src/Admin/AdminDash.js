@@ -39,6 +39,38 @@ export const AdminDashboard = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmittingRef = useRef(false); // Ref to track submission status
 
+  // **New: Search State**
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Edit Modal States
+  const [editModalIsOpen, setEditModalIsOpen] = useState(false);
+  const [agentToEdit, setAgentToEdit] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    websiteUrl: '',
+    accessModel: '',
+    pricingModel: '',
+    category: '',
+    industry: '',
+    price: '',
+    ownerEmail: '',
+    tagline: '',
+    description: '',
+    keyFeatures: '',
+    useCases: '',
+    tags: '',
+    videoUrl: '',
+    individualPlan: '',
+    enterprisePlan: '',
+    subscriptionModel: '',
+    refundPolicy: '',
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState({
+    logo: null,
+    thumbnail: null,
+  });
+
   // Fetch Agents function to be called on mount and after status updates
   const fetchAgents = useCallback(async () => {
     try {
@@ -158,12 +190,136 @@ export const AdminDashboard = () => {
     }
   };
 
+  // **Edit Modal Functions**
+  const openEditModal = (agent) => {
+    setAgentToEdit(agent);
+    setEditFormData({
+      name: agent.name || '',
+      websiteUrl: agent.websiteUrl || '',
+      accessModel: agent.accessModel || '',
+      pricingModel: agent.pricingModel || '',
+      category: agent.category || '',
+      industry: agent.industry || '',
+      price: agent.price || '',
+      ownerEmail: agent.ownerEmail || '',
+      tagline: agent.tagline || '',
+      description: agent.description || '',
+      keyFeatures: agent.keyFeatures.join(', ') || '',
+      useCases: agent.useCases.join(', ') || '',
+      tags: agent.tags.join(', ') || '',
+      videoUrl: agent.videoUrl || '',
+      individualPlan: agent.individualPlan || '',
+      enterprisePlan: agent.enterprisePlan || '',
+      subscriptionModel: agent.subscriptionModel || '',
+      refundPolicy: agent.refundPolicy || '',
+    });
+    setSelectedFiles({ logo: null, thumbnail: null }); // Reset selected files
+    setEditModalIsOpen(true);
+  };
+
+  const handleEditFormChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    setSelectedFiles((prevFiles) => ({
+      ...prevFiles,
+      [name]: files[0],
+    }));
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setIsEditing(true);
+
+    try {
+      // Create a FormData object
+      const formData = new FormData();
+
+      // Append text fields
+      for (const key in editFormData) {
+        // Handle array fields by stringifying them
+        if (['keyFeatures', 'useCases', 'tags'].includes(key)) {
+          formData.append(key, JSON.stringify(editFormData[key].split(',').map(item => item.trim())));
+        } else {
+          formData.append(key, editFormData[key]);
+        }
+      }
+
+      // Append files if they exist
+      if (selectedFiles.logo) {
+        formData.append('logo', selectedFiles.logo);
+      }
+
+      if (selectedFiles.thumbnail) {
+        formData.append('thumbnail', selectedFiles.thumbnail);
+      }
+
+      // Make the PUT request to update the agent
+      await axios.put(
+        `https://backend-1-sval.onrender.com/api/admin/update/${agentToEdit._id}`, // Ensure the correct endpoint
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          withCredentials: true,
+        }
+      );
+
+      toast.success('Agent updated successfully!');
+      setEditModalIsOpen(false);
+      setAgentToEdit(null);
+      setEditFormData({
+        name: '',
+        websiteUrl: '',
+        accessModel: '',
+        pricingModel: '',
+        category: '',
+        industry: '',
+        price: '',
+        ownerEmail: '',
+        tagline: '',
+        description: '',
+        keyFeatures: '',
+        useCases: '',
+        tags: '',
+        videoUrl: '',
+        individualPlan: '',
+        enterprisePlan: '',
+        subscriptionModel: '',
+        refundPolicy: '',
+      });
+      setSelectedFiles({ logo: null, thumbnail: null }); // Reset selected files
+      fetchAgents(); // Refresh the agents list
+    } catch (error) {
+      console.error('Error updating agent:', error);
+      toast.error('Failed to update agent.');
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
   const renderAgents = (category) => {
     if (!agents[category] || agents[category].length === 0) {
       return <p className="text-center text-gray-500">No agents found in this category.</p>;
     }
 
-    return agents[category].map((agent) => (
+    // **Filter Agents Based on Search Term**
+    const filteredAgents = agents[category].filter(agent =>
+      agent.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    if (filteredAgents.length === 0) {
+      return <p className="text-center text-gray-500">No agents match your search.</p>;
+    }
+
+    return filteredAgents.map((agent) => (
       <motion.div
         key={agent._id}
         className="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-500 ease-in-out"
@@ -185,11 +341,14 @@ export const AdminDashboard = () => {
           <button onClick={() => handleStatusChange(agent, 'onHold')} className="text-yellow-500" title="On Hold">
             <FaHourglassHalf />
           </button>
-          {activeTab === 'onHold' && (
-            <button onClick={() => handleStatusChange(agent, 'onHold')} className="text-yellow-500" title="Edit">
-              <FaEdit />
-            </button>
-          )}
+          {/* **Edit Button** */}
+          <button
+            onClick={() => openEditModal(agent)}
+            className="text-blue-600 hover:text-blue-800"
+            title="Edit"
+          >
+            <FaEdit />
+          </button>
           {/* **Delete Button** */}
           <button
             onClick={() => handleDeleteAgent(agent._id)}
@@ -261,6 +420,18 @@ export const AdminDashboard = () => {
 
         <div className="w-3/4 p-8 overflow-y-auto">
           <h2 className="text-4xl font-bold text-gray-700 mb-8 capitalize">{activeTab} Agents</h2>
+          
+          {/* **Search Input Field** */}
+          <div className="mb-4">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search agents by name..."
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{renderAgents(activeTab)}</div>
         </div>
       </div>
@@ -366,7 +537,270 @@ export const AdminDashboard = () => {
         onUploadSuccess={handleBulkUploadSuccess}
       />
 
-      {/* Toast Container */}
+      {/* **Edit Modal** */}
+      {editModalIsOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black opacity-50" onClick={() => setEditModalIsOpen(false)}></div>
+          <div className="bg-white rounded-lg shadow-lg p-6 w-2/3 max-h-full overflow-y-auto z-50 relative">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              onClick={() => setEditModalIsOpen(false)}
+              aria-label="Close Modal"
+            >
+              <FaTimes />
+            </button>
+            <h2 className="text-2xl font-semibold mb-4" style={{ color: primaryBlue2 }}>Edit Agent Details</h2>
+            <form onSubmit={handleEditSubmit}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Existing Input Fields */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={editFormData.name}
+                    onChange={handleEditFormChange}
+                    required
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Website URL</label>
+                  <input
+                    type="url"
+                    name="websiteUrl"
+                    value={editFormData.websiteUrl}
+                    onChange={handleEditFormChange}
+                    required
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Access Model</label>
+                  <select
+                    name="accessModel"
+                    value={editFormData.accessModel}
+                    onChange={handleEditFormChange}
+                    required
+                    className="mt-1 p-2 w-full border rounded"
+                  >
+                    <option value="">Select Access Model</option>
+                    <option value="Open Source">Open Source</option>
+                    <option value="Closed Source">Closed Source</option>
+                    <option value="API">API</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Pricing Model</label>
+                  <select
+                    name="pricingModel"
+                    value={editFormData.pricingModel}
+                    onChange={handleEditFormChange}
+                    required
+                    className="mt-1 p-2 w-full border rounded"
+                  >
+                    <option value="">Select Pricing Model</option>
+                    <option value="Free">Free</option>
+                    <option value="Freemium">Freemium</option>
+                    <option value="Paid">Paid</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Category</label>
+                  <input
+                    type="text"
+                    name="category"
+                    value={editFormData.category}
+                    onChange={handleEditFormChange}
+                    required
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Industry</label>
+                  <input
+                    type="text"
+                    name="industry"
+                    value={editFormData.industry}
+                    onChange={handleEditFormChange}
+                    required
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Price</label>
+                  <input
+                    type="text"
+                    name="price"
+                    value={editFormData.price}
+                    onChange={handleEditFormChange}
+                    required
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Owner Email</label>
+                  <input
+                    type="email"
+                    name="ownerEmail"
+                    value={editFormData.ownerEmail}
+                    onChange={handleEditFormChange}
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Tagline</label>
+                  <input
+                    type="text"
+                    name="tagline"
+                    value={editFormData.tagline}
+                    onChange={handleEditFormChange}
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Description</label>
+                  <textarea
+                    name="description"
+                    value={editFormData.description}
+                    onChange={handleEditFormChange}
+                    rows="3"
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Key Features (comma separated)</label>
+                  <input
+                    type="text"
+                    name="keyFeatures"
+                    value={editFormData.keyFeatures}
+                    onChange={handleEditFormChange}
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Use Cases (comma separated)</label>
+                  <input
+                    type="text"
+                    name="useCases"
+                    value={editFormData.useCases}
+                    onChange={handleEditFormChange}
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tags (comma separated)</label>
+                  <input
+                    type="text"
+                    name="tags"
+                    value={editFormData.tags}
+                    onChange={handleEditFormChange}
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Video URL</label>
+                  <input
+                    type="url"
+                    name="videoUrl"
+                    value={editFormData.videoUrl}
+                    onChange={handleEditFormChange}
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Individual Plan</label>
+                  <input
+                    type="text"
+                    name="individualPlan"
+                    value={editFormData.individualPlan}
+                    onChange={handleEditFormChange}
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Enterprise Plan</label>
+                  <input
+                    type="text"
+                    name="enterprisePlan"
+                    value={editFormData.enterprisePlan}
+                    onChange={handleEditFormChange}
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Subscription Model</label>
+                  <input
+                    type="text"
+                    name="subscriptionModel"
+                    value={editFormData.subscriptionModel}
+                    onChange={handleEditFormChange}
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Refund Policy</label>
+                  <input
+                    type="text"
+                    name="refundPolicy"
+                    value={editFormData.refundPolicy}
+                    onChange={handleEditFormChange}
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                
+                {/* **Logo Upload Field** */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Logo</label>
+                  <input
+                    type="file"
+                    name="logo"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                  {agentToEdit.logo && (
+                    <img src={agentToEdit.logo} alt="Current Logo" className="mt-2 h-16 w-16 object-contain" />
+                  )}
+                </div>
+
+                {/* **Thumbnail Upload Field** */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Thumbnail</label>
+                  <input
+                    type="file"
+                    name="thumbnail"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                  {agentToEdit.thumbnail && (
+                    <img src={agentToEdit.thumbnail} alt="Current Thumbnail" className="mt-2 h-16 w-16 object-contain" />
+                  )}
+                </div>
+                
+              </div>
+              <div className="flex justify-end space-x-4 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setEditModalIsOpen(false)}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                  disabled={isEditing}
+                >
+                  {isEditing ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
      
     </div>
   );

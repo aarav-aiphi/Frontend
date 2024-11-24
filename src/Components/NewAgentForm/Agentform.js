@@ -5,6 +5,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import formBackground from '../../Images/whitebg.jpg'; // Adjust the path as needed
+import PaymentOptions from './PaymentOption';
 
 const CreateAgentForm = () => {
   const [agentData, setAgentData] = useState({
@@ -138,7 +139,8 @@ const CreateAgentForm = () => {
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed', // Ensures the background image is fixed
       }}
-    >
+    > 
+    <PaymentOptions/>
   
 
       {/* Main Container with padding to prevent navbar overlap */}
