@@ -3,11 +3,11 @@
 import React from 'react';
 import { FaRobot, FaIndustry, FaGlobeAmericas, FaThumbsUp, FaHandsHelping } from 'react-icons/fa';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router';
+import { Link } from 'react-router-dom';
 
 const OurAIAgents = () => {
   // Data for the AI Agents metrics
-  const navigate = useNavigate();
+
   const metrics = [
     {
       id: 1,
@@ -44,10 +44,6 @@ const OurAIAgents = () => {
   ];
 
   // Handler for Sponsorship Button
-  const handleSponsorship = () => {
-    // Navigate to the sponsorship page
-      navigate('/sponsorship'); // Update this route as needed
-  };
 
   return (
     <div className="py-16">
@@ -96,8 +92,9 @@ const OurAIAgents = () => {
 
         {/* View Sponsorship Button */}
         <div className="mt-12 flex justify-center">
+            <Link to="/sponsorship" >
           <motion.button
-            onClick={handleSponsorship}
+           
             whileHover={{ scale: 1.05, backgroundColor: '#3B82F6' }} // Adjust the hover color as needed
             whileTap={{ scale: 0.95 }}
             className="flex items-center bg-primaryBlue2 text-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-700 transition-all"
@@ -106,6 +103,7 @@ const OurAIAgents = () => {
             <FaHandsHelping className="mr-2" />
             View Sponsorship
           </motion.button>
+          </Link>
         </div>
       </div>
     </div>
