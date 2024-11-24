@@ -371,7 +371,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="relative min-h-screen bg-gray-50 overflow-hidden">
-      <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+    
 
       <motion.div className="absolute inset-0 z-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.5 }}>
       </motion.div>

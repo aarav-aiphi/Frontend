@@ -40,14 +40,14 @@ export const Signup = () => {
         headers: { 'Content-Type': 'application/json' },
       });
     
-      if (response.status === 201) {
+      if (response.status === 200) {
         toast.success('Signup successful!');
         const user = response.data.user;
          fetchCurrentUser();
         
           navigate('/');
       
-      } else if(response.status === 400) {
+      } else if(response.status === 201) {
         toast.error(response.data.message || 'Same user exist please login!');
       }else{
         toast.error('Error occurred during signup!');
