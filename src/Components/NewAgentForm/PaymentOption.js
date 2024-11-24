@@ -111,8 +111,8 @@ const PaymentOptions = ({ onSelect }) => {
   };
 
   return (
-    <div className="mb-12 px-4  pt-16">
-      <h3 className="text-3xl  font-extrabold text-gray-800 mb-8 text-center">
+    <div className=" px-4 max-w-7xl mx-auto  pt-16">
+      <h3 className="text-3xl  font-semibold text-gray-800 mb-8 text-center">
         Choose Your Subscription Plan
       </h3>
       <motion.div

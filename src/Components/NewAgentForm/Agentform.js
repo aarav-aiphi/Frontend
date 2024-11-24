@@ -6,6 +6,9 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import formBackground from '../../Images/whitebg.jpg'; // Adjust the path as needed
 import PaymentOptions from './PaymentOption';
+import Faqs from './Faqs';
+import OurImpact from './OurImpact';
+import OurAIAgents from './OurImpact';
 
 const CreateAgentForm = () => {
   const [agentData, setAgentData] = useState({
@@ -140,7 +143,8 @@ const CreateAgentForm = () => {
         backgroundAttachment: 'fixed', // Ensures the background image is fixed
       }}
     > 
-    <PaymentOptions/>
+    <OurAIAgents/>
+    {/* <PaymentOptions/> */}
   
 
       {/* Main Container with padding to prevent navbar overlap */}
@@ -527,6 +531,7 @@ const CreateAgentForm = () => {
           </div>
         </form>
       </div>
+      {/* <Faqs/> */}
     </div>
   );
 };

@@ -36,6 +36,7 @@ import { Contact } from "./Contact/Contact";
 import { Provider } from 'react-redux';
 import store from "./redux/store";
 import Community from "./Components/comingsoon/Community";
+import { Sponsor } from "./Components/NewAgentSponsor/Sponsor";
 
 const Applayout = () => {
   useEffect(() => {
@@ -91,6 +92,10 @@ const appRouter = createBrowserRouter([
             {
                 path: "/agentform",
                 element: <CreateAgentForm />
+            },
+            {
+                path:"/sponsorship",
+                element:<Sponsor/>
             },
             {
                 path: "/allagent/:id",
