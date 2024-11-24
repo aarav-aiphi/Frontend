@@ -1,3 +1,5 @@
+// src/Components/AdminDashboard.js
+
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
@@ -10,14 +12,14 @@ import {
   FaList,
   FaTimes,
   FaEdit,
-  FaUpload, // Icon for bulk upload
-  FaTrash,  // Import the Trash icon for deletion
+  FaUpload,
+  FaTrash,
 } from 'react-icons/fa';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom';
-import BulkUpload from './BulkUpload'; // Import the BulkUpload component
+import BulkUpload from './BulkUpload';
 
-export const AdminDashboard = () => {
+const AdminDashboard = () => {
   const primaryBlue2 = 'rgb(73, 125, 168)'; // Define your theme color
 
   const [agents, setAgents] = useState({
@@ -96,7 +98,7 @@ export const AdminDashboard = () => {
         onHold: response[3].data,
       });
     } catch (error) {
-      // toast.error('Failed to fetch agents');
+      toast.error('Failed to fetch agents');
       console.error('Error fetching agents:', error);
     }
   }, []);
@@ -132,7 +134,7 @@ export const AdminDashboard = () => {
       setInstructions('');
       fetchAgents(); // Refresh the list after updating status
     } catch (error) {
-      // toast.error('Failed to update agent status');
+      toast.error('Failed to update agent status');
       console.error('Error updating agent status:', error);
     }
   };
@@ -165,8 +167,8 @@ export const AdminDashboard = () => {
         html: '<h1>Welcome to Our Newsletter</h1><p>Thank you for subscribing to our newsletter. Stay tuned for updates!</p><img src="https://example.com/image.jpg" alt="Newsletter Image" />',
       });
     } catch (error) {
+      toast.error('Failed to send newsletter.');
       console.error('Error sending newsletter:', error);
-      // toast.error('Failed to send newsletter.');
     } finally {
       isSubmittingRef.current = false; // Reset the ref
       setIsSubmitting(false); // Re-enable the button
@@ -204,9 +206,9 @@ export const AdminDashboard = () => {
       ownerEmail: agent.ownerEmail || '',
       tagline: agent.tagline || '',
       description: agent.description || '',
-      keyFeatures: agent.keyFeatures.join(', ') || '',
-      useCases: agent.useCases.join(', ') || '',
-      tags: agent.tags.join(', ') || '',
+      keyFeatures: Array.isArray(agent.keyFeatures) ? agent.keyFeatures.join(', ') : '',
+      useCases: Array.isArray(agent.useCases) ? agent.useCases.join(', ') : '',
+      tags: Array.isArray(agent.tags) ? agent.tags.join(', ') : '',
       videoUrl: agent.videoUrl || '',
       individualPlan: agent.individualPlan || '',
       enterprisePlan: agent.enterprisePlan || '',
@@ -243,10 +245,7 @@ export const AdminDashboard = () => {
 
       // Append text fields
       for (const key in editFormData) {
-        // Handle array fields by stringifying them
-        if (['keyFeatures', 'useCases', 'tags'].includes(key)) {
-          formData.append(key, JSON.stringify(editFormData[key].split(',').map(item => item.trim())));
-        } else {
+        if (editFormData[key] !== '') { // Ensure fields are not empty
           formData.append(key, editFormData[key]);
         }
       }
@@ -298,8 +297,8 @@ export const AdminDashboard = () => {
       setSelectedFiles({ logo: null, thumbnail: null }); // Reset selected files
       fetchAgents(); // Refresh the agents list
     } catch (error) {
-      console.error('Error updating agent:', error);
       toast.error('Failed to update agent.');
+      console.error('Error updating agent:', error);
     } finally {
       setIsEditing(false);
     }
@@ -372,7 +371,8 @@ export const AdminDashboard = () => {
 
   return (
     <div className="relative min-h-screen bg-gray-50 overflow-hidden">
-     
+      <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+
       <motion.div className="absolute inset-0 z-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.5 }}>
       </motion.div>
 
@@ -420,7 +420,7 @@ export const AdminDashboard = () => {
 
         <div className="w-3/4 p-8 overflow-y-auto">
           <h2 className="text-4xl font-bold text-gray-700 mb-8 capitalize">{activeTab} Agents</h2>
-          
+
           {/* **Search Input Field** */}
           <div className="mb-4">
             <input
@@ -431,7 +431,7 @@ export const AdminDashboard = () => {
               className="w-full p-2 border rounded"
             />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{renderAgents(activeTab)}</div>
         </div>
       </div>
@@ -554,7 +554,7 @@ export const AdminDashboard = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Existing Input Fields */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Name</label>
+                  <label className="block text-sm font-medium text-gray-700">Name *</label>
                   <input
                     type="text"
                     name="name"
@@ -565,7 +565,7 @@ export const AdminDashboard = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Website URL</label>
+                  <label className="block text-sm font-medium text-gray-700">Website URL *</label>
                   <input
                     type="url"
                     name="websiteUrl"
@@ -576,7 +576,7 @@ export const AdminDashboard = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Access Model</label>
+                  <label className="block text-sm font-medium text-gray-700">Access Model *</label>
                   <select
                     name="accessModel"
                     value={editFormData.accessModel}
@@ -591,7 +591,7 @@ export const AdminDashboard = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Pricing Model</label>
+                  <label className="block text-sm font-medium text-gray-700">Pricing Model *</label>
                   <select
                     name="pricingModel"
                     value={editFormData.pricingModel}
@@ -606,7 +606,7 @@ export const AdminDashboard = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Category</label>
+                  <label className="block text-sm font-medium text-gray-700">Category *</label>
                   <input
                     type="text"
                     name="category"
@@ -617,7 +617,7 @@ export const AdminDashboard = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Industry</label>
+                  <label className="block text-sm font-medium text-gray-700">Industry *</label>
                   <input
                     type="text"
                     name="industry"
@@ -628,7 +628,7 @@ export const AdminDashboard = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Price</label>
+                  <label className="block text-sm font-medium text-gray-700">Price *</label>
                   <input
                     type="text"
                     name="price"
@@ -639,12 +639,13 @@ export const AdminDashboard = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Owner Email</label>
+                  <label className="block text-sm font-medium text-gray-700">Owner Email *</label>
                   <input
                     type="email"
                     name="ownerEmail"
                     value={editFormData.ownerEmail}
                     onChange={handleEditFormChange}
+                  
                     className="mt-1 p-2 w-full border rounded"
                   />
                 </div>
@@ -656,6 +657,7 @@ export const AdminDashboard = () => {
                     value={editFormData.tagline}
                     onChange={handleEditFormChange}
                     className="mt-1 p-2 w-full border rounded"
+                    placeholder="Enter tagline"
                   />
                 </div>
                 <div className="md:col-span-2">
@@ -666,6 +668,7 @@ export const AdminDashboard = () => {
                     onChange={handleEditFormChange}
                     rows="3"
                     className="mt-1 p-2 w-full border rounded"
+                    placeholder="Enter description"
                   />
                 </div>
                 <div>
@@ -676,6 +679,7 @@ export const AdminDashboard = () => {
                     value={editFormData.keyFeatures}
                     onChange={handleEditFormChange}
                     className="mt-1 p-2 w-full border rounded"
+                    placeholder="e.g., Feature1, Feature2, Feature3"
                   />
                 </div>
                 <div>
@@ -686,6 +690,7 @@ export const AdminDashboard = () => {
                     value={editFormData.useCases}
                     onChange={handleEditFormChange}
                     className="mt-1 p-2 w-full border rounded"
+                    placeholder="e.g., UseCase1, UseCase2, UseCase3"
                   />
                 </div>
                 <div>
@@ -696,16 +701,18 @@ export const AdminDashboard = () => {
                     value={editFormData.tags}
                     onChange={handleEditFormChange}
                     className="mt-1 p-2 w-full border rounded"
+                    placeholder="e.g., Tag1, Tag2, Tag3"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Video URL</label>
                   <input
-                    type="url"
+                    type="text"
                     name="videoUrl"
                     value={editFormData.videoUrl}
                     onChange={handleEditFormChange}
                     className="mt-1 p-2 w-full border rounded"
+                    placeholder="Enter video URL (e.g., YouTube, Vimeo)"
                   />
                 </div>
                 <div>
@@ -716,6 +723,7 @@ export const AdminDashboard = () => {
                     value={editFormData.individualPlan}
                     onChange={handleEditFormChange}
                     className="mt-1 p-2 w-full border rounded"
+                    placeholder="Enter individual plan"
                   />
                 </div>
                 <div>
@@ -726,6 +734,7 @@ export const AdminDashboard = () => {
                     value={editFormData.enterprisePlan}
                     onChange={handleEditFormChange}
                     className="mt-1 p-2 w-full border rounded"
+                    placeholder="Enter enterprise plan"
                   />
                 </div>
                 <div>
@@ -736,6 +745,7 @@ export const AdminDashboard = () => {
                     value={editFormData.subscriptionModel}
                     onChange={handleEditFormChange}
                     className="mt-1 p-2 w-full border rounded"
+                    placeholder="Enter subscription model"
                   />
                 </div>
                 <div>
@@ -746,40 +756,61 @@ export const AdminDashboard = () => {
                     value={editFormData.refundPolicy}
                     onChange={handleEditFormChange}
                     className="mt-1 p-2 w-full border rounded"
+                    placeholder="Enter refund policy"
                   />
-                </div>
-                
-                {/* **Logo Upload Field** */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Logo</label>
-                  <input
-                    type="file"
-                    name="logo"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="mt-1 p-2 w-full border rounded"
-                  />
-                  {agentToEdit.logo && (
-                    <img src={agentToEdit.logo} alt="Current Logo" className="mt-2 h-16 w-16 object-contain" />
-                  )}
                 </div>
 
-                {/* **Thumbnail Upload Field** */}
+                {/* File Inputs */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Thumbnail</label>
-                  <input
-                    type="file"
-                    name="thumbnail"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="mt-1 p-2 w-full border rounded"
-                  />
-                  {agentToEdit.thumbnail && (
-                    <img src={agentToEdit.thumbnail} alt="Current Thumbnail" className="mt-2 h-16 w-16 object-contain" />
-                  )}
+                  <label className="block text-sm font-medium text-gray-700">Logo *</label>
+                  <div className="mt-1 flex items-center">
+                    <input
+                      type="file"
+                      name="logo"
+                      onChange={handleFileChange}
+                      // Remove the 'required' attribute from the edit form
+                      // required
+                      className="hidden"
+                      id="logo-upload"
+                      accept="image/*"
+                    />
+                    <label
+                      htmlFor="logo-upload"
+                      className="cursor-pointer bg-primaryBlue2 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-700"
+                    >
+                      Upload Logo
+                    </label>
+                    {agentToEdit.logo && (
+                      <img src={agentToEdit.logo} alt="Current Logo" className="ml-4 h-16 w-16 object-contain" />
+                    )}
+                  </div>
                 </div>
-                
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Thumbnail Image</label>
+                  <div className="mt-1 flex items-center">
+                    <input
+                      type="file"
+                      name="thumbnail"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      id="thumbnail-upload"
+                      accept="image/*"
+                    />
+                    <label
+                      htmlFor="thumbnail-upload"
+                      className="cursor-pointer bg-primaryBlue2 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-700"
+                    >
+                      Upload Thumbnail
+                    </label>
+                    {agentToEdit.thumbnail && (
+                      <img src={agentToEdit.thumbnail} alt="Current Thumbnail" className="ml-4 h-16 w-16 object-contain" />
+                    )}
+                  </div>
+                </div>
               </div>
+
+              {/* Submit Button */}
               <div className="flex justify-end space-x-4 mt-6">
                 <button
                   type="button"
@@ -790,7 +821,9 @@ export const AdminDashboard = () => {
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                  className={`bg-blue-600 text-white font-bold py-2 px-4 rounded ${
+                    isEditing ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
+                  }`}
                   disabled={isEditing}
                 >
                   {isEditing ? 'Saving...' : 'Save Changes'}
@@ -801,9 +834,8 @@ export const AdminDashboard = () => {
         </div>
       )}
 
-     
     </div>
   );
 };
 
-export default AdminDashboard;
+export  {AdminDashboard};
