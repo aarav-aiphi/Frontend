@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "generate-sitemap": "node generate-sitemap.js",
     "start": "npx parcel src/index.html",
-    "build": "parcel build src/index.html"
+    "build": "npm run generate-sitemap && parcel build src/index.html"
   },
   "keywords": [],
   "author": "",
@@ -55,6 +56,7 @@
     "react-tooltip": "^5.28.0",
     "react-typed": "^2.0.12",
     "redux": "^5.0.1",
+    "sitemap": "^8.0.0",
     "slick-carousel": "^1.8.1",
     "uuid": "^11.0.2",
     "yup": "^1.4.0"

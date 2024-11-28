@@ -74,7 +74,7 @@ export const Footer = () => {
                   type="submit"
                   className="flex-none rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 transition duration-300"
                 >
-                  Notify Me
+                  Subscribe
                 </button>
               </form>
             </div>
@@ -134,6 +134,14 @@ export const Footer = () => {
           <div>
             <h3 className="text-xl font-semibold mb-4">Company</h3>
             <ul className="space-y-2">
+            <li>
+                <Link
+                  to="/contact"
+                  className="text-gray-400 hover:text-white transition duration-300"
+                >
+                 Contact Us
+                </Link>
+              </li>
               <li>
                 <Link
                   to="/privacy"
@@ -144,7 +152,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/"
+                  to="/sponsorship"
                   className="text-gray-400 hover:text-white transition duration-300"
                 >
                   FAQs
@@ -163,7 +171,7 @@ export const Footer = () => {
 
           {/* Contact Us */}
           <div>
-            <h3 className="text-xl font-semibold mb-4">Contact Us</h3>
+            <h3 className="text-xl font-semibold mb-4"></h3>
             <ul className="space-y-2">
               <li className="text-gray-400">
                 Email:{' '}
@@ -174,7 +182,7 @@ export const Footer = () => {
                   info@aiphi.ai
                 </a>
               </li>
-              <li className="text-gray-400">
+              {/* <li className="text-gray-400">
                 Phone:{' '}
                 <a
                   href="tel:+919901698890"
@@ -182,7 +190,7 @@ export const Footer = () => {
                 >
                   +91 99016 98890
                 </a>
-              </li>
+              </li> */}
             </ul>
           </div>
         </div>

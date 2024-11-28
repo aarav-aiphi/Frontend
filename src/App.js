@@ -37,6 +37,7 @@ import { Provider } from 'react-redux';
 import store from "./redux/store";
 import Community from "./Components/comingsoon/Community";
 import { Sponsor } from "./Components/NewAgentSponsor/Sponsor";
+import AdminUpload from "./Components/admin-upload";
 
 const Applayout = () => {
   useEffect(() => {
@@ -159,6 +160,10 @@ const appRouter = createBrowserRouter([
             {
                 path:"/community",
                 element:<Community/>
+            }
+            ,{
+                path:"/admin2",
+                element:<AdminUpload/>
             }
         ]
     }

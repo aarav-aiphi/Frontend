@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa";
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { AiOutlineLike } from "react-icons/ai";
 import { fetchAgents, updateSavedByCount, updateLikeCount } from '../redux/agentsSlice'; // Import the synchronous actions
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -67,11 +68,11 @@ const AgentCard = ({ agent, saveCounts, likeCounts, handleWishlist, handleLike }
         <div className="absolute top-2 right-2 flex items-center space-x-2">
           {/* Like Button */}
           <button
-            className="flex items-center text-red-500 hover:text-red-700 transition-colors duration-200"
+            className="flex items-center text-blue-500 hover:text-blue-700 transition-colors duration-200"
             onClick={(event) => handleLike(event, _id)}
             aria-label={likeCount > 0 ? "Unlike Agent" : "Like Agent"}
           >
-            {likeCount > 0 ? <FaHeart className="mr-1" /> : <FaRegHeart className="mr-1" />} {likeCount}
+            {likeCount > 0 ? <AiOutlineLike className="mr-1" /> : <AiOutlineLike className="mr-1" />} {likeCount}
           </button>
 
           {/* Save Button */}

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { FaCheckCircle } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import { toast } from 'react-toastify'; // Ensure react-toastify is set up in your project
 
 const PaymentOptions = ({ onSelect }) => {
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -20,6 +21,8 @@ const PaymentOptions = ({ onSelect }) => {
       color: 'bg-gray-50',
       borderColor: 'border-gray-400',
       textColor: 'text-gray-700',
+      buttonColor: 'bg-gray-700 hover:bg-gray-800',
+      buttonText: 'Select',
     },
     {
       id: 1,
@@ -33,6 +36,8 @@ const PaymentOptions = ({ onSelect }) => {
       color: 'bg-blue-50',
       borderColor: 'border-blue-500',
       textColor: 'text-blue-900',
+      buttonColor: 'bg-blue-600 hover:bg-blue-700',
+      buttonText: 'Subscribe',
     },
     {
       id: 2,
@@ -47,6 +52,8 @@ const PaymentOptions = ({ onSelect }) => {
       color: 'bg-green-50',
       borderColor: 'border-green-500',
       textColor: 'text-green-900',
+      buttonColor: 'bg-green-600 hover:bg-green-700',
+      buttonText: 'Subscribe',
     },
     {
       id: 3,
@@ -62,6 +69,8 @@ const PaymentOptions = ({ onSelect }) => {
       color: 'bg-yellow-50',
       borderColor: 'border-yellow-500',
       textColor: 'text-yellow-900',
+      buttonColor: 'bg-yellow-600 hover:bg-yellow-700',
+      buttonText: 'Subscribe',
     },
   ];
 
@@ -70,6 +79,13 @@ const PaymentOptions = ({ onSelect }) => {
     if (onSelect) {
       onSelect(plan.name);
     }
+  };
+
+  const handleSubscribe = (plan) => {
+    // Replace this with actual payment integration logic
+    console.log(`Subscribed to the ${plan.name} plan.`);
+    toast.success(`Subscribed to the ${plan.name} plan successfully!`);
+    // Optionally, navigate to a payment page or open a payment modal
   };
 
   // Framer Motion Variants
@@ -111,8 +127,8 @@ const PaymentOptions = ({ onSelect }) => {
   };
 
   return (
-    <div className=" px-4 max-w-7xl mx-auto  pt-16">
-      <h3 className="text-3xl  font-semibold text-gray-800 mb-8 text-center">
+    <div className="px-4 max-w-7xl mx-auto pt-16">
+      <h3 className="text-3xl font-semibold text-gray-800 mb-8 text-center">
         Choose Your Subscription Plan
       </h3>
       <motion.div
@@ -160,6 +176,22 @@ const PaymentOptions = ({ onSelect }) => {
                 </li>
               ))}
             </ul>
+            {/* Subscribe Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent card selection
+                handleSubscribe(plan);
+              }}
+              className={`mt-6 w-full py-2 px-4 rounded-md text-white font-semibold transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                selectedPlan === plan.id
+                  ? `${plan.buttonColor} cursor-default`
+                  : `${plan.buttonColor}`
+              }`}
+              aria-label={`Subscribe to the ${plan.name} plan`}
+              disabled={selectedPlan !== plan.id}
+            >
+              {selectedPlan === plan.id ? 'Selected' : plan.buttonText}
+            </button>
           </motion.div>
         ))}
       </motion.div>

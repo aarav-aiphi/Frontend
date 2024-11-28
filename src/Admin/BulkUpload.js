@@ -1,8 +1,10 @@
-// BulkUpload.js
+// src/Components/BulkUpload.js
+
 import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FaTimes } from 'react-icons/fa';
+import SampleCSVDisplay from '../Components/SampleCSVDisplay';// Adjust the path if necessary
 
 const BulkUpload = ({ isOpen, onClose, onUploadSuccess }) => {
   const [file, setFile] = useState(null);
@@ -13,7 +15,6 @@ const BulkUpload = ({ isOpen, onClose, onUploadSuccess }) => {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile && selectedFile.type === 'text/csv') {
-      
       setFile(selectedFile);
       setErrors([]);
     } else {
@@ -34,7 +35,6 @@ const BulkUpload = ({ isOpen, onClose, onUploadSuccess }) => {
 
     reader.onload = async (event) => {
       const csvData = event.target.result;
-   
 
       try {
         setUploading(true);
@@ -49,7 +49,7 @@ const BulkUpload = ({ isOpen, onClose, onUploadSuccess }) => {
             withCredentials: true,
           }
         );
-    
+
         toast.success(res.data.message);
 
         if (res.data.failed && res.data.failed.length > 0) {
@@ -91,7 +91,7 @@ const BulkUpload = ({ isOpen, onClose, onUploadSuccess }) => {
       ></div>
 
       {/* Modal */}
-      <div className="bg-white rounded-lg shadow-lg p-6 z-50 w-1/3 relative">
+      <div className="bg-white rounded-lg shadow-lg p-6 z-50 w-1/3 relative overflow-y-auto max-h-screen">
         {/* Close Button */}
         <button
           className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
@@ -104,43 +104,46 @@ const BulkUpload = ({ isOpen, onClose, onUploadSuccess }) => {
         {/* Modal Title */}
         <h2 className="text-2xl font-semibold mb-4">Bulk Upload Agents</h2>
 
-        <div>
-  {/* Label for the input */}
-  <label className="block text-sm font-semibold text-gray-700 mb-2">Upload CSV File</label>
-  
-  <div className="mt-1 flex items-center">
-    {/* Hidden File Input */}
-    <input
-      type="file"
-      accept=".csv"
-      onChange={handleFileChange}
-      className="hidden"
-      id="csv-upload"
-    />
-    
-    {/* Styled Label Acting as the Button */}
-    <label
-      htmlFor="csv-upload"
-      className="cursor-pointer bg-primaryBlue2 text-white py-2 px-6 rounded-lg shadow-md transition hover:shadow-lg hover:bg-gradient-to-l"
-    >
-      Choose File
-    </label>
-    
-    {/* File Name Display */}
-    {file && (
-      <span className="ml-4 text-sm text-gray-600 truncate max-w-xs">
-        {file.name}
-      </span>
-    )}
-  </div>
-</div>
+        {/* **Insert SampleCSVDisplay Here** */}
+        <SampleCSVDisplay />
 
+        {/* File Upload Section */}
+        <div className="mt-6">
+          {/* Label for the input */}
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Upload CSV File</label>
+
+          <div className="mt-1 flex items-center">
+            {/* Hidden File Input */}
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleFileChange}
+              className="hidden"
+              id="csv-upload"
+            />
+
+            {/* Styled Label Acting as the Button */}
+            <label
+              htmlFor="csv-upload"
+              className="cursor-pointer bg-blue-600 text-white py-2 px-6 rounded-lg shadow-md transition hover:shadow-lg hover:bg-blue-700"
+            >
+              Choose File
+            </label>
+
+            {/* File Name Display */}
+            {file && (
+              <span className="ml-4 text-sm text-gray-600 truncate max-w-xs">
+                {file.name}
+              </span>
+            )}
+          </div>
+        </div>
 
         {/* Upload Button */}
         <button
           onClick={handleUpload}
           disabled={uploading}
-          className={`w-full p-2  mt-6 rounded ${
+          className={`w-full p-2 mt-6 rounded ${
             uploading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
           } text-white`}
         >

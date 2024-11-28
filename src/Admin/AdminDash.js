@@ -18,6 +18,7 @@ import {
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom';
 import BulkUpload from './BulkUpload';
+import SampleCSVDisplay from '../Components/SampleCSVDisplay';
 
 const AdminDashboard = () => {
   const primaryBlue2 = 'rgb(73, 125, 168)'; // Define your theme color
@@ -431,6 +432,7 @@ const AdminDashboard = () => {
               className="w-full p-2 border rounded"
             />
           </div>
+          
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{renderAgents(activeTab)}</div>
         </div>

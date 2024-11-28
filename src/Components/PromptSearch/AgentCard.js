@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from 'react-icons/fa';
+import { AiOutlineLike } from "react-icons/ai";
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom'; // For navigation
@@ -26,10 +27,10 @@ const AgentCard = ({
         {/* Like Button */}
         <button
           onClick={(event) => handleLike(event, agent._id)}
-          className="flex items-center text-red-500 hover:text-red-700 transition-colors z-10"
+          className="flex items-center text-blue-500 hover:text-blue-700 transition-colors z-10"
           aria-label={isLiked ? "Unlike Agent" : "Like Agent"}
         >
-          {isLiked ? <FaHeart size={20} /> : <FaRegHeart size={20} />}
+          {isLiked ? <AiOutlineLike size={20} /> : <AiOutlineLike size={20} />}
           <span className="ml-1 text-sm">{likeCounts[agent._id] || 0}</span>
         </button>
 
