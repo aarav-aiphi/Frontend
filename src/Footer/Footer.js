@@ -127,6 +127,14 @@ export const Footer = () => {
                   Blogs
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/news"
+                  className="text-gray-400 hover:text-white transition duration-300"
+                >
+                  News
+                </Link>
+              </li>
             </ul>
           </div>
 
