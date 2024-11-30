@@ -49,7 +49,7 @@ export const Footer = () => {
             {/* Subscription Content */}
             <div className="flex flex-col items-center text-center">
               <h2 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                Keep Updated
+               Subscribe to our Newsletter
               </h2>
               <p className="mx-auto mt-2 max-w-xl text-lg leading-8 text-gray-300">
                 Keep up with the latest advancements from AiAzent! Join our
