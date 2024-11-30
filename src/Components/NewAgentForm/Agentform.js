@@ -176,9 +176,9 @@ const CreateAgentForm = () => {
                 value={agentData.createdBy}
                 onChange={handleChange}
                 className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="Enter creator's name (e.g., John Doe)"
+                placeholder=""
               />
-            </div>
+            </div>.
 
             <div>
               <label className="block text-sm font-semibold text-primaryBlue">
@@ -191,7 +191,7 @@ const CreateAgentForm = () => {
                 onChange={handleChange}
                 required
                 className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="Enter website or GitHub URL (e.g., https://github.com/chatmaster)"
+                placeholder="Enter your website url"
               />
             </div>
 
@@ -206,7 +206,7 @@ const CreateAgentForm = () => {
                 value={agentData.ownerEmail}
                 onChange={handleChange}
                 className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="Enter owner's email (e.g., owner@example.com)"
+                placeholder="Enter Business email "
               />
             </div>
 
@@ -308,7 +308,7 @@ const CreateAgentForm = () => {
                 value={agentData.tagline}
                 onChange={handleChange}
                 className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="Enter a catchy tagline for your AI agent (e.g., 'Revolutionizing Customer Support')"
+                placeholder="Enter a catchy tagline for your AI agent (e.g., 'AI agent for autonomous software engineering tasks')"
                 rows="2"
               />
             </div>
