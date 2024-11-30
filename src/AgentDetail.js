@@ -242,39 +242,48 @@ export const AgentDetail = () => {
 
       {/* Agent Information Section */}
       <div className="mt-10 px-6 md:px-8 lg:px-12">
-        {/* Agent Name */}
-        <h1 className="text-3xl md:text-5xl font-bold text-gray-800">{agent.name || 'Unknown Agent'}</h1>
-        {/* Short Description */}
-        <p className="text-md md:text-xl mt-2 text-gray-600">{agent.shortDescription || 'No short description available.'}</p>
-        
-        {/* Category and Industry Badges */}
-        <div className="mt-4 flex flex-wrap items-center space-x-2">
-          <span className="flex items-center bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm md:text-base">
-            <FaIndustry className="mr-1" /> {agent.category || 'Uncategorized'}
-          </span>
-          <span className="flex items-center bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm md:text-base">
-            <FaKey className="mr-1" /> {agent.industry || 'Unknown Industry'}
-          </span>
-        </div>
-        
-        {/* Tried By and Wishlist Button */}
-        <div className="flex items-center mt-4">
-          {/* Tried By with Eye Icon */}
-          <div className="flex items-center text-gray-600">
-            <FaEye className="mr-2" aria-label="Tried By" />
-            <span>{agent.triedBy || 0}</span>
-          </div>
-          {/* Wishlist Button */}
-          <button
-            className="flex items-center text-gray-800 bg-gray-300 hover:bg-gray-400 transition-all ml-4 px-4 py-2 rounded-full shadow-sm"
-            onClick={(event) => handleWishlist(event, agent._id)}
-            aria-label="Save Agent to Wishlist"
-          >
-            <FaRegBookmark className="mr-2" size={20} />
-            <span className="text-lg">{saveCounts[agent._id] || 0}</span>
-          </button>
-        </div>
-      </div>
+  {/* Agent Name and Pricing Model */}
+  <h1 className="text-3xl md:text-5xl font-bold text-gray-800 flex items-center">
+    {agent.name || 'Unknown Agent'}
+    {agent.pricingModel && (
+      <span className="text-lg md:text-2xl font-medium text-gray-500 ml-4">
+        {agent.pricingModel}
+      </span>
+    )}
+  </h1>
+  
+  {/* Short Description */}
+  <p className="text-md md:text-xl mt-2 text-gray-600">{agent.shortDescription || 'No short description available.'}</p>
+  
+  {/* Category and Industry Badges */}
+  <div className="mt-4 flex flex-wrap items-center space-x-2">
+    <span className="flex items-center bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm md:text-base">
+      <FaIndustry className="mr-1" /> {agent.category || 'Uncategorized'}
+    </span>
+    <span className="flex items-center bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm md:text-base">
+      <FaKey className="mr-1" /> {agent.industry || 'Unknown Industry'}
+    </span>
+  </div>
+  
+  {/* Tried By and Wishlist Button */}
+  <div className="flex items-center mt-4">
+    {/* Tried By with Eye Icon */}
+    <div className="flex items-center text-gray-600">
+      <FaEye className="mr-2" aria-label="Tried By" />
+      <span>{agent.triedBy || 0}</span>
+    </div>
+    {/* Wishlist Button */}
+    <button
+      className="flex items-center text-gray-800 bg-gray-300 hover:bg-gray-400 transition-all ml-4 px-4 py-2 rounded-full shadow-sm"
+      onClick={(event) => handleWishlist(event, agent._id)}
+      aria-label="Save Agent to Wishlist"
+    >
+      <FaRegBookmark className="mr-2" size={20} />
+      <span className="text-lg">{saveCounts[agent._id] || 0}</span>
+    </button>
+  </div>
+</div>
+
 
       {/* Main Content Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-6 md:px-8 lg:px-12 mb-12">
