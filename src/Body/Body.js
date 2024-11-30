@@ -53,7 +53,7 @@ const Body = () => {
       <div className="relative overflow-hidden bg-gradient-to-b from-blue-50 via-white to-blue-100 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.h1
-            className="text-6xl font-extrabold tracking-tight text-primaryBlue drop-shadow-lg"
+            className="text-5xl md:text-6xl font-extrabold tracking-tight text-primaryBlue drop-shadow-lg"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.5, ease: "easeOut" }}
@@ -70,12 +70,12 @@ const Body = () => {
             with AiAzent
           </motion.h1>
           <motion.p
-            className="mt-4 text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed"
+            className="mt-4 text-lg  md:text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.5, delay: 0.5 }}
           >
-            Leverage the power of AI to automate processes, boost productivity, and unlock new possibilities for growth.
+            Leverage the power of AI tools and AI Agents to automate processes, boost productivity, and unlock new possibilities for growth.
           </motion.p>
           <motion.div
             className="mt-10 flex justify-center"
@@ -85,7 +85,7 @@ const Body = () => {
           >
             <button
               onClick={handleGetStartedClick} // Attach the click handler
-              className="bg-primaryBlue3 text-white font-semibold py-4 px-10 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition transform duration-300"
+              className="bg-primaryBlue3 text-white font-semibold py-4 px-6 md:px-10 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition transform duration-300"
             >
               Get Started with AiAzent
             </button>

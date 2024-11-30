@@ -16,7 +16,7 @@ import bgimg from '../Images/whitebg.jpg';
 import bgimg2 from '../Images/whitebg2.jpg';
 // Renamed for clarity
 // Define the base URL for Strapi
-const STRAPI_BASE_URL = 'http://localhost:1337';
+const STRAPI_BASE_URL = 'https://strapi-jrm5.onrender.com';
 const primaryBlue2 = 'rgb(73, 125, 168)';
 
 // Category to Icon mapping
@@ -95,8 +95,8 @@ const BlogList = () => {
         <div className="md:w-1/3 relative aspect-[4/3] overflow-hidden bg-gray-100">
           <Link to={`/blogs/${blog.slug}`} className="block w-full h-full">
             <img
-              src={blog.cover.url}
-              alt={blog.title || 'Blog Cover'}
+              src={blog?.cover?.url}
+              alt={blog?.title || 'Blog Cover'}
               className="absolute inset-0 w-full h-full object-cover"
               loading="lazy"
             />

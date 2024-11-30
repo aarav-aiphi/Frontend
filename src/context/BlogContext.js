@@ -22,6 +22,7 @@ export const BlogProvider = ({ children }) => {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     getBlogs();

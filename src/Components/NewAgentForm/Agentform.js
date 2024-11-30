@@ -9,6 +9,7 @@ import PaymentOptions from './PaymentOption';
 import Faqs from './Faqs';
 import OurImpact from './OurImpact';
 import OurAIAgents from './OurImpact';
+import { FaPaperPlane } from 'react-icons/fa'; // Ensure you have this import if needed
 
 const CreateAgentForm = () => {
   const [agentData, setAgentData] = useState({
@@ -28,11 +29,7 @@ const CreateAgentForm = () => {
     logo: null,
     thumbnail: null,
     videoUrl: '', // Removed duplicate videoUrl
-    price: '',
-    individualPlan: '',
-    enterprisePlan: '',
-    subscriptionModel: '',
-    refundPolicy: '',
+    // Removed fields: price, individualPlan, enterprisePlan, subscriptionModel, refundPolicy
   });
 
   const handleChange = (e) => {
@@ -49,7 +46,7 @@ const CreateAgentForm = () => {
 
     const formData = new FormData();
     Object.keys(agentData).forEach((key) => {
-      if (agentData[key] !== null) { // Ensure files are appended correctly
+      if (agentData[key] !== null && agentData[key] !== '') { // Ensure files and non-empty fields are appended
         formData.append(key, agentData[key]);
       }
     });
@@ -77,11 +74,7 @@ const CreateAgentForm = () => {
         logo: null,
         thumbnail: null,
         videoUrl: '', // Reset videoUrl
-        price: '',
-        individualPlan: '',
-        enterprisePlan: '',
-        subscriptionModel: '',
-        refundPolicy: '',
+        // Removed fields: price, individualPlan, enterprisePlan, subscriptionModel, refundPolicy
       });
     } catch (error) {
       console.error('Error creating agent:', error);
@@ -143,10 +136,9 @@ const CreateAgentForm = () => {
         backgroundAttachment: 'fixed', // Ensures the background image is fixed
       }}
     > 
-    <OurAIAgents/>
-    {/* <PaymentOptions/> */}
-  
-
+      <OurAIAgents/>
+      {/* <PaymentOptions/> */}
+    
       {/* Main Container with padding to prevent navbar overlap */}
       <div className="min-h-screen flex items-center justify-center overflow-auto">
         <form
@@ -170,7 +162,7 @@ const CreateAgentForm = () => {
                 onChange={handleChange}
                 required
                 className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="Enter AI Agent name"
+                placeholder="Enter AI Agent name (e.g., ChatMaster)"
               />
             </div>
 
@@ -184,7 +176,7 @@ const CreateAgentForm = () => {
                 value={agentData.createdBy}
                 onChange={handleChange}
                 className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="Enter creator name"
+                placeholder="Enter creator's name (e.g., John Doe)"
               />
             </div>
 
@@ -199,7 +191,7 @@ const CreateAgentForm = () => {
                 onChange={handleChange}
                 required
                 className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="Enter website or GitHub URL"
+                placeholder="Enter website or GitHub URL (e.g., https://github.com/chatmaster)"
               />
             </div>
 
@@ -214,7 +206,7 @@ const CreateAgentForm = () => {
                 value={agentData.ownerEmail}
                 onChange={handleChange}
                 className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="Enter email"
+                placeholder="Enter owner's email (e.g., owner@example.com)"
               />
             </div>
 
@@ -306,21 +298,23 @@ const CreateAgentForm = () => {
               </select>
             </div>
 
-            <div>
+            {/* Tagline - Updated to Textarea */}
+            <div className="col-span-2">
               <label className="block text-sm font-semibold text-primaryBlue">
                 Tagline
               </label>
-              <input
-                type="text"
+              <textarea
                 name="tagline"
                 value={agentData.tagline}
                 onChange={handleChange}
                 className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="Enter tagline"
+                placeholder="Enter a catchy tagline for your AI agent (e.g., 'Revolutionizing Customer Support')"
+                rows="2"
               />
             </div>
 
-            <div>
+            {/* Description - Already a Textarea, ensuring proper height */}
+            <div className="col-span-2">
               <label className="block text-sm font-semibold text-primaryBlue">
                 Description
               </label>
@@ -329,36 +323,38 @@ const CreateAgentForm = () => {
                 value={agentData.description}
                 onChange={handleChange}
                 className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="Enter description"
-                rows="3"
+                placeholder="Provide a detailed description of your AI agent, its features, and benefits."
+                rows="4"
               />
             </div>
 
-            <div>
+            {/* Key Features - Updated to Textarea */}
+            <div className="col-span-2">
               <label className="block text-sm font-semibold text-primaryBlue">
                 Key Features (comma separated)
               </label>
-              <input
-                type="text"
+              <textarea
                 name="keyFeatures"
                 value={agentData.keyFeatures}
                 onChange={handleChange}
                 className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="e.g., Feature1, Feature2, Feature3"
+                placeholder="List key features separated by commas (e.g., 'Natural Language Processing, Machine Learning, 24/7 Support')"
+                rows="3"
               />
             </div>
 
-            <div>
+            {/* Use Cases - Updated to Textarea */}
+            <div className="col-span-2">
               <label className="block text-sm font-semibold text-primaryBlue">
                 Use Cases (comma separated)
               </label>
-              <input
-                type="text"
+              <textarea
                 name="useCases"
                 value={agentData.useCases}
                 onChange={handleChange}
                 className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="e.g., UseCase1, UseCase2, UseCase3"
+                placeholder="Describe potential use cases separated by commas (e.g., 'Customer Support, Data Analysis, Content Creation')"
+                rows="3"
               />
             </div>
 
@@ -372,7 +368,7 @@ const CreateAgentForm = () => {
                 value={agentData.tags}
                 onChange={handleChange}
                 className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="e.g., Tag1, Tag2, Tag3"
+                placeholder="Add relevant tags separated by commas (e.g., 'AI, Automation, Chatbot')"
               />
             </div>
 
@@ -391,80 +387,8 @@ const CreateAgentForm = () => {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-primaryBlue">
-                Price *
-              </label>
-              <input
-                type="number"
-                name="price"
-                value={agentData.price}
-                onChange={handleChange}
-                required
-                
-                className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="Enter price"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-primaryBlue">
-                Individual Plan
-              </label>
-              <input
-                type="text"
-                name="individualPlan"
-                value={agentData.individualPlan}
-                onChange={handleChange}
-                className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="Enter individual plan"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-primaryBlue">
-                Enterprise Plan
-              </label>
-              <input
-                type="text"
-                name="enterprisePlan"
-                value={agentData.enterprisePlan}
-                onChange={handleChange}
-                className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="Enter enterprise plan"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-primaryBlue">
-                Subscription Model
-              </label>
-              <input
-                type="text"
-                name="subscriptionModel"
-                value={agentData.subscriptionModel}
-                onChange={handleChange}
-                className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="Enter subscription model"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-primaryBlue">
-                Refund Policy
-              </label>
-              <input
-                type="text"
-                name="refundPolicy"
-                value={agentData.refundPolicy}
-                onChange={handleChange}
-                className="mt-1 p-3 w-full border border-primaryBlue2 bg-white rounded-lg focus:ring-2 focus:ring-primaryBlue2"
-                placeholder="Enter refund policy"
-              />
-            </div>
-
             {/* File Inputs */}
-            <div>
+            <div className="col-span-2">
               <label className="block text-sm font-semibold text-primaryBlue">
                 Logo *
               </label>
@@ -492,7 +416,7 @@ const CreateAgentForm = () => {
               </div>
             </div>
 
-            <div>
+            <div className="col-span-2">
               <label className="block text-sm font-semibold text-primaryBlue">
                 Thumbnail Image
               </label>
@@ -531,7 +455,7 @@ const CreateAgentForm = () => {
           </div>
         </form>
       </div>
-      {/* <Faqs/> */}
+    
     </div>
   );
 };

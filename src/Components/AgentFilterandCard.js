@@ -16,6 +16,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { AiOutlineLike } from "react-icons/ai";
+import { AiFillLike } from "react-icons/ai";
 import { fetchAgents, updateSavedByCount, updateLikeCount } from '../redux/agentsSlice'; // Import the synchronous actions
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -41,9 +42,14 @@ const Spinner = () => (
 );
 
 // AgentCard Component
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { AiOutlineLike } from 'react-icons/ai';
+import { FaRegBookmark } from 'react-icons/fa';
+
 const AgentCard = ({ agent, saveCounts, likeCounts, handleWishlist, handleLike }) => {
   // Destructure properties with default values
-  const { _id, name, logo, shortDescription, category } = agent || {};
+  const { _id, name, logo, shortDescription, category, pricingModel } = agent || {};
 
   // Safeguard against undefined saveCounts or agent ID
   const saveCount = (saveCounts && _id && saveCounts[_id]) ? saveCounts[_id] : 0;
@@ -72,7 +78,7 @@ const AgentCard = ({ agent, saveCounts, likeCounts, handleWishlist, handleLike }
             onClick={(event) => handleLike(event, _id)}
             aria-label={likeCount > 0 ? "Unlike Agent" : "Like Agent"}
           >
-            {likeCount > 0 ? <AiOutlineLike className="mr-1" /> : <AiOutlineLike className="mr-1" />} {likeCount}
+            <AiFillLike  className="mr-1" /> {likeCount}
           </button>
 
           {/* Save Button */}
@@ -96,10 +102,17 @@ const AgentCard = ({ agent, saveCounts, likeCounts, handleWishlist, handleLike }
             />
           )}
 
-          {/* Agent Name */}
-          <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-2 sm:mb-4 text-center">
-            {name}
-          </h3>
+          {/* Agent Name with Pricing */}
+          <div className="flex items-center justify-center text-center">
+            <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-2 sm:mb-4">
+              {name}
+            </h3>
+            {pricingModel && (
+              <span className="ml-2 text-gray-500 text-sm sm:text-base">
+                {pricingModel}
+              </span>
+            )}
+          </div>
 
           {/* Short Description */}
           <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 text-center flex-grow">
@@ -110,6 +123,8 @@ const AgentCard = ({ agent, saveCounts, likeCounts, handleWishlist, handleLike }
     </Link>
   );
 };
+
+
 
 const AgentFilterAndCard = () => {
   // State for sticky filter and its visibility
@@ -141,6 +156,7 @@ const AgentFilterAndCard = () => {
   // Access Redux state
   const dispatch = useDispatch();
   const agentsState = useSelector((state) => state.agents);
+ 
   const { agents: fetchedAgents, likeCounts, saveCounts, status, error } = agentsState;
 
   // Animation variants for filter elements

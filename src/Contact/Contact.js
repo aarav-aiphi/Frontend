@@ -1,11 +1,10 @@
-// Frontend/src/Components/Contact.js
 
 import React, { useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import 'react-toastify/dist/ReactToastify.css';
-import { FaPaperPlane } from 'react-icons/fa';
+import { FaPaperPlane, FaEnvelope } from 'react-icons/fa';
 
 export const Contact = () => {
   const [formData, setFormData] = useState({
@@ -25,7 +24,7 @@ export const Contact = () => {
     e.preventDefault();
     setStatus('Submitting...');
     try {
-      const res = await axios.post('https://backend-1-sval.onrender.com/api/contact', formData);// Ensure relative path
+      const res = await axios.post('https://backend-1-sval.onrender.com/api/contact', formData);
       toast.success(res.data.message || 'Your message has been sent successfully!');
       setStatus('');
       setFormData({
@@ -42,7 +41,6 @@ export const Contact = () => {
     }
   };
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
@@ -68,13 +66,13 @@ export const Contact = () => {
             initial="hidden"
             animate="visible"
           >
-            <motion.p
+            {/* <motion.p
               className="text-base font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-200"
               variants={itemVariants}
               custom={0}
             >
               Contact Us
-            </motion.p>
+            </motion.p> */}
             <motion.h2
               className="font-heading mb-4 font-bold tracking-tight text-gray-900 dark:text-white text-3xl sm:text-5xl"
               variants={itemVariants}
@@ -90,7 +88,23 @@ export const Contact = () => {
               Whether you have a question about features, pricing, or anything else, our team is ready to
               answer all your questions.
             </motion.p>
+            <motion.p
+              className="mx-auto mt-4 max-w-md text-xl text-gray-600 dark:text-slate-400"
+              variants={itemVariants}
+              custom={2}
+            >
+               <FaEnvelope className="inline-block mr-2" />
+              Email us at:{' '}
+              <a
+                href="mailto:info@aiphi.ai"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                info@aiphi.ai
+              </a>
+            </motion.p>
           </motion.div>
+
+           
 
           {/* Contact Form */}
           <motion.div
@@ -217,9 +231,10 @@ export const Contact = () => {
               </motion.div>
             </form>
           </motion.div>
+
+        
         </div>
       </section>
-   
     </div>
   );
 };

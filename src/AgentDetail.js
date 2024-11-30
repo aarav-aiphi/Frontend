@@ -22,6 +22,7 @@ import {
   FaLinkedin, // New import for LinkedIn
   FaCopy,      // New import for Copy Link
 } from 'react-icons/fa';
+import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa"; 
 import agent5_bg from './Images/agentbg4.jpg';
 import { CategoryAgentPage } from './Components/CategoryAgentPage';
 
@@ -295,55 +296,70 @@ export const AgentDetail = () => {
               <p className="text-gray-700">{agent.description || 'No detailed description available.'}</p>
             </motion.div>
 
-            {/* Key Features */}
-            <motion.div
-              className="mb-6"
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-                <FaCheckCircle className="mr-2 text-green-500" /> Key Features
-              </h2>
-              <ul className="list-disc list-inside text-left space-y-2">
-                {agent.keyFeatures?.length ? (
-                  agent.keyFeatures.map((feature, index) => (
-                    <li key={index} className="text-gray-700 flex items-start">
-                      <FaCheckCircle className="mt-1 mr-2 text-green-500" />
-                      {feature}
-                    </li>
-                  ))
-                ) : (
-                  <li className="text-gray-400">No key features available.</li>
-                )}
-              </ul>
-            </motion.div>
+  
 
-            {/* Use Cases */}
-            <motion.div
-              className="mb-6"
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-                <FaUsers className="mr-2 text-blue-500" /> Use Cases
-              </h2>
-              <ul className="list-disc list-inside text-left space-y-2">
-                {agent.useCases?.length ? (
-                  agent.useCases.map((useCase, index) => (
-                    <li key={index} className="text-gray-700 flex items-start">
-                      <FaUsers className="mt-1 mr-2 text-blue-500" />
-                      {useCase}
-                    </li>
-                  ))
-                ) : (
-                  <li className="text-gray-400">No use cases available.</li>
-                )}
-              </ul>
-            </motion.div>
+<motion.div
+  className="mb-6 border border-gray-300  p-4 bg-gray-50"
+  initial={{ opacity: 0, y: 10 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6, delay: 0.2 }}
+  viewport={{ once: true }}
+>
+  <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+   Key Features
+  </h2>
+  <ul className="text-left space-y-2">
+    {agent.keyFeatures?.length ? (
+      agent.keyFeatures.map((feature, index) => (
+        <li
+          key={index}
+          className="text-gray-700 flex items-start bg-blue-50 hover:bg-blue-100 p-3 rounded-lg"
+        >
+          <FaCheckCircle className="mt-1 mr-2 text-green-500" /> {/* Check Icon */}
+          {feature}
+        </li>
+      ))
+    ) : (
+      <li className="text-gray-400 p-3 bg-blue-50 rounded-lg flex items-center">
+        <FaExclamationCircle className="mr-2 text-yellow-500" /> {/* Warning Icon */}
+        No key features available.
+      </li>
+    )}
+  </ul>
+</motion.div>
+
+
+
+<motion.div
+  className="mb-6 border border-gray-300 p-4 bg-gray-50 "
+  initial={{ opacity: 0, y: 10 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6, delay: 0.4 }}
+  viewport={{ once: true }}
+>
+  <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+    Use Cases
+  </h2>
+  <ul className="text-left space-y-2">
+    {agent.useCases?.length ? (
+      agent.useCases.map((useCase, index) => (
+        <li
+          key={index}
+          className="text-gray-700 flex items-start bg-blue-50 hover:bg-blue-100 p-3 rounded-lg"
+        >
+          <FaUsers className="mt-1 mr-2 text-blue-500" /> {/* User Icon */}
+          {useCase}
+        </li>
+      ))
+    ) : (
+      <li className="text-gray-400 p-3 bg-blue-50 rounded-lg flex items-center">
+        <FaExclamationCircle className="mr-2 text-yellow-500" /> {/* Warning Icon */}
+        No use cases available.
+      </li>
+    )}
+  </ul>
+</motion.div>
+
           </div>
         </div>
 

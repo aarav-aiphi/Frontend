@@ -299,7 +299,7 @@ const SearchComponent = () => {
           )}
           <button
             type="submit"
-            className="bg-primaryBlue3 absolute bottom-2 right-2 text-white rounded-full md:px-6 md:py-3 px-2 py-2 hover:scale-95 transition duration-200"
+            className="bg-primaryBlue3 absolute bottom-2 right-2 text-white rounded-full md:px-6 md:py-3 px-3 py-3 hover:scale-95 transition duration-200"
             disabled={loading}
           >
             {loading ? 'Generating...' : 'Generate Recommendations'}

@@ -1,261 +1,261 @@
-// frontend/src/components/NewsList.js
-import React, { useEffect, useState, useCallback } from 'react';
-import { fetchNews } from '../Services/newsService';
-import FocusLock from 'react-focus-lock';
+// src/Components/NewsList.js
+
+import React, { useContext, useState, useEffect, memo } from 'react';
+import { NewsContext } from '../context/NewsContext';
+import { Link } from 'react-router-dom';
+import DOMPurify from 'dompurify';
+import { FaSearch, FaChevronRight, FaUser, FaClock, FaCode, FaLaptop, FaRobot, FaBook } from 'react-icons/fa';
+import { MdCategory } from 'react-icons/md';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { motion, AnimatePresence } from 'framer-motion'; // Import framer-motion
+import NewsImg from '../Images/blog.jpg'; 
+import NewsImg2 from '../Images/blog2.png';
+// Renamed for clarity
+import bgimg from '../Images/whitebg.jpg';
+import bgimg2 from '../Images/whitebg2.jpg';
+// Renamed for clarity
+// Define the base URL for Strapi
+const STRAPI_BASE_URL = '';
+const primaryBlue2 = 'rgb(73, 125, 168)';
+
+// Category to Icon mapping
+const categoryIcons = {
+  Technology: <FaLaptop className="mr-2 text-lg" />,
+  AI: <FaRobot className="mr-2 text-lg" />,
+  Programming: <FaCode className="mr-2 text-lg" />,
+  Education: <FaBook className="mr-2 text-lg" />,
+  // Add more categories and their corresponding icons here
+  Default: <MdCategory className="mr-2 text-lg" />, // Default icon
+};
+
+// Header texts to cycle through
+const headerTexts = ['AI Agents Insights', 'Discover AI Trends', 'Innovate with AI'];
 
 const NewsList = () => {
-    const [articles, setArticles] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [selectedArticle, setSelectedArticle] = useState(null);
-    const [searchInput, setSearchInput] = useState('');
-    const [searchQuery, setSearchQuery] = useState('');
-    const [sources, setSources] = useState([]);
-    const [selectedSource, setSelectedSource] = useState('');
-    const [page, setPage] = useState(1);
-    const [totalResults, setTotalResults] = useState(0);
+  const { news, loading, categories } = useContext(NewsContext);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredNews, setFilteredNews] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const newsPerPage = 6;
+  
+  const placeholderSvg = `data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+        <rect width="400" height="300" fill="#f3f4f6"/>
+        <text x="200" y="150" font-family="Arial" font-size="20" fill="#9ca3af" text-anchor="middle" dy=".3em">
+            Image not available
+        </text>
+    </svg>`
+)}`;
 
-    // Fetch available sources on component mount
-    useEffect(() => {
-        const getSources = async () => {
-            try {
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/news/sources`);
-                const data = await response.json();
-                setSources(data.sources);
-            } catch (err) {
-                console.error('Error fetching sources:', err.message);
-            }
-        };
-        getSources();
-    }, []);
+  const [headerIndex, setHeaderIndex] = useState(0);
 
-    // Fetch news whenever searchQuery, selectedSource, or page changes
-    useEffect(() => {
-        const getNews = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const data = await fetchNews(searchQuery, selectedSource, page);
-                setArticles(data.articles);
-                setTotalResults(data.totalResults);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-        getNews();
-    }, [searchQuery, selectedSource, page]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeaderIndex((prevIndex) => (prevIndex + 1) % headerTexts.length);
+    }, 3000); // Change text every 3 seconds
 
-    // Handle Modal Close on Esc Key
-    useEffect(() => {
-        const handleEsc = (event) => {
-            if (event.key === 'Escape') {
-                setSelectedArticle(null);
-            }
-        };
-        window.addEventListener('keydown', handleEsc);
-        return () => window.removeEventListener('keydown', handleEsc);
-    }, []);
+    return () => clearInterval(interval);
+  }, []);
 
-    // Calculate total pages based on totalResults
-    const totalPages = Math.ceil(totalResults / 12); // pageSize = 12
+  useEffect(() => {
+    let tempNews = news;
 
-    if (loading) {
-        return (
-            <div className="container mx-auto px-4 py-8">
-                <h1 className="text-4xl font-bold mb-6 text-primaryBlue2">Latest AI News</h1>
-                {/* Filters Skeleton */}
-                <div className="flex flex-col md:flex-row items-center mb-8 space-y-4 md:space-y-0 md:space-x-4">
-                    <div className="w-full md:w-1/2">
-                        <div className="w-full px-4 py-2 bg-gray-300 rounded-lg animate-pulse"></div>
-                    </div>
-                    <div className="w-full md:w-1/2 flex items-center space-x-4">
-                        <div className="w-full px-4 py-2 bg-gray-300 rounded-lg animate-pulse"></div>
-                        <div className="px-4 py-2 bg-gray-300 rounded-lg animate-pulse w-24"></div>
-                    </div>
-                </div>
-                {/* Articles Skeleton */}
-                <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                    {[...Array(3)].map((_, index) => (
-                        <div key={index} className="border rounded-lg p-4 shadow animate-pulse bg-gray-200">
-                            <div className="w-full h-48 bg-gray-300 rounded-t-lg"></div>
-                            <div className="h-6 bg-gray-300 mt-4 rounded"></div>
-                            <div className="h-4 bg-gray-300 mt-2 rounded"></div>
-                            <div className="h-4 bg-gray-300 mt-2 rounded w-1/2"></div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
+    // Filter by search term
+    if (searchTerm) {
+      tempNews = tempNews.filter(item =>
+        item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
 
-    if (error) return <p className="text-center mt-4 text-red-500">{error}</p>;
+    // Filter by selected category
+    if (selectedCategory) {
+      tempNews = tempNews.filter(item => item.category?.name === selectedCategory);
+    }
 
+    setFilteredNews(tempNews);
+    setCurrentPage(1); // Reset to first page on new filter
+  }, [news, searchTerm, selectedCategory]);
+
+  // Pagination logic
+  const indexOfLastNews = currentPage * newsPerPage;
+  const indexOfFirstNews = indexOfLastNews - newsPerPage;
+  const currentNews = filteredNews.slice(indexOfFirstNews, indexOfLastNews);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Memoized NewsCard component
+  const NewsCard = memo(({ item }) => {
     return (
-        <div className="container mx-auto px-4 py-8">
-            <h1 className="text-4xl font-bold mb-6 text-primaryBlue2">Latest AI News</h1>
-
-            {/* Filters */}
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault(); // Prevent page refresh
-                    setSearchQuery(searchInput);
-                    setPage(1); // Reset to first page on new search
-                }}
-                className="flex flex-col md:flex-row items-center mb-8 space-y-4 md:space-y-0 md:space-x-4"
-            >
-                {/* Search Bar */}
-                <div className="w-full md:w-1/2">
-                    <input
-                        type="text"
-                        value={searchInput}
-                        onChange={(e) => setSearchInput(e.target.value)}
-                        placeholder="Search for news..."
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primaryBlue2"
-                    />
-                </div>
-
-                {/* Source Dropdown and Search Button */}
-                <div className="w-full md:w-1/2 flex items-center space-x-4">
-                    <select
-                        value={selectedSource}
-                        onChange={(e) => {
-                            setSelectedSource(e.target.value);
-                            setPage(1); // Reset to first page on new filter
-                        }}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primaryBlue2"
-                    >
-                        <option value="">All Sources</option>
-                        {sources.map((source) => (
-                            <option key={source.id} value={source.id}>
-                                {source.name}
-                            </option>
-                        ))}
-                    </select>
-                    <button
-                        type="submit"
-                        className="px-4 py-2 bg-primaryBlue2 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    >
-                        Search
-                    </button>
-                </div>
-            </form>
-
-            {/* News Articles */}
-            {articles.length > 0 ? (
-                <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                    {articles.map((article, index) => (
-                        <div key={index} className="border rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 bg-white">
-                            {article.urlToImage && (
-                                <img
-                                    src={article.urlToImage}
-                                    alt={article.title}
-                                    className="w-full h-48 object-cover"
-                                    loading="lazy"
-                                />
-                            )}
-                            <div className="p-4">
-                                <h2 className="text-2xl font-semibold text-primaryBlue2 mb-2">{article.title}</h2>
-                                <p className="text-gray-700 mb-4">{article.description}</p>
-                                <div className="flex justify-between items-center">
-                                    <button
-                                        onClick={() => setSelectedArticle(article)}
-                                        className="text-primaryBlue2 font-medium hover:underline focus:outline-none"
-                                    >
-                                        Read More
-                                    </button>
-                                    <span className="text-sm text-gray-500">
-                                        {new Date(article.publishedAt).toLocaleDateString()}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            ) : (
-                <p className="text-center text-gray-600">No articles found.</p>
-            )}
-
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-                <div className="flex justify-center mt-8 space-x-4">
-                    <button
-                        onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                        disabled={page === 1}
-                        className={`px-4 py-2 rounded-lg ${
-                            page === 1
-                                ? 'bg-gray-300 cursor-not-allowed'
-                                : 'bg-primaryBlue2 text-white hover:bg-blue-600'
-                        }`}
-                    >
-                        Previous
-                    </button>
-                    <span className="px-4 py-2 text-gray-700">
-                        Page {page} of {totalPages}
-                    </span>
-                    <button
-                        onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-                        disabled={page === totalPages}
-                        className={`px-4 py-2 rounded-lg ${
-                            page === totalPages
-                                ? 'bg-gray-300 cursor-not-allowed'
-                                : 'bg-primaryBlue2 text-white hover:bg-blue-600'
-                        }`}
-                    >
-                        Next
-                    </button>
-                </div>
-            )}
-
-            {/* Modal for Selected Article */}
-            {selectedArticle && (
-                <div
-                    className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="article-title"
-                >
-                    <FocusLock>
-                        <div className="bg-white rounded-lg max-w-3xl w-full p-6 relative overflow-y-auto max-h-screen">
-                            <button
-                                onClick={() => setSelectedArticle(null)}
-                                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-3xl"
-                                aria-label="Close Modal"
-                            >
-                                &times;
-                            </button>
-                            {selectedArticle.urlToImage && (
-                                <img
-                                    src={selectedArticle.urlToImage}
-                                    alt={selectedArticle.title}
-                                    className="w-full h-64 object-cover rounded"
-                                    loading="lazy"
-                                />
-                            )}
-                            <h2 id="article-title" className="text-3xl font-bold mt-4 text-primaryBlue2">
-                                {selectedArticle.title}
-                            </h2>
-                            <p className="text-gray-600 mt-2">
-                                By {selectedArticle.author || 'Unknown'} on {new Date(selectedArticle.publishedAt).toLocaleDateString()}
-                            </p>
-                            <p className="text-gray-700 mt-4">
-                                {selectedArticle.content || selectedArticle.description || 'No additional content available.'}
-                            </p>
-                            <a
-                                href={selectedArticle.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-primaryBlue2 hover:underline mt-4 block"
-                            >
-                                Read Full Article on Source
-                            </a>
-                        </div>
-                    </FocusLock>
-                </div>
-            )}
+      <article className="group flex flex-col md:flex-row bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="md:w-1/3 relative aspect-[4/3] overflow-hidden bg-gray-100">
+          <Link to={`/news/${item.slug}`} className="block w-full h-full">
+            <img
+              src={item?.cover?.url || placeholderSvg}
+              alt={item?.title || 'News Cover'}
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+            />
+          </Link>
         </div>
+        <div className="flex-1 p-6 flex flex-col justify-between">
+          <div>
+            <Link to={`/news/${item.slug}`} className="block text-primaryBlue2 transition-colors duration-300">
+              <h2 className="text-lg md:text-xl font-bold mb-3 text-gray-800">{item.title || 'Untitled News'}</h2>
+            </Link>
+            <p className="text-gray-600 line-clamp-3 mb-4">
+              {item.description ? `${DOMPurify.sanitize(item.description).substring(0, 150)}...` : 'No description available.'}
+            </p>
+          </div>
+          <div className="flex items-center justify-between text-sm text-gray-600">
+            {item.author && (
+              <span className="flex items-center">
+                <FaUser className="mr-1" /> {item.author.name}
+              </span>
+            )}
+            {item.readingTime && (
+              <span className="flex items-center">
+                <FaClock className="mr-1" /> {item.readingTime} min read
+              </span>
+            )}
+          </div>
+        </div>
+      </article>
     );
-};
+  });
+
+  // Animation variants for header texts
+  const headerVariants = {
+    initial: { opacity: 0, y: -20 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: 20 },
+  };
+
+  // Animation settings
+  const headerTransition = {
+    duration: 0.8,
+    ease: 'easeInOut',
+  };
+
+  return (
+    <div
+      className="min-h-screen bg-cover bg-center"
+      style={{
+        backgroundImage: `url(${bgimg})`,
+      }}
+    >
+      <div className='md:max-w-4xl md:mx-auto flex md:flex-row flex-col md:gap-10 items-center justify-center'>
+        <header className="text-center mb-16 md:w-1/2 mt-28">
+          <h1 className="text-5xl md:text-5xl font-bold mb-6 text-gray-900" style={{ color: primaryBlue2 }}>
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={headerTexts[headerIndex]}
+                variants={headerVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={headerTransition}
+                className="block"
+              >
+                {headerTexts[headerIndex]}
+              </motion.span>
+            </AnimatePresence>
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Discover the latest in AI technology and trends.
+          </p>
+        </header>
+        <div className='w-1/2'>
+          <img src={NewsImg2} alt="News Header" className="w-full h-96 object-cover" />
+        </div>
+      </div>
+      <div className="container mx-auto px-4 py-12 max-w-7xl">
+        {/* Search Bar */}
+        <div className="relative max-w-2xl mx-auto mb-12">
+          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search news..."
+            className="w-full pl-12 pr-4 py-3 rounded-full border-2 border-gray-200 focus:border-primaryBlue2 transition duration-300"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        {/* Main Content */}
+        <div className="flex flex-col lg:flex-row gap-12">
+          {/* Sidebar - Categories */}
+          <aside className="lg:w-1/4">
+            <div className="sticky top-16 space-y-8">
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-xl font-bold mb-6 text-gray-900 flex items-center" style={{ color: primaryBlue2 }}>
+                  <MdCategory className="mr-2 text-2xl" /> Categories
+                </h2>
+                {/* All Categories Button */}
+                <button
+                  onClick={() => setSelectedCategory('')}
+                  className={`w-full flex items-center p-2 mb-2 rounded-lg transition ${selectedCategory === '' ? 'bg-primaryBlue3 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                >
+                  <MdCategory className="mr-2" />
+                  All Categories
+                </button>
+                {/* Dynamic Categories Buttons */}
+                {categories.map(category => (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.name)}
+                    className={`w-full flex items-center p-2 mb-2 rounded-lg transition ${selectedCategory === category.name ? 'bg-primaryBlue3 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                  >
+                    {/* Use the mapped icon or default if not found */}
+                    {categoryIcons[category.name] || categoryIcons['Default']}
+                    {category.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </aside>
+
+          {/* News Articles */}
+          <main className="lg:w-3/4">
+            {loading ? (
+              <div className="space-y-6">
+                {[...Array(3)].map((_, index) => (
+                  <Skeleton key={index} height={200} className="rounded-lg" />
+                ))}
+              </div>
+            ) : currentNews.length === 0 ? (
+              <p className="text-center text-gray-600">No news found.</p>
+            ) : (
+              <div className="space-y-6">
+                {currentNews.map(item => (
+                  <NewsCard key={item.id} item={item} />
+                ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            <div className="flex justify-center mt-8 space-x-2">
+              {Array(Math.ceil(filteredNews.length / newsPerPage)).fill().map((_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => paginate(i + 1)}
+                  className={`px-4 py-2 rounded-full border transition ${
+                    currentPage === i + 1
+                      ? 'bg-primaryBlue2 text-white'
+                      : 'text-primaryBlue2 border-primaryBlue2 hover:bg-primaryBlue2 hover:text-white'
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default NewsList;

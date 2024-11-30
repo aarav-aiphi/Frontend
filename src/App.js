@@ -30,6 +30,7 @@ import BlogForm from "./Components/BlogForm";
 
 // **Import Blog Context Provider**
 import { BlogProvider } from "./context/BlogContext";
+import { NewsProvider } from "./context/NewsContext";
 import UserDashboard from "./Components/UserDashboard.js/UserDashboard";
 import PrivacyPolicy from "./Components/PrivacyPolicy/PrivacyPolicy";
 import { Contact } from "./Contact/Contact";
@@ -38,6 +39,7 @@ import store from "./redux/store";
 import Community from "./Components/comingsoon/Community";
 import { Sponsor } from "./Components/NewAgentSponsor/Sponsor";
 import AdminUpload from "./Components/admin-upload";
+import NewsDetails from "./Components/NewsDetail";
 
 const Applayout = () => {
   useEffect(() => {
@@ -54,6 +56,7 @@ const noNavbarRoutes=[];
         <ScrollToTop />
         <AuthProvider>
         <BlogProvider>
+        <NewsProvider>
         {!noNavbarRoutes.includes(location.pathname) && <Navbar />}
             <Outlet />
             <Footer />
@@ -70,6 +73,7 @@ const noNavbarRoutes=[];
                 theme="light"
                
             />
+            </NewsProvider>
         </BlogProvider>
         </AuthProvider>
         </Provider>
@@ -142,6 +146,10 @@ const appRouter = createBrowserRouter([
             {
                 path: "/blogs/:slug",
                 element: <BlogDetails />
+            },
+            {
+                path: "/news/:slug",
+                element: <NewsDetails />
             },
             {
                 path: "/add-blog",
