@@ -14,7 +14,7 @@ const PaymentOptions = ({ onSelect }) => {
       name: 'Free',
       price: '$0/month',
       features: [
-        'Listed in Agents Directory',
+        'Listed in AI Azents list',
         'Limited Visibility',
         'Community Support',
       ],
@@ -29,7 +29,7 @@ const PaymentOptions = ({ onSelect }) => {
       name: 'Basic',
       price: '$99/month',
       features: [
-        'Highlighted in Agents Directory',
+        'Highlighted in AI Azents list',
         'Standard Visibility',
         'Basic Support',
       ],
@@ -44,7 +44,7 @@ const PaymentOptions = ({ onSelect }) => {
       name: 'Standard',
       price: '$199/month',
       features: [
-        'Highlighted in Agents Directory',
+        'Highlighted in AI Azents list',
         'Enhanced Visibility',
         'Priority Support',
         'Access to Performance Metrics',
