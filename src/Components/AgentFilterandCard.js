@@ -11,12 +11,14 @@ import {
   FaFilter,
   FaSpinner,
   FaHeart,
-  FaRegHeart 
+  FaRegHeart,
+  FaSort // Add this import
 } from "react-icons/fa";
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { AiOutlineLike } from "react-icons/ai";
 import { AiFillLike } from "react-icons/ai";
+import { FaThumbsUp } from "react-icons/fa";
 import { fetchAgents, updateSavedByCount, updateLikeCount } from '../redux/agentsSlice'; // Import the synchronous actions
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -42,10 +44,7 @@ const Spinner = () => (
 );
 
 // AgentCard Component
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AiOutlineLike } from 'react-icons/ai';
-import { FaRegBookmark } from 'react-icons/fa';
 
 const AgentCard = ({ agent, saveCounts, likeCounts, handleWishlist, handleLike }) => {
   // Destructure properties with default values
@@ -78,7 +77,7 @@ const AgentCard = ({ agent, saveCounts, likeCounts, handleWishlist, handleLike }
             onClick={(event) => handleLike(event, _id)}
             aria-label={likeCount > 0 ? "Unlike Agent" : "Like Agent"}
           >
-            <AiFillLike  className="mr-1" /> {likeCount}
+            <FaThumbsUp  className="mr-1" /> {likeCount}
           </button>
 
           {/* Save Button */}
@@ -124,8 +123,6 @@ const AgentCard = ({ agent, saveCounts, likeCounts, handleWishlist, handleLike }
   );
 };
 
-
-
 const AgentFilterAndCard = () => {
   // State for sticky filter and its visibility
   const [isSticky, setIsSticky] = useState(false);
@@ -148,10 +145,14 @@ const AgentFilterAndCard = () => {
     pricingModel: false,
     category: false,
     industry: false,
+    sortBy: false, // Add this line
   });
 
   // Selected filter values
   const [selected, setSelected] = useState({ ...DEFAULT_FILTERS });
+
+  // Sort Option
+  const [sortOption, setSortOption] = useState('Default');
 
   // Access Redux state
   const dispatch = useDispatch();
@@ -190,7 +191,7 @@ const AgentFilterAndCard = () => {
         });
       } catch (err) {
         console.error('Error fetching filter options:', err);
-        toast.error('Failed to load filter options.');
+    
       }
     };
 
@@ -259,6 +260,15 @@ const AgentFilterAndCard = () => {
     }));
   };
 
+  // Handle sort option selection
+  const handleSortSelect = (value) => {
+    setSortOption(value);
+    setOpenDropdown(prev => ({
+      ...prev,
+      sortBy: false,
+    }));
+  };
+
   // Reset individual filter to default
   const resetFilter = (filterType) => {
     setSelected(prev => ({
@@ -284,6 +294,7 @@ const AgentFilterAndCard = () => {
           pricingModel: false,
           category: false,
           industry: false,
+          sortBy: false, // Include sortBy here
         });
       }
     };
@@ -359,7 +370,14 @@ const AgentFilterAndCard = () => {
     ((selected.industry === 'Industry') || agent.industry === selected.industry)
   );
 
-  const categorizedAgents = filteredAgents.reduce((categories, agent) => {
+  // Sort agents based on sortOption
+  let sortedAgents = [...filteredAgents];
+  if (sortOption === 'Popularity') {
+    sortedAgents.sort((a, b) => (b.popularityScore || 0) - (a.popularityScore || 0));
+  }
+
+  // Use sortedAgents instead of filteredAgents
+  const categorizedAgents = sortedAgents.reduce((categories, agent) => {
     const category = agent.category || 'Uncategorized';
     if (!categories[category]) {
       categories[category] = [];
@@ -421,256 +439,6 @@ const AgentFilterAndCard = () => {
       {/* Placeholder to maintain layout when fixed */}
       <div ref={placeholderRef}></div>
 
-      {/* Toggle Button for Small Screens */}
-      {/* Uncomment if you want to enable filter toggle on small screens */}
-      {/* <div className="flex justify-end p-4 md:hidden">
-        <button
-          onClick={() => setIsFilterPanelOpen(true)}
-          className="flex items-center px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-200"
-          aria-label="Open Filters"
-        >
-          <FaFilter className="mr-2" /> Filters
-        </button>
-      </div> */}
-
-      {/* Filter Panel for Small Screens */}
-      <AnimatePresence>
-        {isFilterPanelOpen && (
-          <>
-            {/* Overlay */}
-            <motion.div
-              className="fixed inset-0 bg-black bg-opacity-50 z-50"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsFilterPanelOpen(false)}
-            />
-
-            {/* Slide-In Filter Panel */}
-            <motion.div
-              className="fixed top-0 left-0 right-0 bg-white z-50 p-4 overflow-y-auto max-h-full"
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              data-aos="fade-down"
-            >
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-semibold">Filters</h2>
-                <button
-                  onClick={() => setIsFilterPanelOpen(false)}
-                  className="text-gray-700 hover:text-gray-900"
-                  aria-label="Close Filters"
-                >
-                  <FaTimes size={24} />
-                </button>
-              </div>
-              <div className="space-y-4">
-                {/* Access Model Dropdown */}
-                <div className="relative" data-aos="fade-right">
-                  <button
-                    onClick={() => toggleDropdown('accessModel')}
-                    className="w-full text-gray-700 text-base border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none hover:bg-indigo-50 transition-colors duration-200 flex items-center justify-between relative"
-                    aria-haspopup="true"
-                    aria-expanded={openDropdown.accessModel}
-                  >
-                    <span>{selected.accessModel}</span>
-                    <div className="flex items-center space-x-1">
-                      {openDropdown.accessModel ? <FaChevronUp /> : <FaChevronDown />}
-                      {selected.accessModel !== DEFAULT_FILTERS.accessModel && (
-                        <FaTimes
-                          className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent triggering dropdown toggle
-                            resetFilter('accessModel');
-                          }}
-                          aria-label="Clear Access Model Filter"
-                        />
-                      )}
-                    </div>
-                  </button>
-                  {openDropdown.accessModel && (
-                    <motion.ul
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="absolute mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
-                    >
-                      {filterOptions.accessModels.length === 0 ? (
-                        <li className="px-4 py-3 text-gray-500">No Access Models Available</li>
-                      ) : (
-                        filterOptions.accessModels.map((model) => (
-                          <li
-                            key={model}
-                            onClick={() => handleSelect('accessModel', model)}
-                            className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
-                              selected.accessModel === model ? 'bg-indigo-100' : ''
-                            }`}
-                          >
-                            <FaCheckCircle className="text-indigo-500 mr-2" />
-                            <span>{model}</span>
-                          </li>
-                        ))
-                      )}
-                    </motion.ul>
-                  )}
-                </div>
-
-                {/* Pricing Dropdown */}
-                <div className="relative" data-aos="fade-up">
-                  <button
-                    onClick={() => toggleDropdown('pricingModel')}
-                    className="w-full text-gray-700 text-base border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none hover:bg-indigo-50 transition-colors duration-200 flex items-center justify-between relative"
-                    aria-haspopup="true"
-                    aria-expanded={openDropdown.pricingModel}
-                  >
-                    <span>{selected.pricingModel}</span>
-                    <div className="flex items-center space-x-1">
-                      {openDropdown.pricingModel ? <FaChevronUp /> : <FaChevronDown />}
-                      {selected.pricingModel !== DEFAULT_FILTERS.pricingModel && (
-                        <FaTimes
-                          className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent triggering dropdown toggle
-                            resetFilter('pricingModel');
-                          }}
-                          aria-label="Clear Pricing Model Filter"
-                        />
-                      )}
-                    </div>
-                  </button>
-                  {openDropdown.pricingModel && (
-                    <motion.ul
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="absolute mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
-                    >
-                      {filterOptions.pricingModels.length === 0 ? (
-                        <li className="px-4 py-3 text-gray-500">No Pricing Models Available</li>
-                      ) : (
-                        filterOptions.pricingModels.map((price) => (
-                          <li
-                            key={price}
-                            onClick={() => handleSelect('pricingModel', price)}
-                            className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
-                              selected.pricingModel === price ? 'bg-indigo-100' : ''
-                            }`}
-                          >
-                            <FaCheckCircle className="text-indigo-500 mr-2" />
-                            <span>{price}</span>
-                          </li>
-                        ))
-                      )}
-                    </motion.ul>
-                  )}
-                </div>
-
-                {/* Category Dropdown */}
-                <div className="relative" data-aos="fade-left">
-                  <button
-                    onClick={() => toggleDropdown('category')}
-                    className="w-full text-gray-700 text-base border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none hover:bg-indigo-50 transition-colors duration-200 flex items-center justify-between relative"
-                    aria-haspopup="true"
-                    aria-expanded={openDropdown.category}
-                  >
-                    <span>{selected.category}</span>
-                    <div className="flex items-center space-x-1">
-                      {openDropdown.category ? <FaChevronUp /> : <FaChevronDown />}
-                      {selected.category !== DEFAULT_FILTERS.category && (
-                        <FaTimes
-                          className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent triggering dropdown toggle
-                            resetFilter('category');
-                          }}
-                          aria-label="Clear Category Filter"
-                        />
-                      )}
-                    </div>
-                  </button>
-                  {openDropdown.category && (
-                    <motion.ul
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="absolute mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
-                    >
-                      {filterOptions.categories.length === 0 ? (
-                        <li className="px-4 py-3 text-gray-500">No Categories Available</li>
-                      ) : (
-                        filterOptions.categories.map((cat) => (
-                          <li
-                            key={cat}
-                            onClick={() => handleSelect('category', cat)}
-                            className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
-                              selected.category === cat ? 'bg-indigo-100' : ''
-                            }`}
-                          >
-                            <FaCheckCircle className="text-indigo-500 mr-2" />
-                            <span>{cat}</span>
-                          </li>
-                        ))
-                      )}
-                    </motion.ul>
-                  )}
-                </div>
-
-                {/* Industry Dropdown */}
-                <div className="relative" data-aos="fade-right">
-                  <button
-                    onClick={() => toggleDropdown('industry')}
-                    className="w-full text-gray-700 text-base border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none hover:bg-indigo-50 transition-colors duration-200 flex items-center justify-between relative"
-                    aria-haspopup="true"
-                    aria-expanded={openDropdown.industry}
-                  >
-                    <span>{selected.industry}</span>
-                    <div className="flex items-center space-x-1">
-                      {openDropdown.industry ? <FaChevronUp /> : <FaChevronDown />}
-                      {selected.industry !== DEFAULT_FILTERS.industry && (
-                        <FaTimes
-                          className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent triggering dropdown toggle
-                            resetFilter('industry');
-                          }}
-                          aria-label="Clear Industry Filter"
-                        />
-                      )}
-                    </div>
-                  </button>
-                  {openDropdown.industry && (
-                    <motion.ul
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="absolute mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
-                    >
-                      {filterOptions.industries.length === 0 ? (
-                        <li className="px-4 py-3 text-gray-500">No Industries Available</li>
-                      ) : (
-                        filterOptions.industries.map((ind) => (
-                          <li
-                            key={ind}
-                            onClick={() => handleSelect('industry', ind)}
-                            className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
-                              selected.industry === ind ? 'bg-indigo-100' : ''
-                            }`}
-                          >
-                            <FaCheckCircle className="text-indigo-500 mr-2" />
-                            <span>{ind}</span>
-                          </li>
-                        ))
-                      )}
-                    </motion.ul>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
       {/* Filter Bar for Medium and Larger Screens */}
       <AnimatePresence>
         {showFilter && (
@@ -695,8 +463,6 @@ const AgentFilterAndCard = () => {
                 animate="visible"
               >
                 <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6">
-                
-
                   {/* Category Dropdown */}
                   <div className="relative w-full md:w-1/4" data-aos="fade-left">
                     <button
@@ -796,8 +562,9 @@ const AgentFilterAndCard = () => {
                       </motion.ul>
                     )}
                   </div>
-  {/* Access Model Dropdown */}
-  <div className="relative w-full md:w-1/4" data-aos="fade-right">
+
+                  {/* Access Model Dropdown */}
+                  <div className="relative w-full md:w-1/4" data-aos="fade-right">
                     <button
                       onClick={() => toggleDropdown('accessModel')}
                       className="w-full text-gray-700 text-base border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none hover:bg-indigo-50 transition-colors duration-200 flex items-center justify-between relative"
@@ -896,6 +663,50 @@ const AgentFilterAndCard = () => {
                     )}
                   </div>
 
+                  {/* Sort By Dropdown */}
+                  <div className="relative w-full md:w-1/4" data-aos="fade-up">
+                    <button
+                      onClick={() => toggleDropdown('sortBy')}
+                      className="w-full text-gray-700 text-base border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none hover:bg-indigo-50 transition-colors duration-200 flex items-center justify-between relative"
+                      aria-haspopup="true"
+                      aria-expanded={openDropdown.sortBy}
+                    >
+                      <span>{sortOption}</span>
+                      <div className="flex items-center space-x-1">
+                        {openDropdown.sortBy ? <FaChevronUp /> : <FaChevronDown />}
+                      </div>
+                    </button>
+                    {openDropdown.sortBy && (
+                      <motion.ul
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
+                      >
+                        {/* Default Option */}
+                        <li
+                          onClick={() => handleSortSelect('Default')}
+                          className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
+                            sortOption === 'Default' ? 'bg-indigo-100' : ''
+                          }`}
+                        >
+                          <FaCheckCircle className="text-indigo-500 mr-2" />
+                          <span>Default</span>
+                        </li>
+                        {/* Popularity Option */}
+                        <li
+                          onClick={() => handleSortSelect('Popularity')}
+                          className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
+                            sortOption === 'Popularity' ? 'bg-indigo-100' : ''
+                          }`}
+                        >
+                          <FaCheckCircle className="text-indigo-500 mr-2" />
+                          <span>Sort by Popularity</span>
+                        </li>
+                      </motion.ul>
+                    )}
+                  </div>
+
                 </div>
               </motion.div>
             </div>
@@ -975,7 +786,6 @@ const AgentFilterAndCard = () => {
         </motion.div>
       </div>
 
-    
     </div>
   );
 };

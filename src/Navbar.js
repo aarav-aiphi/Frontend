@@ -138,7 +138,7 @@ const Navbar = () => {
                         onClick={() => setResourcesDropdownOpen(false)}
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-primaryBlue2 transition-colors duration-200"
                       >
-                        <FaNewspaper className="mr-2" /> News
+                        <FaNewspaper className="mr-2" /> Newsletter
                       </Link>
                     </div>
                   </motion.div>
@@ -353,7 +353,7 @@ const Navbar = () => {
                             }}
                             className="flex items-center text-base font-medium text-gray-700 hover:text-primaryBlue2 transition duration-200"
                           >
-                            <FaNewspaper className="mr-2" /> News
+                            <FaNewspaper className="mr-2" /> Newsletter
                           </Link>
                         </li>
                       </motion.ul>

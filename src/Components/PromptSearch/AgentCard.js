@@ -5,6 +5,7 @@ import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import { AiOutlineLike } from "react-icons/ai";
 import { motion } from 'framer-motion';
 import { AiFillLike } from "react-icons/ai";
+import { FaThumbsUp } from 'react-icons/fa';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom'; // For navigation
 
@@ -31,7 +32,7 @@ const AgentCard = ({
           className="flex items-center text-blue-500 hover:text-blue-700 transition-colors z-10"
           aria-label={isLiked ? "Unlike Agent" : "Like Agent"}
         >
-          {isLiked ? <AiFillLike  size={20} /> : <AiFillLike  size={20} />}
+          {isLiked ? <FaThumbsUp  size={20} /> : <FaThumbsUp  size={20} />}
           <span className="ml-1 text-sm">{likeCounts[agent._id] || 0}</span>
         </button>
 
