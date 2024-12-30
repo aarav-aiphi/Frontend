@@ -44,6 +44,7 @@ export const AgentDetail = () => {
           // Handle if needed
         }
         setAgent(response.data.agent);
+        
         setSimilarAgents(response.data.bestMatches);
         const initialSaves = {};
         initialSaves[response.data.agent._id] = response.data.agent.savedByCount || 0;
@@ -169,6 +170,15 @@ export const AgentDetail = () => {
       </div>
     );
   }
+   // **Step 1: Filter out empty or whitespace-only keyFeatures**
+   const filteredKeyFeatures = agent.keyFeatures?.filter(
+    (feature) => feature && feature.trim() !== ''
+  );
+
+  // **Optional Step: Similarly, filter useCases if needed**
+  const filteredUseCases = agent.useCases?.filter(
+    (useCase) => useCase && useCase.trim() !== ''
+  );
 
   return (
     <div className="max-w-screen-xl mx-auto bg-gray-50 relative">
@@ -184,7 +194,7 @@ export const AgentDetail = () => {
           className="w-full h-full object-cover rounded-lg"
         />
         {/* Agent Logo */}
-        <div className="absolute left-6 bottom-0 transform translate-y-1/2 z-10">
+        <div className="absolute left-2 md:left-6 bottom-0 transform translate-y-1/2 z-10">
           <img
             src={agent.logo || 'https://via.placeholder.com/150'}
             alt={agent.name}
@@ -194,10 +204,10 @@ export const AgentDetail = () => {
       </div>
 
       {/* Action Buttons Below Banner Image */}
-      <div className="flex justify-end space-x-4 px-6 md:px-8 lg:px-12 mt-3 relative" ref={shareRef}>
+      <div className="flex justify-end  space-x-4 px-6 md:px-8 lg:px-12 mt-3 relative" ref={shareRef}>
         {/* Try It Now Button */}
         <Link to={agent.websiteUrl} target="_blank" rel="noopener noreferrer">
-          <button className="bg-gray-800 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-700 transition-transform transform hover:scale-105 shadow-md flex items-center">
+          <button className="bg-gray-800 text-white px-1 md:px-3 py-2 rounded-lg font-semibold hover:bg-gray-700 transition-transform transform hover:scale-105 shadow-md flex items-center">
             <FaArrowRight className="mr-2" /> {/* Added icon */}
             Try it now
           </button>
@@ -318,23 +328,23 @@ export const AgentDetail = () => {
    Key Features
   </h2>
   <ul className="text-left space-y-2">
-    {agent.keyFeatures?.length ? (
-      agent.keyFeatures.map((feature, index) => (
-        <li
-          key={index}
-          className="text-gray-700 flex items-start bg-blue-50 hover:bg-blue-100 p-3 rounded-lg"
-        >
-          <FaCheckCircle className="mt-1 mr-2 text-green-500" /> {/* Check Icon */}
-          {feature}
-        </li>
-      ))
-    ) : (
-      <li className="text-gray-400 p-3 bg-blue-50 rounded-lg flex items-center">
-        <FaExclamationCircle className="mr-2 text-yellow-500" /> {/* Warning Icon */}
-        No key features available.
-      </li>
-    )}
-  </ul>
+                {filteredKeyFeatures && filteredKeyFeatures.length > 0 ? (
+                  filteredKeyFeatures.map((feature, index) => (
+                    <li
+                      key={feature} // Use feature text as key if unique
+                      className="text-gray-700 flex items-start bg-blue-50 hover:bg-blue-100 p-3 rounded-lg"
+                    >
+                      <FaCheckCircle className="mt-1 mr-2 text-green-500" /> {/* Check Icon */}
+                      {feature}
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-gray-400 p-3 bg-blue-50 rounded-lg flex items-center">
+                    <FaExclamationCircle className="mr-2 text-yellow-500" /> {/* Warning Icon */}
+                    No key features available.
+                  </li>
+                )}
+              </ul>
 </motion.div>
 
 
