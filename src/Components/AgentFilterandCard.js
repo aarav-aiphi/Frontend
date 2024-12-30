@@ -2,31 +2,30 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  FaChevronDown, 
-  FaChevronUp, 
-  FaCheckCircle, 
-  FaTimes, 
+import {
+  FaChevronDown,
+  FaChevronUp,
+  FaCheckCircle,
+  FaTimes,
   FaRegBookmark,
   FaFilter,
   FaSpinner,
   FaHeart,
   FaRegHeart,
-  FaSort // Add this import
+  FaSort,
+  FaThumbsUp
 } from "react-icons/fa";
-import { Link } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { AiOutlineLike } from "react-icons/ai";
-import { AiFillLike } from "react-icons/ai";
-import { FaThumbsUp } from "react-icons/fa";
-import { fetchAgents, updateSavedByCount, updateLikeCount } from '../redux/agentsSlice'; // Import the synchronous actions
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import axios from 'axios'; // Ensure axios is imported
+import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { AiOutlineLike, AiFillLike } from "react-icons/ai";
+import { fetchAgents, updateSavedByCount, updateLikeCount } from "../redux/agentsSlice"; 
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
 // Import AOS and its styles
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 // Define default filter values
 const DEFAULT_FILTERS = {
@@ -36,20 +35,21 @@ const DEFAULT_FILTERS = {
   industry: "Industry",
 };
 
-// Spinner Component
-const Spinner = () => (
+// Spinner Component (generic)
+const Spinner = ({ text = "Loading..." }) => (
   <div className="flex justify-center items-center p-4">
     <FaSpinner className="animate-spin text-4xl text-primaryBlue" aria-label="Loading" />
+    <span className="ml-2 text-gray-500">{text}</span>
   </div>
 );
 
-// AgentCard Component
-import { motion } from 'framer-motion';
-
+/* 
+  AgentCard Component
+  - Renders a single agent card
+*/
 const AgentCard = ({ agent, saveCounts, likeCounts, handleWishlist, handleLike }) => {
-  // Destructure properties with default values
   const { _id, name, logo, tagline, category, pricingModel } = agent || {};
- console.log(tagline);
+
   // Safeguard against undefined saveCounts or agent ID
   const saveCount = (saveCounts && _id && saveCounts[_id]) ? saveCounts[_id] : 0;
   const likeCount = (likeCounts && _id && likeCounts[_id]) ? likeCounts[_id] : 0;
@@ -59,7 +59,7 @@ const AgentCard = ({ agent, saveCounts, likeCounts, handleWishlist, handleLike }
       <motion.div
         className="relative bg-white rounded-lg shadow-md p-6 sm:p-8 hover:shadow-xl transition-shadow duration-300 overflow-hidden w-full sm:w-80 h-72 flex flex-col"
         whileHover={{ translateY: -5 }}
-        data-aos="fade-up" // AOS attribute
+        data-aos="fade-up"
       >
         {/* Accent Border at the Top */}
         <div className="absolute inset-0 border-t-4 border-blue-500 rounded-lg"></div>
@@ -115,14 +115,13 @@ const AgentCard = ({ agent, saveCounts, likeCounts, handleWishlist, handleLike }
 
           {/* Short Description */}
           <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 pt-2 text-center flex-grow">
-            {tagline || 'No description provided.'}
+            {tagline || "No description provided."}
           </p>
         </div>
       </motion.div>
     </Link>
   );
 };
-
 
 const AgentFilterAndCard = () => {
   // State for sticky filter and its visibility
@@ -146,33 +145,36 @@ const AgentFilterAndCard = () => {
     pricingModel: false,
     category: false,
     industry: false,
-    sortBy: false, // Add this line
+    sortBy: false, 
   });
 
   // Selected filter values
   const [selected, setSelected] = useState({ ...DEFAULT_FILTERS });
 
   // Sort Option
-  const [sortOption, setSortOption] = useState('Default');
+  const [sortOption, setSortOption] = useState("Default");
 
   // Access Redux state
   const dispatch = useDispatch();
   const agentsState = useSelector((state) => state.agents);
- 
   const { agents: fetchedAgents, likeCounts, saveCounts, status, error } = agentsState;
+
+  // NEW: Local states to handle filtering UI
+  const [isFiltering, setIsFiltering] = useState(false);
+  const [filteredAgents, setFilteredAgents] = useState([]);
+  const [categorizedAgents, setCategorizedAgents] = useState({});
 
   // Animation variants for filter elements
   const filterVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.5 } },
-    hover: { scale: 1.02, transition: { type: "spring", stiffness: 300 } },
   };
 
   // Initialize AOS
   useEffect(() => {
     AOS.init({
       duration: 800, // Animation duration in ms
-      easing: 'ease-in-out', // Easing option
+      easing: "ease-in-out", // Easing option
       once: true, // Whether animation should happen only once
     });
   }, []);
@@ -182,8 +184,9 @@ const AgentFilterAndCard = () => {
     const fetchFilterOptions = async () => {
       try {
         // Fetch filter options
-        const filtersResponse = await axios.get('https://backend-1-sval.onrender.com/api/agents/filters');
-
+        const filtersResponse = await axios.get(
+          "https://backend-1-sval.onrender.com/api/agents/filters"
+        );
         setFilterOptions({
           accessModels: filtersResponse.data.accessModels || [],
           pricingModels: filtersResponse.data.pricingModels || [],
@@ -191,15 +194,14 @@ const AgentFilterAndCard = () => {
           industries: filtersResponse.data.industries || [],
         });
       } catch (err) {
-        console.error('Error fetching filter options:', err);
-    
+        console.error("Error fetching filter options:", err);
       }
     };
 
     fetchFilterOptions();
 
-    // Dispatch fetchAgents only if agents are not already fetched
-    if (status === 'idle') {
+    // Dispatch fetchAgents only if not already fetched
+    if (status === "idle") {
       dispatch(fetchAgents());
     }
   }, [dispatch, status]);
@@ -213,7 +215,6 @@ const AgentFilterAndCard = () => {
         window.requestAnimationFrame(() => {
           if (filterRef.current && placeholderRef.current) {
             const filterTop = placeholderRef.current.getBoundingClientRect().top;
-            // Adjust the offset as needed (e.g., 70px)
             if (filterTop <= 70) {
               if (!isSticky) {
                 setIsSticky(true);
@@ -222,7 +223,7 @@ const AgentFilterAndCard = () => {
             } else {
               if (isSticky) {
                 setIsSticky(false);
-                placeholderRef.current.style.height = '0px';
+                placeholderRef.current.style.height = "0px";
               }
             }
           }
@@ -251,20 +252,20 @@ const AgentFilterAndCard = () => {
 
   // Handle selection of an option
   const handleSelect = (filterType, value) => {
-    setSelected(prev => ({
+    setSelected((prev) => ({
       ...prev,
-      [filterType]: value
+      [filterType]: value,
     }));
-    setOpenDropdown(prev => ({
+    setOpenDropdown((prev) => ({
       ...prev,
-      [filterType]: false
+      [filterType]: false,
     }));
   };
 
   // Handle sort option selection
   const handleSortSelect = (value) => {
     setSortOption(value);
-    setOpenDropdown(prev => ({
+    setOpenDropdown((prev) => ({
       ...prev,
       sortBy: false,
     }));
@@ -272,17 +273,17 @@ const AgentFilterAndCard = () => {
 
   // Reset individual filter to default
   const resetFilter = (filterType) => {
-    setSelected(prev => ({
+    setSelected((prev) => ({
       ...prev,
-      [filterType]: DEFAULT_FILTERS[filterType]
+      [filterType]: DEFAULT_FILTERS[filterType],
     }));
   };
 
   // Toggle dropdown visibility
   const toggleDropdown = (filterType) => {
-    setOpenDropdown(prev => ({
+    setOpenDropdown((prev) => ({
       ...prev,
-      [filterType]: !prev[filterType]
+      [filterType]: !prev[filterType],
     }));
   };
 
@@ -295,7 +296,7 @@ const AgentFilterAndCard = () => {
           pricingModel: false,
           category: false,
           industry: false,
-          sortBy: false, // Include sortBy here
+          sortBy: false,
         });
       }
     };
@@ -312,23 +313,21 @@ const AgentFilterAndCard = () => {
     event.stopPropagation();
 
     try {
-      // Make the API call directly here
-      const response = await axios.post(`https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`, {}, {
-        withCredentials: true, // Include credentials if required by your backend
-      });
-
+      const response = await axios.post(
+        `https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
       const { savedByCount } = response.data.agent;
-
-      // Dispatch the synchronous action to update the Redux state
       dispatch(updateSavedByCount({ agentId, savedByCount }));
-
-      // Provide feedback to the user
-      toast.success('Wishlist updated successfully!');
+      toast.success("Wishlist updated successfully!");
     } catch (error) {
-      // Handle errors appropriately
-      const errorMessage = error.response?.data?.message || 'Failed to update wishlist.';
+      const errorMessage =
+        error.response?.data?.message || "Failed to update wishlist.";
       toast.error(errorMessage);
-      console.error('Error updating wishlist:', error);
+      console.error("Error updating wishlist:", error);
     }
   };
 
@@ -339,7 +338,7 @@ const AgentFilterAndCard = () => {
 
     try {
       const url = `https://backend-1-sval.onrender.com/api/users/like/${agentId}`;
-      const method = 'post';
+      const method = "post";
 
       const response = await axios({
         method,
@@ -348,44 +347,81 @@ const AgentFilterAndCard = () => {
       });
 
       if (response.status === 200) {
-        toast.success('Agent liked successfully!');
-        dispatch(updateLikeCount({ agentId, likeCount: response.data.agent.likes }));
+        toast.success("Agent liked successfully!");
+        dispatch(
+          updateLikeCount({ agentId, likeCount: response.data.agent.likes })
+        );
       }
       if (response.status === 201) {
-        toast.success('Like removed successfully!');
-        dispatch(updateLikeCount({ agentId, likeCount: response.data.agent.likes }));
+        toast.success("Like removed successfully!");
+        dispatch(
+          updateLikeCount({ agentId, likeCount: response.data.agent.likes })
+        );
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Failed to update likes.';
+      const errorMessage =
+        error.response?.data?.message || "Failed to update likes.";
       toast.error(errorMessage);
-      console.error('Error updating wishlist:', error);
-     
+      console.error("Error updating likes:", error);
     }
   };
 
-  // Filter agents based on selected filters
-  const filteredAgents = fetchedAgents.filter(agent =>
-    ((selected.accessModel === 'Model') || agent.accessModel === selected.accessModel) &&
-    ((selected.pricingModel === 'Pricing') || agent.pricingModel === selected.pricingModel) &&
-    ((selected.category === 'Category') || agent.category === selected.category) &&
-    ((selected.industry === 'Industry') || agent.industry === selected.industry)
-  );
+  /*
+    NEW: Filter, sort, and categorize the agents whenever:
+    1) fetchedAgents changes
+    2) any filter changes
+    3) sortOption changes
+  */
+  useEffect(() => {
+    // If we're still fetching initial data, or the request failed, skip this step
+    if (status !== "succeeded") return;
 
-  // Sort agents based on sortOption
-  let sortedAgents = [...filteredAgents];
-  if (sortOption === 'Popularity') {
-    sortedAgents.sort((a, b) => (b.popularityScore || 0) - (a.popularityScore || 0));
-  }
+    setIsFiltering(true);
 
-  // Use sortedAgents instead of filteredAgents
-  const categorizedAgents = sortedAgents.reduce((categories, agent) => {
-    const category = agent.category || 'Uncategorized';
-    if (!categories[category]) {
-      categories[category] = [];
-    }
-    categories[category].push(agent);
-    return categories;
-  }, {});
+    // Optional small delay if data sets are large 
+    const timeoutId = setTimeout(() => {
+      // 1. Filter
+      const tempFiltered = fetchedAgents.filter((agent) =>
+        ((selected.accessModel === "Model") ||
+          agent.accessModel === selected.accessModel) &&
+        ((selected.pricingModel === "Pricing") ||
+          agent.pricingModel === selected.pricingModel) &&
+        ((selected.category === "Category") ||
+          agent.category === selected.category) &&
+        ((selected.industry === "Industry") ||
+          agent.industry === selected.industry)
+      );
+
+      // 2. Sort
+      if (sortOption === "Popularity") {
+        tempFiltered.sort(
+          (a, b) => (b.popularityScore || 0) - (a.popularityScore || 0)
+        );
+      }
+
+      // 3. Categorize
+      const tempCategorized = tempFiltered.reduce((acc, agent) => {
+        const cat = agent.category || "Uncategorized";
+        if (!acc[cat]) acc[cat] = [];
+        acc[cat].push(agent);
+        return acc;
+      }, {});
+
+      setFilteredAgents(tempFiltered);
+      setCategorizedAgents(tempCategorized);
+      setIsFiltering(false);
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [
+    fetchedAgents,
+    selected.accessModel,
+    selected.pricingModel,
+    selected.category,
+    selected.industry,
+    sortOption,
+    status,
+  ]);
 
   // Animation variants for agent cards
   const containerVariants = {
@@ -395,39 +431,18 @@ const AgentFilterAndCard = () => {
       y: 0,
       transition: {
         delayChildren: 0.3,
-        staggerChildren: 0.2
-      }
-    }
+        staggerChildren: 0.2,
+      },
+    },
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.4, ease: 'easeOut' }
-    },
-    hover: {
-      scale: 1.05,
-      y: -10,
-      transition: { type: 'spring', stiffness: 300 }
-    },
-    tap: {
-      scale: 0.95
-    }
-  };
-
-  // Render Loading State
-  if (status === 'loading') {
-    return (
-      <div className="flex justify-center items-center p-4">
-        <Spinner />
-      </div>
-    );
+  // 1) Show spinner if we haven't loaded from Redux at all
+  if (status === "loading") {
+    return <Spinner text="Fetching agents..." />;
   }
 
-  // Render Error State
-  if (status === 'failed') {
+  // 2) Show error if loading failed
+  if (status === "failed") {
     return (
       <div className="flex justify-center items-center p-4">
         <p className="text-red-500">Failed to load agents.</p>
@@ -435,6 +450,7 @@ const AgentFilterAndCard = () => {
     );
   }
 
+  // 3) Now we have data, but if user just changed filter => isFiltering = true
   return (
     <div className="w-full">
       {/* Placeholder to maintain layout when fixed */}
@@ -454,7 +470,7 @@ const AgentFilterAndCard = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            data-aos="fade-down" // AOS attribute
+            data-aos="fade-down"
           >
             <div className="max-w-6xl mx-auto px-4 py-3">
               <motion.div
@@ -467,7 +483,7 @@ const AgentFilterAndCard = () => {
                   {/* Category Dropdown */}
                   <div className="relative w-full md:w-1/4" data-aos="fade-left">
                     <button
-                      onClick={() => toggleDropdown('category')}
+                      onClick={() => toggleDropdown("category")}
                       className="w-full text-gray-700 text-base border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none hover:bg-indigo-50 transition-colors duration-200 flex items-center justify-between relative"
                       aria-haspopup="true"
                       aria-expanded={openDropdown.category}
@@ -479,8 +495,8 @@ const AgentFilterAndCard = () => {
                           <FaTimes
                             className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
                             onClick={(e) => {
-                              e.stopPropagation(); // Prevent triggering dropdown toggle
-                              resetFilter('category');
+                              e.stopPropagation(); 
+                              resetFilter("category");
                             }}
                             aria-label="Clear Category Filter"
                           />
@@ -495,14 +511,16 @@ const AgentFilterAndCard = () => {
                         className="absolute mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
                       >
                         {filterOptions.categories.length === 0 ? (
-                          <li className="px-4 py-3 text-gray-500">No Categories Available</li>
+                          <li className="px-4 py-3 text-gray-500">
+                            No Categories Available
+                          </li>
                         ) : (
                           filterOptions.categories.map((cat) => (
                             <li
                               key={cat}
-                              onClick={() => handleSelect('category', cat)}
+                              onClick={() => handleSelect("category", cat)}
                               className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
-                                selected.category === cat ? 'bg-indigo-100' : ''
+                                selected.category === cat ? "bg-indigo-100" : ""
                               }`}
                             >
                               <FaCheckCircle className="text-indigo-500 mr-2" />
@@ -517,7 +535,7 @@ const AgentFilterAndCard = () => {
                   {/* Industry Dropdown */}
                   <div className="relative w-full md:w-1/4" data-aos="fade-right">
                     <button
-                      onClick={() => toggleDropdown('industry')}
+                      onClick={() => toggleDropdown("industry")}
                       className="w-full text-gray-700 text-base border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none hover:bg-indigo-50 transition-colors duration-200 flex items-center justify-between relative"
                       aria-haspopup="true"
                       aria-expanded={openDropdown.industry}
@@ -529,8 +547,8 @@ const AgentFilterAndCard = () => {
                           <FaTimes
                             className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
                             onClick={(e) => {
-                              e.stopPropagation(); // Prevent triggering dropdown toggle
-                              resetFilter('industry');
+                              e.stopPropagation(); 
+                              resetFilter("industry");
                             }}
                             aria-label="Clear Industry Filter"
                           />
@@ -545,14 +563,16 @@ const AgentFilterAndCard = () => {
                         className="absolute mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
                       >
                         {filterOptions.industries.length === 0 ? (
-                          <li className="px-4 py-3 text-gray-500">No Industries Available</li>
+                          <li className="px-4 py-3 text-gray-500">
+                            No Industries Available
+                          </li>
                         ) : (
                           filterOptions.industries.map((ind) => (
                             <li
                               key={ind}
-                              onClick={() => handleSelect('industry', ind)}
+                              onClick={() => handleSelect("industry", ind)}
                               className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
-                                selected.industry === ind ? 'bg-indigo-100' : ''
+                                selected.industry === ind ? "bg-indigo-100" : ""
                               }`}
                             >
                               <FaCheckCircle className="text-indigo-500 mr-2" />
@@ -567,7 +587,7 @@ const AgentFilterAndCard = () => {
                   {/* Access Model Dropdown */}
                   <div className="relative w-full md:w-1/4" data-aos="fade-right">
                     <button
-                      onClick={() => toggleDropdown('accessModel')}
+                      onClick={() => toggleDropdown("accessModel")}
                       className="w-full text-gray-700 text-base border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none hover:bg-indigo-50 transition-colors duration-200 flex items-center justify-between relative"
                       aria-haspopup="true"
                       aria-expanded={openDropdown.accessModel}
@@ -579,8 +599,8 @@ const AgentFilterAndCard = () => {
                           <FaTimes
                             className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
                             onClick={(e) => {
-                              e.stopPropagation(); // Prevent triggering dropdown toggle
-                              resetFilter('accessModel');
+                              e.stopPropagation(); 
+                              resetFilter("accessModel");
                             }}
                             aria-label="Clear Access Model Filter"
                           />
@@ -595,14 +615,16 @@ const AgentFilterAndCard = () => {
                         className="absolute mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
                       >
                         {filterOptions.accessModels.length === 0 ? (
-                          <li className="px-4 py-3 text-gray-500">No Access Models Available</li>
+                          <li className="px-4 py-3 text-gray-500">
+                            No Access Models Available
+                          </li>
                         ) : (
                           filterOptions.accessModels.map((model) => (
                             <li
                               key={model}
-                              onClick={() => handleSelect('accessModel', model)}
+                              onClick={() => handleSelect("accessModel", model)}
                               className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
-                                selected.accessModel === model ? 'bg-indigo-100' : ''
+                                selected.accessModel === model ? "bg-indigo-100" : ""
                               }`}
                             >
                               <FaCheckCircle className="text-indigo-500 mr-2" />
@@ -617,7 +639,7 @@ const AgentFilterAndCard = () => {
                   {/* Pricing Dropdown */}
                   <div className="relative w-full md:w-1/4" data-aos="fade-up">
                     <button
-                      onClick={() => toggleDropdown('pricingModel')}
+                      onClick={() => toggleDropdown("pricingModel")}
                       className="w-full text-gray-700 text-base border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none hover:bg-indigo-50 transition-colors duration-200 flex items-center justify-between relative"
                       aria-haspopup="true"
                       aria-expanded={openDropdown.pricingModel}
@@ -629,8 +651,8 @@ const AgentFilterAndCard = () => {
                           <FaTimes
                             className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
                             onClick={(e) => {
-                              e.stopPropagation(); // Prevent triggering dropdown toggle
-                              resetFilter('pricingModel');
+                              e.stopPropagation(); 
+                              resetFilter("pricingModel");
                             }}
                             aria-label="Clear Pricing Model Filter"
                           />
@@ -645,14 +667,16 @@ const AgentFilterAndCard = () => {
                         className="absolute mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
                       >
                         {filterOptions.pricingModels.length === 0 ? (
-                          <li className="px-4 py-3 text-gray-500">No Pricing Models Available</li>
+                          <li className="px-4 py-3 text-gray-500">
+                            No Pricing Models Available
+                          </li>
                         ) : (
                           filterOptions.pricingModels.map((price) => (
                             <li
                               key={price}
-                              onClick={() => handleSelect('pricingModel', price)}
+                              onClick={() => handleSelect("pricingModel", price)}
                               className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
-                                selected.pricingModel === price ? 'bg-indigo-100' : ''
+                                selected.pricingModel === price ? "bg-indigo-100" : ""
                               }`}
                             >
                               <FaCheckCircle className="text-indigo-500 mr-2" />
@@ -667,7 +691,7 @@ const AgentFilterAndCard = () => {
                   {/* Sort By Dropdown */}
                   <div className="relative w-full md:w-1/4" data-aos="fade-up">
                     <button
-                      onClick={() => toggleDropdown('sortBy')}
+                      onClick={() => toggleDropdown("sortBy")}
                       className="w-full text-gray-700 text-base border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none hover:bg-indigo-50 transition-colors duration-200 flex items-center justify-between relative"
                       aria-haspopup="true"
                       aria-expanded={openDropdown.sortBy}
@@ -686,9 +710,9 @@ const AgentFilterAndCard = () => {
                       >
                         {/* Default Option */}
                         <li
-                          onClick={() => handleSortSelect('Default')}
+                          onClick={() => handleSortSelect("Default")}
                           className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
-                            sortOption === 'Default' ? 'bg-indigo-100' : ''
+                            sortOption === "Default" ? "bg-indigo-100" : ""
                           }`}
                         >
                           <FaCheckCircle className="text-indigo-500 mr-2" />
@@ -696,9 +720,9 @@ const AgentFilterAndCard = () => {
                         </li>
                         {/* Popularity Option */}
                         <li
-                          onClick={() => handleSortSelect('Popularity')}
+                          onClick={() => handleSortSelect("Popularity")}
                           className={`flex items-center px-4 py-3 cursor-pointer hover:bg-indigo-100 ${
-                            sortOption === 'Popularity' ? 'bg-indigo-100' : ''
+                            sortOption === "Popularity" ? "bg-indigo-100" : ""
                           }`}
                         >
                           <FaCheckCircle className="text-indigo-500 mr-2" />
@@ -707,7 +731,6 @@ const AgentFilterAndCard = () => {
                       </motion.ul>
                     )}
                   </div>
-
                 </div>
               </motion.div>
             </div>
@@ -715,78 +738,94 @@ const AgentFilterAndCard = () => {
         )}
       </AnimatePresence>
 
-      {/* Agent Cards */}
+      {/* Agent Cards Section */}
       <div className="relative w-full overflow-hidden">
-        <motion.div 
-          className="max-w-6xl w-full mx-auto p-6 relative z-10" 
-          initial="hidden" 
-          animate="visible" 
+        <motion.div
+          className="max-w-6xl w-full mx-auto p-6 relative z-10"
+          initial="hidden"
+          animate="visible"
           variants={containerVariants}
         >
-          {Object.keys(categorizedAgents).map((category, categoryIndex) => (
-            <motion.div key={categoryIndex} className="mb-12" data-aos="fade-up">
-              {/* Category Header */}
-              <motion.div
-                className="mb-4 flex items-center space-x-4"
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 1 }}
-                data-aos="fade-right"
-              >
-                <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-primaryBlue2">
-                  Explore {category}
-                </h1>
-                <motion.div className="bg-gradient-to-r from-indigo-500 to-blue-400 h-1 w-20 animate-pulse" data-aos="fade-left"></motion.div>
+          {/* 
+            If user is filtering, show a spinner
+            Otherwise, show the filtered categories 
+          */}
+          {isFiltering ? (
+            <Spinner text="Applying filters..." />
+          ) : (
+            Object.keys(categorizedAgents).map((category, categoryIndex) => (
+              <motion.div key={categoryIndex} className="mb-12" data-aos="fade-up">
+                {/* Category Header */}
+                <motion.div
+                  className="mb-4 flex items-center space-x-4"
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 1 }}
+                  data-aos="fade-right"
+                >
+                  <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-primaryBlue2">
+                    Explore {category}
+                  </h1>
+                  <motion.div
+                    className="bg-gradient-to-r from-indigo-500 to-blue-400 h-1 w-20 animate-pulse"
+                    data-aos="fade-left"
+                  ></motion.div>
+                </motion.div>
+
+                {/* Category Description */}
+                <motion.p
+                  className="text-gray-500 text-lg italic mb-6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 1, delay: 0.5 }}
+                  data-aos="fade-up"
+                >
+                  Discover top agents in the {category} space, crafted for your needs.
+                </motion.p>
+
+                <hr className="border-t bg-gray-300 my-4" />
+
+                {/* Agent Grid */}
+                <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                  {categorizedAgents[category].slice(0, 6).map((agent) => (
+                    <AgentCard
+                      key={agent._id}
+                      agent={agent}
+                      saveCounts={saveCounts}
+                      likeCounts={likeCounts}
+                      handleWishlist={handleWishlist}
+                      handleLike={handleLike}
+                    />
+                  ))}
+                </motion.div>
+
+                {/* More Button */}
+                <div className="flex justify-end mt-4">
+                  <Link to="/allagent">
+                    <motion.button
+                      className="flex items-center px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-full hover:bg-gray-100 hover:text-indigo-500 focus:outline-none transition-all duration-200 space-x-1 shadow-sm"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      data-aos="fade-up"
+                    >
+                      <span>More</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </motion.button>
+                  </Link>
+                </div>
               </motion.div>
-
-              {/* Category Description */}
-              <motion.p
-                className="text-gray-500 text-lg italic mb-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1, delay: 0.5 }}
-                data-aos="fade-up"
-              >
-                Discover top agents in the {category} space, crafted for your needs.
-              </motion.p>
-
-              <hr className="border-t bg-gray-300 my-4" />
-
-              {/* Agent Grid */}
-              <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-                {categorizedAgents[category].slice(0, 6).map(agent => (
-                  <AgentCard 
-                    key={agent._id} 
-                    agent={agent} 
-                    saveCounts={saveCounts} 
-                    likeCounts={likeCounts}
-                    handleWishlist={handleWishlist} 
-                    handleLike={handleLike} 
-                  />
-                ))}
-              </motion.div>
-
-              {/* More Button */}
-              <div className="flex justify-end mt-4">
-                <Link to="/allagent">
-                  <motion.button
-                    className="flex items-center px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-full hover:bg-gray-100 hover:text-indigo-500 focus:outline-none transition-all duration-200 space-x-1 shadow-sm"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    data-aos="fade-up"
-                  >
-                    <span>More</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </motion.button>
-                </Link>
-              </div>
-            </motion.div>
-          ))}
+            ))
+          )}
         </motion.div>
       </div>
-
     </div>
   );
 };
