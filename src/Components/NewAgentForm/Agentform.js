@@ -210,7 +210,7 @@ const CreateAgentForm = () => {
               />
             </div>
 
-            <div>
+            <div className='col-span-2'>
               <label className="block text-sm font-semibold text-primaryBlue">
                 Access Model *
               </label>
@@ -231,7 +231,7 @@ const CreateAgentForm = () => {
               </div>
             </div>
 
-            <div>
+            <div className='col-span-2'>
               <label className="block text-sm font-semibold text-primaryBlue">
                 Pricing Model *
               </label>
