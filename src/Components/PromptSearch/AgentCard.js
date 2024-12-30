@@ -70,7 +70,7 @@ const AgentCard = ({
             {agent.name}
           </h3>
           <p className="text-gray-600 text-sm sm:text-base mb-4">
-            {agent.shortDescription || 'No description available.'}
+            {agent.tagline || 'No description available.'}
           </p>
         </Link>
 

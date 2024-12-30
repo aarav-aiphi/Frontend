@@ -48,8 +48,8 @@ import { motion } from 'framer-motion';
 
 const AgentCard = ({ agent, saveCounts, likeCounts, handleWishlist, handleLike }) => {
   // Destructure properties with default values
-  const { _id, name, logo, shortDescription, category, pricingModel } = agent || {};
-
+  const { _id, name, logo, tagline, category, pricingModel } = agent || {};
+ console.log(tagline);
   // Safeguard against undefined saveCounts or agent ID
   const saveCount = (saveCounts && _id && saveCounts[_id]) ? saveCounts[_id] : 0;
   const likeCount = (likeCounts && _id && likeCounts[_id]) ? likeCounts[_id] : 0;
@@ -115,7 +115,7 @@ const AgentCard = ({ agent, saveCounts, likeCounts, handleWishlist, handleLike }
 
           {/* Short Description */}
           <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 pt-2 text-center flex-grow">
-            {shortDescription || 'No description provided.'}
+            {tagline || 'No description provided.'}
           </p>
         </div>
       </motion.div>

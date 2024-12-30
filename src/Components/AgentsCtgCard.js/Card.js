@@ -184,7 +184,7 @@ export const Card = ({ propmodel, propprice, propcategory, propindustry }) => {
 
                     {/* Agent Description */}
                     <p className="mt-4 text-gray-600">
-                      {agent.shortDescription || 'No description provided.'}
+                      {agent.tagline || 'No description provided.'}
                     </p>
 
                     {/* Agent Tags */}

@@ -40,6 +40,7 @@ import Community from "./Components/comingsoon/Community";
 import { Sponsor } from "./Components/NewAgentSponsor/Sponsor";
 import AdminUpload from "./Components/admin-upload";
 import NewsDetails from "./Components/NewsDetail";
+import SuperAdmin from "./Admin/SuperAdmin";
 
 const Applayout = () => {
   useEffect(() => {
@@ -121,6 +122,10 @@ const appRouter = createBrowserRouter([
             {
                 path: "/admin-dashboard",
                 element: <AdminDashboard />
+            },
+            {
+                path:"super-admin",
+                element:<SuperAdmin/>
             },
             {
                 path: "/forgot-password",

@@ -13,13 +13,31 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchAgents, updateLikeCount, updateSavedByCount } from '../redux/agentsSlice'; // Import actions
 
 const AGENTS_PER_PAGE = 20;
-const SLIDES_TO_SHOW = 3;
+
+// Helper function to get a range of pages around the current page
+const getPaginationPages = (currentPage, totalPages, pageWindowSize) => {
+  // The first page we want to show
+  let startPage = Math.max(1, currentPage - Math.floor(pageWindowSize / 2));
+  // The last page we want to show
+  let endPage = Math.min(totalPages, startPage + pageWindowSize - 1);
+
+  // Adjust startPage if we don't get the full window
+  // (e.g., near the last pages)
+  if (endPage - startPage + 1 < pageWindowSize) {
+    startPage = Math.max(1, endPage - pageWindowSize + 1);
+  }
+
+  const pages = [];
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i);
+  }
+  return pages;
+};
 
 export const AgentList = ({ filters, setAgentListLoading }) => {
   const [agents, setAgents] = useState([]);
   const [topAgents, setTopAgents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentSlide, setCurrentSlide] = useState(0);
   const agentListRef = useRef(null);
 
   // Access Redux state
@@ -27,17 +45,14 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
   const agentsState = useSelector((state) => state.agents);
   const { agents: fetchedAgents, likeCounts, saveCounts, status, error } = agentsState;
 
+  // Fetch Agents from API (Redux Thunk)
   useEffect(() => {
     const fetchData = async () => {
       try {
         setAgentListLoading(true); // Start loading
-
-        // Dispatch fetchAgents thunk
         await dispatch(fetchAgents()).unwrap();
-
       } catch (err) {
         console.error('Error fetching agents:', err);
-        // toast.error('Error fetching agents!');
       } finally {
         setAgentListLoading(false); // Stop loading
       }
@@ -45,78 +60,67 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
     fetchData();
   }, [dispatch, setAgentListLoading]);
 
+  // Once agents are fetched, update local states
   useEffect(() => {
     if (status === 'succeeded') {
       setAgents(fetchedAgents || []);
       const sortedAgents = [...fetchedAgents].sort((a, b) => b.likes - a.likes);
-      setTopAgents(sortedAgents.slice(0, 10)); // Get top 10 agents based on likes
+      setTopAgents(sortedAgents.slice(0, 10)); // Get top 10 agents by likes
     }
   }, [status, fetchedAgents]);
 
+  // Like Handler
   const handleLike = async (event, agentId) => {
     event.preventDefault();
     event.stopPropagation();
 
     try {
       const url = `https://backend-1-sval.onrender.com/api/users/like/${agentId}`;
-      const method = 'post';
-
-      const response = await axios({
-        method,
-        url,
-        withCredentials: true,
-      });
+      const response = await axios.post(url, {}, { withCredentials: true });
 
       if (response.status === 200) {
         toast.success('Agent liked successfully!');
         dispatch(updateLikeCount({ agentId, likeCount: response.data.agent.likes }));
-      
       }
       if (response.status === 201) {
         toast.success('Like removed successfully!');
-    
       }
 
     } catch (error) {
-      if (error.response && error.response.status === 400 && error.response.data.message === 'You have already liked this agent') {
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data.message === 'You have already liked this agent'
+      ) {
         toast.info('You have already liked this agent!');
       } else {
-        // toast.error('An error occurred while liking the agent.');
+        console.error('Error liking agent:', error);
       }
-      console.error('Error liking agent:', error);
     }
   };
 
+  // Wishlist Handler
   const handleWishlist = async (event, agentId) => {
     event.preventDefault();
     event.stopPropagation();
-  
+
     try {
       const url = `https://backend-1-sval.onrender.com/api/users/wishlist/${agentId}`;
-      const method = 'post';
-
-      const response = await axios({
-        method,
-        url,
-        withCredentials: true,
-      });
+      const response = await axios.post(url, {}, { withCredentials: true });
 
       if (response.status === 200) {
-        toast.success(`Agent added to wishlist!`);
+        toast.success('Agent added to wishlist!');
         dispatch(updateSavedByCount({ agentId, savedByCount: response.data.agent.savedByCount }));
-        console.log(`Dispatched updateSavedByCount for agent ${agentId} with savedByCount ${response.data.agent.savedByCount}`);
-      }
-      if (response.status === 201) {
-        toast.success(`Agent removed from wishlist!`);
+      } else if (response.status === 201) {
+        toast.success('Agent removed from wishlist!');
         dispatch(updateSavedByCount({ agentId, savedByCount: response.data.agent.savedByCount }));
-        console.log(`Dispatched updateSavedByCount for agent ${agentId} with savedByCount ${response.data.agent.savedByCount}`);
       }
     } catch (error) {
-      // toast.error('An error occurred while updating the wishlist.');
       console.error('Error updating wishlist:', error);
     }
   };
 
+  // Filtering Logic
   const filteredAgents = fetchedAgents.filter((agent) => {
     return (
       (filters.category === 'Category' || agent.category === filters.category) &&
@@ -126,6 +130,7 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
     );
   });
 
+  // Pagination Logic
   const totalPages = Math.ceil(filteredAgents.length / AGENTS_PER_PAGE);
 
   const getCurrentPageAgents = () => {
@@ -159,15 +164,12 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
     }
   };
 
+  // Decide how many page links to show at once
+  const PAGE_WINDOW_SIZE = 6; // e.g., show at most 6 page links at a time
+  const paginationPages = getPaginationPages(currentPage, totalPages, PAGE_WINDOW_SIZE);
+
   return (
     <div className="mt-9 mx-auto max-h-screen overflow-y-auto">
-      {/* Toast Container for Notifications */}
-      
-
-      {/* Top Agents Carousel */}
-      {/* (If you have a carousel component, include it here) */}
-
-      {/* Main Agents Section */}
       <motion.div
         className="flex justify-between items-center mb-6"
         initial={{ opacity: 0, y: 20 }}
@@ -202,7 +204,6 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
                       className="h-14 w-14 rounded-full object-cover"
                     />
                   </div>
-
                   <div className="ml-4 flex-grow">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-bold text-primaryBlue group-hover:text-blue-900 transition-colors duration-300">
@@ -210,9 +211,7 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
                       </h3>
                       <span className="text-sm text-gray-500">{agent.price}</span>
                     </div>
-
-                    <p className="text-sm text-gray-600 mt-1">{agent.shortDescription || 'No description available.'}</p>
-
+                    <p className="text-sm text-gray-600 mt-1">{agent.tagline || 'No description available.'}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {agent.tags && agent.tags.length > 0 ? (
                         agent.tags.map((tag, index) => (
@@ -259,43 +258,49 @@ export const AgentList = ({ filters, setAgentListLoading }) => {
       </motion.div>
 
       {/* Pagination Controls */}
-      <motion.div
-        className="flex justify-center items-center mt-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        <button
-          onClick={handlePreviousPage}
-          disabled={currentPage === 1}
-          className={`p-2 border rounded-full ${currentPage === 1 ? 'cursor-not-allowed opacity-50' : ''} text-primaryBlue border-primaryBlue`}
-          aria-label="Previous Page"
+      {totalPages > 1 && (
+        <motion.div
+          className="flex justify-center items-center mt-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
         >
-          &lt;
-        </button>
+          <button
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+            className={`p-2 border rounded-full ${currentPage === 1 ? 'cursor-not-allowed opacity-50' : ''} text-primaryBlue border-primaryBlue`}
+            aria-label="Previous Page"
+          >
+            &lt;
+          </button>
 
-        <div className="flex space-x-2 mx-4">
-          {[...Array(totalPages).keys()].map((page) => (
-            <button
-              key={page + 1}
-              onClick={() => handlePageChange(page + 1)}
-              className={`p-2 rounded-full border ${currentPage === page + 1 ? 'bg-primaryBlue text-white' : 'text-primaryBlue border-primaryBlue'}`}
-              aria-label={`Page ${page + 1}`}
-            >
-              {page + 1}
-            </button>
-          ))}
-        </div>
+          <div className="flex space-x-2 mx-4">
+            {paginationPages.map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`p-2 rounded-full border ${
+                  currentPage === page ? 'bg-primaryBlue text-white' : 'text-primaryBlue border-primaryBlue'
+                }`}
+                aria-label={`Page ${page}`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
 
-        <button
-          onClick={handleNextPage}
-          disabled={currentPage === totalPages}
-          className={`p-2 border rounded-full ${currentPage === totalPages ? 'cursor-not-allowed opacity-50' : ''} text-primaryBlue border-primaryBlue`}
-          aria-label="Next Page"
-        >
-          &gt;
-        </button>
-      </motion.div>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className={`p-2 border rounded-full ${
+              currentPage === totalPages ? 'cursor-not-allowed opacity-50' : ''
+            } text-primaryBlue border-primaryBlue`}
+            aria-label="Next Page"
+          >
+            &gt;
+          </button>
+        </motion.div>
+      )}
     </div>
   );
 };

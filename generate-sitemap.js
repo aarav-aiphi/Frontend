@@ -32,7 +32,7 @@ const staticUrls = [
 // Function to fetch dynamic agent URLs from the backend API
 const getAgentUrls = async () => {
   try {
-    const response = await axios.get('http://localhost:5000/api/agents/all'); // Replace with your actual API endpoint
+    const response = await axios.get('https://backend-1-sval.onrender.com/api/agents/all'); // Replace with your actual API endpoint
     const agents = response.data; // Adjust based on your API response structure
 
     // Map agents to sitemap URLs

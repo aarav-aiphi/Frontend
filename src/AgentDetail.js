@@ -253,7 +253,7 @@ export const AgentDetail = () => {
   </h1>
   
   {/* Short Description */}
-  <p className="text-md md:text-xl mt-2 text-gray-600">{agent.shortDescription || 'No short description available.'}</p>
+  <p className="text-md md:text-xl mt-2 text-gray-600">{agent.tagline || 'No short description available.'}</p>
   
   {/* Category and Industry Badges */}
   <div className="mt-4 flex flex-wrap items-center space-x-2">
@@ -399,7 +399,7 @@ export const AgentDetail = () => {
                     <p className="text-gray-500 text-sm">{similarAgent.category}</p>
                     {/* Short Description */}
                     <p className="text-gray-600 text-sm mt-1 line-clamp-2">
-                      {similarAgent.shortDescription || 'No short description available.'}
+                      {similarAgent.tagline || 'No short description available.'}
                     </p>
                   </div>
                 </Link>

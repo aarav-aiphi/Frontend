@@ -13,7 +13,7 @@ const OurAIAgents = () => {
       id: 1,
       icon: <FaRobot size={40} className="text-white" />,
       title: 'AI Agents Deployed',
-      value: '150+',
+      value: '400+',
       description: 'Number of AI agents successfully deployed across various platforms.',
       bgColor: 'bg-blue-600',
     },
