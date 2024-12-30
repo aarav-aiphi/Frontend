@@ -13,12 +13,11 @@ import {
   FaHeart,
   FaRegHeart,
   FaSort,
-  FaThumbsUp
+  FaThumbsUp,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { AiOutlineLike, AiFillLike } from "react-icons/ai";
-import { fetchAgents, updateSavedByCount, updateLikeCount } from "../redux/agentsSlice"; 
+import { fetchAgents, updateSavedByCount, updateLikeCount } from "../redux/agentsSlice";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
@@ -43,7 +42,7 @@ const Spinner = ({ text = "Loading..." }) => (
   </div>
 );
 
-/* 
+/*
   AgentCard Component
   - Renders a single agent card
 */
@@ -128,8 +127,13 @@ const AgentFilterAndCard = () => {
   const [isSticky, setIsSticky] = useState(false);
   const [showFilter, setShowFilter] = useState(true); // State for filter visibility
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false); // State for filter panel on small screens
+  
+  // References
   const filterRef = useRef(null);
   const placeholderRef = useRef(null);
+  
+  // 1) **Add a new ref for where the first category/agent section starts**
+  const agentSectionRef = useRef(null);
 
   // State for filter options
   const [filterOptions, setFilterOptions] = useState({
@@ -145,7 +149,7 @@ const AgentFilterAndCard = () => {
     pricingModel: false,
     category: false,
     industry: false,
-    sortBy: false, 
+    sortBy: false,
   });
 
   // Selected filter values
@@ -367,7 +371,7 @@ const AgentFilterAndCard = () => {
   };
 
   /*
-    NEW: Filter, sort, and categorize the agents whenever:
+    Filter, sort, and categorize the agents whenever:
     1) fetchedAgents changes
     2) any filter changes
     3) sortOption changes
@@ -376,9 +380,13 @@ const AgentFilterAndCard = () => {
     // If we're still fetching initial data, or the request failed, skip this step
     if (status !== "succeeded") return;
 
+    // 2) **Scroll user to the agentSectionRef instead of top of page**
+    // This ensures user is taken right to where the first category starts.
+    agentSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+
     setIsFiltering(true);
 
-    // Optional small delay if data sets are large 
+    // Optional small delay if data sets are large
     const timeoutId = setTimeout(() => {
       // 1. Filter
       const tempFiltered = fetchedAgents.filter((agent) =>
@@ -479,7 +487,9 @@ const AgentFilterAndCard = () => {
                 initial="hidden"
                 animate="visible"
               >
-                <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6">
+                <div
+                  className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6"
+                >
                   {/* Category Dropdown */}
                   <div className="relative w-full md:w-1/4" data-aos="fade-left">
                     <button
@@ -495,7 +505,7 @@ const AgentFilterAndCard = () => {
                           <FaTimes
                             className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
                             onClick={(e) => {
-                              e.stopPropagation(); 
+                              e.stopPropagation();
                               resetFilter("category");
                             }}
                             aria-label="Clear Category Filter"
@@ -547,7 +557,7 @@ const AgentFilterAndCard = () => {
                           <FaTimes
                             className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
                             onClick={(e) => {
-                              e.stopPropagation(); 
+                              e.stopPropagation();
                               resetFilter("industry");
                             }}
                             aria-label="Clear Industry Filter"
@@ -599,7 +609,7 @@ const AgentFilterAndCard = () => {
                           <FaTimes
                             className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
                             onClick={(e) => {
-                              e.stopPropagation(); 
+                              e.stopPropagation();
                               resetFilter("accessModel");
                             }}
                             aria-label="Clear Access Model Filter"
@@ -651,7 +661,7 @@ const AgentFilterAndCard = () => {
                           <FaTimes
                             className="text-gray-500 hover:text-indigo-500 cursor-pointer ml-2"
                             onClick={(e) => {
-                              e.stopPropagation(); 
+                              e.stopPropagation();
                               resetFilter("pricingModel");
                             }}
                             aria-label="Clear Pricing Model Filter"
@@ -740,16 +750,14 @@ const AgentFilterAndCard = () => {
 
       {/* Agent Cards Section */}
       <div className="relative w-full overflow-hidden">
+        {/* 2) **Attach the ref to this motion.div** */}
         <motion.div
+          ref={agentSectionRef}
           className="max-w-6xl w-full mx-auto p-6 relative z-10"
           initial="hidden"
           animate="visible"
           variants={containerVariants}
         >
-          {/* 
-            If user is filtering, show a spinner
-            Otherwise, show the filtered categories 
-          */}
           {isFiltering ? (
             <Spinner text="Applying filters..." />
           ) : (
