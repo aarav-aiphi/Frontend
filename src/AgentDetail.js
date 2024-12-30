@@ -317,40 +317,46 @@ export const AgentDetail = () => {
 
   
 
+{/* Key Features Section */}
 <motion.div
-  className="mb-6 border border-gray-300  p-4 bg-gray-50"
+  className="mb-6 border border-gray-300 p-4 bg-gray-50"
   initial={{ opacity: 0, y: 10 }}
   whileInView={{ opacity: 1, y: 0 }}
   transition={{ duration: 0.6, delay: 0.2 }}
   viewport={{ once: true }}
 >
   <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-   Key Features
+    Key Features
   </h2>
-  <ul className="text-left space-y-2">
-                {filteredKeyFeatures && filteredKeyFeatures.length > 0 ? (
-                  filteredKeyFeatures.map((feature, index) => (
-                    <li
-                      key={feature} // Use feature text as key if unique
-                      className="text-gray-700 flex items-start bg-blue-50 hover:bg-blue-100 p-3 rounded-lg"
-                    >
-                      <FaCheckCircle className="mt-1 mr-2 text-green-500" /> {/* Check Icon */}
-                      {feature}
-                    </li>
-                  ))
-                ) : (
-                  <li className="text-gray-400 p-3 bg-blue-50 rounded-lg flex items-center">
-                    <FaExclamationCircle className="mr-2 text-yellow-500" /> {/* Warning Icon */}
-                    No key features available.
-                  </li>
-                )}
-              </ul>
+  <ul className="space-y-2">
+    {filteredKeyFeatures?.length > 0 ? (
+      filteredKeyFeatures.map((feature) => (
+        <li
+          key={feature}
+          className="flex items-center bg-blue-50 hover:bg-blue-100 p-3 rounded-lg"
+        >
+          <FaCheckCircle 
+            size={20} 
+            className="text-green-500 mr-2 flex-shrink-0" 
+          />
+          <span className="text-gray-700">{feature}</span>
+        </li>
+      ))
+    ) : (
+      <li className="flex items-center p-3 bg-blue-50 rounded-lg">
+        <FaExclamationCircle 
+          size={20} 
+          className="text-yellow-500 mr-2 flex-shrink-0" 
+        />
+        <span className="text-gray-400">No key features available.</span>
+      </li>
+    )}
+  </ul>
 </motion.div>
 
-
-
+{/* Use Cases Section */}
 <motion.div
-  className="mb-6 border border-gray-300 p-4 bg-gray-50 "
+  className="mb-6 border border-gray-300 p-4 bg-gray-50"
   initial={{ opacity: 0, y: 10 }}
   whileInView={{ opacity: 1, y: 0 }}
   transition={{ duration: 0.6, delay: 0.4 }}
@@ -359,25 +365,32 @@ export const AgentDetail = () => {
   <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
     Use Cases
   </h2>
-  <ul className="text-left space-y-2">
-    {agent.useCases?.length ? (
-      agent.useCases.map((useCase, index) => (
+  <ul className="space-y-2">
+    {filteredUseCases?.length > 0 ? (
+      filteredUseCases.map((useCase, index) => (
         <li
           key={index}
-          className="text-gray-700 flex items-start bg-blue-50 hover:bg-blue-100 p-3 rounded-lg"
+          className="flex items-center bg-blue-50 hover:bg-blue-100 p-3 rounded-lg"
         >
-          <FaUsers className="mt-1 mr-2 text-blue-500" /> {/* User Icon */}
-          {useCase}
+          <FaUsers 
+            size={20} 
+            className="text-blue-500 mr-2 flex-shrink-0" 
+          />
+          <span className="text-gray-700">{useCase}</span>
         </li>
       ))
     ) : (
-      <li className="text-gray-400 p-3 bg-blue-50 rounded-lg flex items-center">
-        <FaExclamationCircle className="mr-2 text-yellow-500" /> {/* Warning Icon */}
-        No use cases available.
+      <li className="flex items-center p-3 bg-blue-50 rounded-lg">
+        <FaExclamationCircle 
+          size={20} 
+          className="text-yellow-500 mr-2 flex-shrink-0" 
+        />
+        <span className="text-gray-400">No use cases available.</span>
       </li>
     )}
   </ul>
 </motion.div>
+
 
           </div>
         </div>
