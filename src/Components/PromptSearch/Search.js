@@ -277,7 +277,7 @@ const SearchComponent = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder=""
-            className="flex-grow p-3 rounded-l-full focus:outline-none text-lg"
+            className="flex-grow p-6 rounded-l-full focus:outline-none text-lg"
           />
           {/* Animated Placeholder Text */}
           {!query && (
